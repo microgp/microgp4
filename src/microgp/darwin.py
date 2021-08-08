@@ -187,13 +187,12 @@ class Darwin:
             # Filter the None individuals and manage the Allopatric Selection
             # [ ind1, ind2, [ ind11, ind12, ind13], [ ind21, [ ind211, ind212], ind23] ], ind4 ]
             final_offspring = self.filter_offspring(temporary_offspring)
-
-            from microgp.node import NodeID
-            from microgp import graph
-            o = final_offspring[0]
-            from microgp.individual import clone_individual
-            clone = clone_individual(o)
-            o2 = final_offspring[0]
+            #from microgp.node import NodeID
+            #from microgp import graph
+            #o = final_offspring[0]
+            #from microgp.individual import clone_individual
+            #clone = clone_individual(o)
+            #o2 = final_offspring[0]
 
             # if not final_offspring:
             #     logging.warning(f'Operator {operator.function} has not produced a valid individual')
@@ -202,7 +201,7 @@ class Darwin:
             #     print_individual(final_offspring[0])
 
             # Update the number of successes of the selected GenOperator
-            if final_offspring is not None:
+            if final_offspring: # is not None: this is never None (see r. 250)
                 ln = len(final_offspring)
                 offspring += final_offspring
             else:

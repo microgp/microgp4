@@ -195,7 +195,7 @@ class Individual(Paranoid):
     @property
     def entry_point(self) -> NodeID:
         entry_points = self.nodes(section_selector='main', heads_selector=True)
-        assert len(entry_points) == 1, f"Multiple entry points: {entry_points}"
+        assert len(entry_points) == 1, f"Multiple entry points: {entry_points}" # TODO please double check
         return entry_points[0]
 
     @property
@@ -280,7 +280,7 @@ class Individual(Paranoid):
         will be colored with different colors (max 10 colors).
         """
         if not edge_color:
-            edge_color = [col if col else 'red' for _, _, col in self.edges(data='color')]
+            edge_color = [col if col else 'red' for _, col in self.edges(data='color').items()]
         if not node_color:
             node_color = ['blue'] * len(self.nodes)
         # Node: try to dray with "spring"
@@ -1008,7 +1008,7 @@ def get_nodes_in_section(individual: 'Individual',
     """
 
     node_list = list()
-    for node, data in individual.graph_manager.nodes(data='frame_path').items():
+    for node, data in individual.nodes(data='frame_path').items():
         if frame_path_limit:
             if frame_path_limit > 0:
                 data = data[0:frame_path_limit]
@@ -1016,40 +1016,8 @@ def get_nodes_in_section(individual: 'Individual',
                 data = data[len(frame_path_limit) + frame_path_limit:]
         if section in (f.section for f in data):
             node_list.append(node)
-    assert all(individual.graph_manager[n]['frame_path'] for n in node_list), "Illegal frame_path in individual's node"
+    assert all(individual.nodes[n].frame_path for n in node_list), "Illegal frame_path in individual's node"
     return node_list
-
-
-def get_frames(individual: 'Individual', section: Section = None, section_name: str = None) -> Set[Frame]:
-    # TODO: Double Check
-    """Gets all frames of an individuals belonging to a given section
-
-    Args:
-        individual (Individual): the individual
-        section (Section): limit to frames belonging to the section
-        section_name (str): limit to frames belonging to the section (name)
-
-    Returns:
-        A set of frames
-    """
-
-    assert not section or not section_name, "section and section_name cannot be both specified"
-
-    if isinstance(section, str):
-        section = individual.sections[section]
-
-    frames = set()
-    for path in individual.nodes(data='frame_path').values():
-        if path:
-            for frame in path:
-                if section_name and frame.section.name == section_name:
-                    frames.add(frame)
-                elif section and frame.section == section:
-                    frames.add(frame)
-                elif not section and not section_name:
-                    frames.add(frame)
-    assert frames, "Internal panik"
-    return frames
 
 
 def get_macro_pool_nodes_count(individual: 'Individual', frames: Set[Frame] = None) -> Dict[Frame, int]:
@@ -1066,7 +1034,7 @@ def get_macro_pool_nodes_count(individual: 'Individual', frames: Set[Frame] = No
     :meta private:
     """
     frame_count = dict()
-    for node_id, value in individual.graph_manager.nodes(data=True).items():
+    for node_id, value in individual.nodes(data=True).items():
         # Get the last frame (it is always a MacroPool)
         macro_pool = value['frame_path'][len(value['frame_path']) - 1]
         # Save the number of nodes in that frame

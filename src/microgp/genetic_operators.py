@@ -70,7 +70,12 @@ def print_individual(individuals: Union[Individual, List[Individual]], msg: str 
                 warnings.warn(WARN_PLT, RuntimeWarning)
             else:
                 individual.draw()
-                plt.show()
+                if matplotlib.is_interactive():
+                    plt.show()
+                else:
+                    plt.savefig(str(individual.id))
+                    plt.close()
+
         if score:
             ugp4.logging.bare(f"Fitness score: {individual.fitness}\n")
 
@@ -576,9 +581,8 @@ def remove_node_mutation(original_individual: Individual, strength: float, **kwa
     new_individual = clone_individual(original_individual)
     new_individual.parents = [original_individual]
     new_individual.operator = remove_node_mutation
-
     while True:
-        if len(new_individual.graph_manager.nodes()) <= 2:
+        if len(new_individual.nodes()) <= 2:
             logging.debug("Individual should have at least two nodes")
             return [None]
 
@@ -599,24 +603,24 @@ def remove_node_mutation(original_individual: Individual, strength: float, **kwa
         # Choose randomly the node that will be removed
         candidate_nodes = get_nodes_in_section(individual=new_individual, section=chosen_frame[1])
         node_to_remove = random_generator.choice(candidate_nodes)
-        chosen_root_frame = new_individual.graph_manager[node_to_remove]['frame_path'][1]
+        chosen_root_frame = new_individual.nodes[node_to_remove]['frame_path'][1]
 
         new_individual.remove_node(node_to_remove)
-        assert node_to_remove not in new_individual.graph_manager.nodes(), "Node has not been removed"
+        assert node_to_remove not in new_individual.nodes(), "Node has not been removed"
 
         # Example: If the removed NodeID_2 was a destination of a Reference in NodeID_1 and NodeID_6 -> change the value
         #  in parameter of the NodeID_1 and NodeID_6 with a new possible target (mutate(1))
         from .parameter import LocalReference
-        for node in new_individual.graph_manager.nodes(frame=chosen_root_frame):
-            for parameter_name, parameter in new_individual.graph_manager[node]['parameters'].items():
+        for node in new_individual.nodes(frame_selector=chosen_root_frame):
+            for parameter_name, parameter in new_individual.nodes[node]['parameters'].items():
                 if isinstance(parameter, LocalReference) and parameter.value == node_to_remove:
                     parameter.mutate(1)
 
         if strength == 1.0 or not (random_generator.random() < strength):
             break
 
-    assert len(original_individual.graph_manager.nodes()) > len(
-        new_individual.graph_manager.nodes()), "Something wrong!"
+    assert len(original_individual.nodes()) > len(
+        new_individual.nodes()), "Something wrong!"
     new_individual.finalize()
     if not new_individual.valid:
         return [None]

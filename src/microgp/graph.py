@@ -331,7 +331,7 @@ class GraphToolbox(Paranoid):
         self._nx_graph.add_node(node, **attributes)
 
     def remove_node(self, node: NodeID) -> None:
-        self._raw_nx_graph.remove_node(node)
+        self._nx_graph.remove_node(node)
 
     def add_edge(self, src: NodeID, dst: NodeID, key: str, **attributes):
         assert src in self._nx_graph, f"Can't find source node '{src}' ({type(src)})"
@@ -391,7 +391,7 @@ class GraphToolbox(Paranoid):
         return next((d for s, d, k in self._nx_graph.edges(node, keys=True) if k == parameter_name), None)
 
     def get_predecessor(self, node: NodeID) -> Optional[NodeID]:
-        return next((f for f, t, k in self._nx_graph.edges(node, keys=True) if k == 'next'), None)
+        return next((f for f, t, k in self._nx_graph.edges(node, keys=True) if k == 'next' and f != node), None)
 
     def get_all_predecessors(self, node: NodeID) -> List[NodeID]:
         predecessors = GraphToolbox._walk_filler(
