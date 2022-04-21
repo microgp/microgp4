@@ -2,8 +2,4 @@ MicroGP (µGP, `ugp`) is yet another [evolutionary optimizer](https://squillero.
 
 [MicroGP4](https://github.com/squillero/microgp4) is the brand new version of the tool, redesigned from scratch in Python to exploit the strengths of the language and its vibrant ecosystem.
 
-* The code is available as a [PyPi package](https://en.wikipedia.org/wiki/Python_Package_Index) on [https://pypi.org/project/microgp/](https://pypi.org/project/microgp/), and can be installed using [`pip`](https://en.wikipedia.org/wiki/Pip_%28package_manager%29).
-
-* The user guide and API reference can be found on [Read the Docs](https://en.wikipedia.org/wiki/Read_the_Docs) at [https://microgp4.readthedocs.io/](https://microgp4.readthedocs.io/).
-
 MicroGP4 is [free and open-source software](https://en.wikipedia.org/wiki/Free_and_open-source_software) and it is distributed under the permissive [Apache License 2.0](https://www.tldrlegal.com/l/apache2). MicroGP4 would not have been possible without the help and support of [several people](https://squillero.github.io/microgp4/contributors.html).
