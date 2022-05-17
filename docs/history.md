@@ -11,7 +11,7 @@ inside the nodes. The graph_manager is eventually transformed into a valid assem
 
 ## MicroGP2
 
-> Copyright 2002-2006 Giovanni Squillero; distributed under 
+> Copyright © 2002-2006 Giovanni Squillero; distributed under 
 [GPL2](https://www.tldrlegal.com/l/gpl2);
 available on [GitHub](https://github.com/squillero/microgp2).
 
@@ -25,7 +25,7 @@ With time, MicroGP2 has been coerced into solving problems it was not meant for,
 
 ## MicroGP3
 
-> Copyright 2006-2016 Giovanni Squillero; distributed under 
+> Copyright © 2006-2016 Giovanni Squillero; distributed under 
 [GPL3](https://www.tldrlegal.com/l/gpl-3.0);
 available on both [GitHub](https://github.com/squillero/microgp3) 
 and [Sourceforge](https://sourceforge.net/projects/ugp3/).
@@ -36,8 +36,8 @@ The development of the third version started in 2006 (release: *Noodle Soup*) wi
 
 ## MicroGP4
 
-> Copyright 2020-2021 Giovanni Squillero and Alberto Tonda; distributed under [Apache-2.0](https://www.tldrlegal.com/l/apache2); available on [GitHub](https://github.com/squillero/microgp4).
+> Copyright © 2022 Giovanni Squillero and Alberto Tonda; distributed under [Apache-2.0](https://www.tldrlegal.com/l/apache2); available on [GitHub](https://github.com/squillero/microgp4).
 
-MicroGP4 has been re-designed in Python to take advantage of the peculiar features of the language and of its huge standard library. It further increases usability thanks to state-of-the-art cooperative platforms: the tool is available as a [PyPi package](https://en.wikipedia.org/wiki/Python_Package_Index), and the full documentation is hosted on [Read the Docs](https://en.wikipedia.org/wiki/Read_the_Docs). 
+MicroGP4 has been re-designed in Python to take advantage of the peculiar features of the language and of its huge standard library. It further increases usability thanks to state-of-the-art cooperative platforms: the tool is available as a [PyPi package](https://en.wikipedia.org/wiki/Python_Package_Index), and the full documentation is going to be hosted on [Read the Docs](https://en.wikipedia.org/wiki/Read_the_Docs). 
 
 **Notez Bien**: MicroGP4 is an active project and it is currently in [pre-alpha](https://en.wikipedia.org/wiki/Software_release_life_cycle#Pre-alpha).
