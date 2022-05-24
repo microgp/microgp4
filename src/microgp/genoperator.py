@@ -25,7 +25,7 @@
 # limitations under the License.
 
 import inspect
-from collections import Callable
+from collections.abc import Callable
 
 from .individual import Individual
 
