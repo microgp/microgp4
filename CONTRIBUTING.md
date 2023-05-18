@@ -31,23 +31,23 @@ Anyhow, feel free to write us an email describing your story.
 
 ### Coding
 
-We prepared an oversimplified [stylesheet](https://github.com/squillero/style/blob/master/python.md) to ease contributing to the code.
+This sections contains notes for programmers interested in modifying μGP⁴.
 
-When you download the source from GitHub ([squillero/microgp4](https://github.com/squillero/microgp4)), remember to install all dependencies, including the optional ones (e.g., `colredlogs`, `matplotlib`, `psutils`).
+#### TL;DR
 
-- Under Windows, and if you are using [`conda`](https://docs.conda.io/projects/conda/), you should probably:
+* Write as few lines of code as possible
+* Use builtins
+* Exploit generators and list comprehensions
+* Follow this Python [style guide](https://github.com/squillero/style/blob/master/python.md).
+* Use [pytest](https://docs.pytest.org/) and [Coverage.py](https://coverage.readthedocs.io/) for unit testing (i.e., `coverage run -m pytest`).
+* Use [pylint](https://mypy-lang.org/) for linting (and possibly use also [mypy](https://mypy-lang.org/) for additional type checking.)
 
-  ```cmd
-  conda install --channel conda-forge psutil
-  ```
+#### Asserts
 
-- While under Ubuntu/Debian, you may need `Python.h`:
+Describe the error, do not state the correct. Example:
 
-  ```cmd
-  sudo apt install python3-dev
-  pip3 install psutil
-  ```
- 
+> TypeError: unhashable type: 'list'
+
 Have fun! And contact us if you want your code to be included in the next release.
 
 ## Money Donations
