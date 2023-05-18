@@ -1,7 +1,0 @@
-networkx>=2
-scipy>=1.4
-tqdm>=4
-m2r>=0.2
-coloredlogs>=10
-matplotlib>=3
-psutil>=5
