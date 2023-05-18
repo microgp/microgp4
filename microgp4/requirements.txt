@@ -1,3 +1,0 @@
-pytest>=7
-numpy>=1.22
-scipy>=1.8

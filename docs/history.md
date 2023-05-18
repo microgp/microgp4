@@ -36,7 +36,7 @@ The development of the third version started in 2006 (release: *Noodle Soup*) wi
 
 ## MicroGP4
 
-> Copyright © 2022 Giovanni Squillero and Alberto Tonda; distributed under [Apache-2.0](https://www.tldrlegal.com/l/apache2); available on [GitHub](https://github.com/squillero/microgp4).
+> Copyright © 2022-2023 Giovanni Squillero and Alberto Tonda; distributed under [Apache-2.0](https://www.tldrlegal.com/l/apache2); available on [GitHub](https://github.com/squillero/microgp4).
 
 MicroGP4 has been re-designed in Python to take advantage of the peculiar features of the language and of its huge standard library. It further increases usability thanks to state-of-the-art cooperative platforms: the tool is available as a [PyPi package](https://en.wikipedia.org/wiki/Python_Package_Index), and the full documentation is going to be hosted on [Read the Docs](https://en.wikipedia.org/wiki/Read_the_Docs). 
 

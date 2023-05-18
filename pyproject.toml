@@ -1,10 +1,101 @@
-# Note: toml package may be needed for using pyproject.toml as configuration
+#############################################################################
+#           __________                                                      #
+#    __  __/ ____/ __ \__ __   This file is part of MicroGP4 v4!2.0         #
+#   / / / / / __/ /_/ / // /   A versatile evolutionary optimizer & fuzzer  #
+#  / /_/ / /_/ / ____/ // /_   https://github.com/microgp/microgp4          #
+#  \__  /\____/_/   /__  __/                                                #
+#    /_/ --MicroGP4-- /_/      You don't need a big goal, be μ-ambitious!   #
+#                                                                           #
+#############################################################################
+# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# SPDX-License-Identifier: Apache-2.0
+
+[project]
+authors = [{name = "Giovanni Squillero", email = "giovanni.squillero@polito.it"}]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python",
+    "Topic :: Software Development :: Libraries",
+]
+dependencies = []
+#description = "Minimalistic, unbalanced Binary Search Tree"
+#keywords = ["Binary Search Tree", "Data Structures", "BST"]
+license = {"text" = "Apache-2.0"}
+name = "microgp4"
+readme = "README.md"
+requires-python = ">=3.11"
+version = "4.2.0"
+
+[project.urls]
+Homepage = "https://github.com/microgp/microgp4  "
+
+[project.optional-dependencies]
+dev = ["pytest", "Coverage.py", "bumpver"]
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core"]
+
+[tool.bandit]
+# bandit -c pyproject.toml -r src
+skips = ["B101"]
 
 [tool.yapf]
+# run yapf -rip .
 based_on_style = "google"
-column_limit = 120
 blank_line_before_module_docstring = true
+column_limit = 120
 
+[tool.yapfignore]
+ignore_patterns = [
+    ".*",
+    "venv",
+]
 [tool.black]
-line-length = 120
+# black .
+exclude = "(^\\.|^__pycache__|^venv)"
 include = '\.ipynb'
+line-length = 120
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+
+[tool.coverage.run]
+# coverage run -m pytest
+# coverage run .\experiments\t.py
+branch = true
+
+[tool.coverage.report]
+include = ['microgp4/**']
+#omit = ['test/*', '.venv/*', 'venv/*']
+
+[tool.bumpver]
+#commit = true
+#commit_message = "Bump version from {old_version} to {new_version}"
+#current_version = "1.0.3"
+#push = true
+#tag = true
+#version_pattern = "MAJOR.MINOR.PATCH"
+
+#[tool.bumpver.file_patterns]
+#"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+#"src/bst/__init__.py" = ["__version__ = '{version}'"]
+
+#[build-system]
+#build-backend = "setuptools.build_meta"
+#requires = ["setuptools>=61.0.0", "wheel"]
+#
+#[build-system]
+#build-backend = "hatchling.build"
+#requires = ["hatchling"]
+
+[tool.mypy]
+modules = ['src.microgp4']
+
+[tool.pylint]
+max-line-length = 120
+source-roots = ['src']
