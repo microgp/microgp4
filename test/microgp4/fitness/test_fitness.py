@@ -35,4 +35,3 @@ def test_simple():
     assert ugp.fit.Approximate(2) >= ugp.fit.Approximate(1)
     assert not ugp.fit.Approximate(2) <= ugp.fit.Approximate(1)
     assert not ugp.fit.Approximate(2) < ugp.fit.Approximate(1)
-

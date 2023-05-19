@@ -57,11 +57,11 @@ class Approximate(fitness.FitnessABC, float):
     def decorate(self) -> str:
         return str(float(self)) + '≈'
 
-    def is_distinguishable(self, other: fitness.FitnessABC) -> bool:
+    def is_distinguishable(self, other: FitnessABC) -> bool:
         self.is_comparable(other)
         return not isclose(float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol)
 
-    def is_fitter(self, other: fitness.FitnessABC) -> bool:
+    def is_fitter(self, other: FitnessABC) -> bool:
         self.is_comparable(other)
         return self != other and float(self) > float(other)
 
@@ -92,11 +92,16 @@ class Vector(fitness.FitnessABC):
         self._values = tuple(fitness_type(e, **kwargs) for e in value)
         self.run_paranoia_checks()
 
+    def is_comparable(self, other: 'Vector'):
+        super().is_comparable(other)
+        assert len(self._values) == len(
+            other._values), f"Can't is_fitter Fitness Vectors of different size ({self} vs. {other})"
+
     def is_distinguishable(self, other: 'Vector') -> bool:
         self.is_comparable(other)
         return any(e1 != e2 for e1, e2 in zip(self._values, other._values))
 
-    def is_fitter(self, other: fitness.FitnessABC) -> bool:
+    def is_fitter(self, other: FitnessABC) -> bool:
         self.is_comparable(other)
         return Vector.compare_vectors(self._values, other._values) > 0
 
@@ -114,11 +119,6 @@ class Vector(fitness.FitnessABC):
 
     def decorate(self) -> str:
         return ', '.join(e.decorate() for e in self._values)
-
-    def is_comparable(self, other: 'Vector'):
-        super().is_comparable(other)
-        assert len(self._values) == len(
-            other._values), f"Can't is_fitter Fitness Vectors of different size ({self} vs. {other})"
 
     def __iter__(self):
         return iter(self._values)

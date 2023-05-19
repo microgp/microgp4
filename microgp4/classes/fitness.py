@@ -55,7 +55,8 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
     When subclassing, one should only redefine `is_fitter`, and optionally `is_distinguishable` and `is_dominant`;
     `is_dominant` **must** be changed if `is_fitter` is randomized, making the result not reproducible.
 
-    Additional sanity checks should be added to `is_comparable`. Subclasses may redefine the `decorate` method to
+    Additional sanity checks should be added to `is_comparable
+    `. Subclasses may redefine the `decorate` method to
     change the value appearance.
     """
 
@@ -123,6 +124,11 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
 
     def __hash__(self) -> int:
         return super().__hash__()
+
+    def is_comparable(self, other: 'FitnessABC'):
+        assert str(self.__class__) == str(other.__class__), \
+            f"ValueError: Can't compare different type of Fitness values: {self} and {other} (paranoia check)"
+        return True
 
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()
