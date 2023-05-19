@@ -55,24 +55,31 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
     When subclassing, one should only redefine `is_fitter`, and optionally `is_distinguishable` and `is_dominant`;
     `is_dominant` **must** be changed if `is_fitter` is randomized, making the result not reproducible.
 
-    Additional sanity checks should be added to `run_comparable_check`. Subclasses may redefine the `decorate` method to
+    Additional sanity checks should be added to `is_comparable`. Subclasses may redefine the `decorate` method to
     change the value appearance.
     """
 
     @abstractmethod
     def is_fitter(self, other: 'FitnessABC') -> bool:
         """Check whether fitter than the other (result may be accidental)."""
-        assert self.run_comparable_check(other)
+        assert self.is_comparable(other)
         return super().__gt__(other)
 
     def is_dominant(self, other: 'FitnessABC') -> bool:
         """Check whether dominates the other (result is certain)."""
         return self.is_fitter(other)
+    def is_comparable(self, other: 'FitnessABC'):
+        assert str(self.__class__) == str(other.__class__), \
+            f"ValueError: Can't compare different type of Fitness values: {self} and {other} (paranoia check)"
+        return True
+
 
     def is_distinguishable(self, other: 'FitnessABC') -> bool:
         """Check whether some differences from the other Fitness may be perceived."""
-        assert self.run_comparable_check(other)
+        assert self.is_comparable(other)
         return super().__ne__(other)
+
+
 
     def decorate(self) -> str:
         """Represent the individual fitness value with a nice string."""
@@ -117,17 +124,12 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
     def __hash__(self) -> int:
         return super().__hash__()
 
-    def run_comparable_check(self, other: 'FitnessABC'):
-        assert str(self.__class__) == str(other.__class__), \
-            f"ValueError: Can't compare different type of Fitness values: {self} and {other} (paranoia check)"
-        return True
-
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()
 
     def is_valid(self, fitness: 'FitnessABC') -> bool:
         try:
-            self.run_comparable_check(fitness)
+            self.is_comparable(fitness)
         except AssertionError:
             return False
         return True
@@ -141,15 +143,15 @@ def reverse_fitness(fitness_class):
         original_fitness = fitness_class
 
         def is_distinguishable(self, other: FitnessABC) -> bool:
-            assert self.run_comparable_check(other)
+            assert self.is_comparable(other)
             return fitness_class(self).is_distinguishable(fitness_class(other))
 
         def is_fitter(self, other: FitnessABC) -> bool:
-            assert self.run_comparable_check(other)
+            assert self.is_comparable(other)
             return fitness_class(other).is_fitter(fitness_class(self))
 
-        def run_comparable_check(self, other: 'f'):
-            assert super().run_comparable_check(other)
+        def is_comparable(self, other: 'f'):
+            assert super().is_comparable(other)
             assert self.original_fitness == other.original_fitness, \
                 f"TypeError: different type of reversed Fitness: {type(other.original_fitness)} (paranoia check)"
             return True
