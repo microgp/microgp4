@@ -32,20 +32,20 @@ __all__ = ['Scalar', 'Approximate', 'Vector']
 from typing import Sequence, Any, Type
 from math import isclose
 
-from . import fitness
+from .fitness import FitnessABC
 
 
-class Scalar(fitness.FitnessABC, float):
+class Scalar(FitnessABC, float):
     """A single numeric value -- Larger is better."""
     pass
 
 
-class Integer(fitness.FitnessABC, int):
+class Integer(FitnessABC, int):
     """A single numeric value -- Larger is better."""
     pass
 
 
-class Approximate(fitness.FitnessABC, float):
+class Approximate(FitnessABC, float):
     """A single, floating-point value with approximate equality -- Larger is better."""
 
     def __init__(self, argument, rel_tol: float = 1e-09, abs_tol: float = 0):
@@ -57,11 +57,11 @@ class Approximate(fitness.FitnessABC, float):
     def decorate(self) -> str:
         return str(float(self)) + '≈'
 
-    def is_distinguishable(self, other: fitness.FitnessABC) -> bool:
+    def is_distinguishable(self, other: FitnessABC) -> bool:
         self.is_comparable(other)
         return not isclose(float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol)
 
-    def is_fitter(self, other: fitness.FitnessABC) -> bool:
+    def is_fitter(self, other: FitnessABC) -> bool:
         self.is_comparable(other)
         return self != other and float(self) > float(other)
 
@@ -74,7 +74,7 @@ class Approximate(fitness.FitnessABC, float):
 # VECTORS
 
 
-class Vector(fitness.FitnessABC):
+class Vector(FitnessABC):
     """A generic vector of Fitness values.
 
     fitness_type is the subtype, **kwargs are passed to fitness init
@@ -88,20 +88,25 @@ class Vector(fitness.FitnessABC):
 
     """
 
-    def __init__(self, value: Sequence, fitness_type: Type[fitness.FitnessABC] = Scalar, **kwargs):
+    def __init__(self, value: Sequence, fitness_type: Type[FitnessABC] = Scalar, **kwargs):
         self._values = tuple(fitness_type(e, **kwargs) for e in value)
         self.run_paranoia_checks()
+
+    def is_comparable(self, other: 'Vector'):
+        super().is_comparable(other)
+        assert len(self._values) == len(
+            other._values), f"Can't is_fitter Fitness Vectors of different size ({self} vs. {other})"
 
     def is_distinguishable(self, other: 'Vector') -> bool:
         self.is_comparable(other)
         return any(e1 != e2 for e1, e2 in zip(self._values, other._values))
 
-    def is_fitter(self, other: fitness.FitnessABC) -> bool:
+    def is_fitter(self, other: FitnessABC) -> bool:
         self.is_comparable(other)
         return Vector.compare_vectors(self._values, other._values) > 0
 
     @staticmethod
-    def compare_vectors(v1: Sequence[fitness.FitnessABC], v2: Sequence[fitness.FitnessABC]) -> int:
+    def compare_vectors(v1: Sequence[FitnessABC], v2: Sequence[FitnessABC]) -> int:
         """Compare Fitness values in v1 and v2.
 
         Return -1 if v1 < v2; +1 if v1 > v2; 0 if v1 == v2"""
@@ -114,11 +119,6 @@ class Vector(fitness.FitnessABC):
 
     def decorate(self) -> str:
         return ', '.join(e.decorate() for e in self._values)
-
-    def is_comparable(self, other: 'Vector'):
-        super().is_comparable(other)
-        assert len(self._values) == len(
-            other._values), f"Can't is_fitter Fitness Vectors of different size ({self} vs. {other})"
 
     def __iter__(self):
         return iter(self._values)

@@ -12,7 +12,7 @@
 
 # Use pip install -U -r requirements.txt
 
-tqdm>=4.60
+tqdm>=4.65
 numpy>=1.24
 scipy>=1.10
 networkx>=3.1
