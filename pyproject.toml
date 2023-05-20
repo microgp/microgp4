@@ -22,8 +22,8 @@ classifiers = [
     "Topic :: Software Development :: Libraries",
 ]
 dependencies = []
-#description = "Minimalistic, unbalanced Binary Search Tree"
-#keywords = ["Binary Search Tree", "Data Structures", "BST"]
+description = "A multi-purpose extensible self-adaptive evolutionary tool"
+keywords = ["Evolutionary-Algorithm", "Fuzzing", "Optimization"]
 license = {"text" = "Apache-2.0"}
 name = "microgp4"
 readme = "README.md"
@@ -32,13 +32,6 @@ version = "4.2.0"
 
 [project.urls]
 Homepage = "https://github.com/microgp/microgp4  "
-
-[project.optional-dependencies]
-dev = ["pytest", "Coverage.py", "bumpver"]
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core"]
 
 [tool.bandit]
 # bandit -c pyproject.toml -r src
