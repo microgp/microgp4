@@ -30,11 +30,12 @@
 __all__ = ['FitnessABC', 'reverse_fitness']
 
 from abc import ABC, abstractmethod
-from functools import wraps
+from functools import wraps, cache
 
 from microgp4.classes.pedantic import PedanticABC
 from microgp4.classes.paranoid import Paranoid
 from microgp4.user_messages import *
+from microgp4.tools.names import _patch_class_info
 
 
 class FitnessABC(PedanticABC, Paranoid, ABC):
@@ -80,7 +81,17 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
         assert self.is_comparable(other)
         return super().__ne__(other)
 
+    def is_comparable(self, other: 'FitnessABC'):
+        assert str(self.__class__) == str(other.__class__), \
+            f"ValueError: Can't compare different type of Fitness values: {self.__class__} and {other.__class__} (paranoia check)"
+        return True
 
+    def is_valid(self, fitness: 'FitnessABC') -> bool:
+        try:
+            self.is_comparable(fitness)
+        except AssertionError:
+            return False
+        return True
 
     def decorate(self) -> str:
         """Represent the individual fitness value with a nice string."""
@@ -125,44 +136,33 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
     def __hash__(self) -> int:
         return super().__hash__()
 
-    def is_comparable(self, other: 'FitnessABC'):
-        assert str(self.__class__) == str(other.__class__), \
-            f"ValueError: Can't compare different type of Fitness values: {self} and {other} (paranoia check)"
-        return True
+    def __repr__(self):
+        return str(self)
 
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()
 
-    def is_valid(self, fitness: 'FitnessABC') -> bool:
-        try:
-            self.is_comparable(fitness)
-        except AssertionError:
-            return False
-        return True
 
+@cache
+def reverse_fitness(fitness_class: type[FitnessABC]) -> type[FitnessABC]:
+    """Reverse fitness class turning a maximization problem into a minimization one."""
+    assert check_valid_type(fitness_class, FitnessABC, subclass=True)
 
-def reverse_fitness(fitness_class):
-    assert check_valid_type(fitness_class, FitnessABC), \
-        f"TypeError: not a Fitness sub-class: '{fitness_class}'"
-
-    class f(fitness_class):
-        original_fitness = fitness_class
-
-        def is_distinguishable(self, other: FitnessABC) -> bool:
-            assert self.is_comparable(other)
-            return fitness_class(self).is_distinguishable(fitness_class(other))
+    class T(fitness_class):
 
         def is_fitter(self, other: FitnessABC) -> bool:
-            assert self.is_comparable(other)
-            return fitness_class(other).is_fitter(fitness_class(self))
+            assert self.__class__ == other.__class__, \
+                    f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
+            return super(T, other).is_fitter(self)
 
-        def is_comparable(self, other: 'f'):
-            assert super().is_comparable(other)
-            assert self.original_fitness == other.original_fitness, \
-                f"TypeError: different type of reversed Fitness: {type(other.original_fitness)} (paranoia check)"
-            return True
+        def is_dominant(self, other: FitnessABC) -> bool:
+            assert self.__class__ == other.__class__, \
+                    f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
+            return super(T, other).is_dominant(self)
 
         def decorate(self) -> str:
             return f'ᴙ{fitness_class(self).decorate()}'
 
-    return f
+    _patch_class_info(T, f'reverse[{fitness_class.__name__}]', tag='fitness')
+
+    return T

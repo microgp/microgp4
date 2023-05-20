@@ -32,7 +32,8 @@ __all__ = ['Scalar', 'Approximate', 'Vector']
 from typing import Sequence, Any, Type
 from math import isclose
 
-from . import fitness
+from .fitness import FitnessABC
+from microgp4.tools.names import _patch_class_info
 
 
 class Scalar(fitness.FitnessABC, float):
@@ -125,3 +126,11 @@ class Vector(fitness.FitnessABC):
 
     def __hash__(self):
         return hash(self._values)
+
+
+# Patch names
+
+_patch_class_info(Scalar, 'Scalar', tag='fitness')
+_patch_class_info(Integer, 'Integer', tag='fitness')
+_patch_class_info(Approximate, 'Approximate', tag='fitness')
+_patch_class_info(Vector, 'Vector', tag='fitness')
