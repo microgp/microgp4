@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -56,7 +56,7 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
     When subclassing, one should only redefine `is_fitter`, and optionally `is_distinguishable` and `is_dominant`;
     `is_dominant` **must** be changed if `is_fitter` is randomized, making the result not reproducible.
 
-    Additional sanity checks should be added to `is_comparable
+    Additional sanity checks should be added to `check_comparable
     `. Subclasses may redefine the `decorate` method to
     change the value appearance.
     """
@@ -64,7 +64,7 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
     @abstractmethod
     def is_fitter(self, other: 'FitnessABC') -> bool:
         """Check whether fitter than the other (result may be accidental)."""
-        assert self.is_comparable(other)
+        assert self.check_comparable(other)
         return super().__gt__(other)
 
     def is_dominant(self, other: 'FitnessABC') -> bool:
@@ -73,24 +73,24 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
 
     def is_distinguishable(self, other: 'FitnessABC') -> bool:
         """Check whether some differences from the other Fitness may be perceived."""
-        assert self.is_comparable(other)
+        assert self.check_comparable(other)
         return super().__ne__(other)
 
-    def is_comparable(self, other: 'FitnessABC'):
+    def check_comparable(self, other: 'FitnessABC'):
         assert str(self.__class__) == str(other.__class__), \
-            f"ValueError: Can't compare different type of Fitness values: {self.__class__} and {other.__class__} (paranoia check)"
+            f"TypeError: different Fitness types: {self.__class__} and {other.__class__} (paranoia check)"
         return True
 
     def is_valid(self, fitness: 'FitnessABC') -> bool:
         try:
-            self.is_comparable(fitness)
+            self.check_comparable(fitness)
         except AssertionError:
             return False
         return True
 
-    def decorate(self) -> str:
+    def _decorate(self) -> str:
         """Represent the individual fitness value with a nice string."""
-        return f"{super().__str__()}"
+        return f'{super().__str__()}'
 
     # FINAL/WARNINGS
 
@@ -125,14 +125,13 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
         # Math white square parentheses: ⟦ ⟧ (U+27E6, U+27E7)
         # Z notation binding bracket: ⦉ ⦊
         # Curved angled bracket: ⧼ ⧽
+        return self._decorate() + 'Ƒ'
 
-        return f"⸨{self.decorate()}⸩"
+    def __repr__(self):
+        return f"<{self.__class__.__module__}.{self.__class__.__name__} @ {hex(id(self))}>"
 
     def __hash__(self) -> int:
         return super().__hash__()
-
-    def __repr__(self):
-        return str(self)
 
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()
@@ -155,8 +154,9 @@ def reverse_fitness(fitness_class: type[FitnessABC]) -> type[FitnessABC]:
                     f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
             return super(T, other).is_dominant(self)
 
-        def decorate(self) -> str:
-            return f'ᴙ{fitness_class(self).decorate()}'
+        def _decorate(self) -> str:
+            #return 'ᴙ⟦' + fitness_class._decorate(self) + '⟧'
+            return 'ᴙ' + fitness_class._decorate(self)
 
     _patch_class_info(T, f'reverse[{fitness_class.__name__}]', tag='fitness')
 

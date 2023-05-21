@@ -12,40 +12,25 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from math import sqrt
-import pytest
-
 import microgp4 as ugp
 
-rev_scalar = ugp.fit.reverse_fitness(ugp.fit.Scalar)
-# in a reversed fitness, the smaller, the better -- ie. 2 > 3
-assert not rev_scalar(2) == rev_scalar(sqrt(2)**2)
-assert rev_scalar(2) != rev_scalar(sqrt(2)**2)
-assert rev_scalar(2) > rev_scalar(sqrt(2)**2)
-assert rev_scalar(2) >= rev_scalar(sqrt(2)**2)
-assert not rev_scalar(2) < rev_scalar(sqrt(2)**2)
-assert not rev_scalar(2) <= rev_scalar(sqrt(2)**2)
-assert not rev_scalar(13) == rev_scalar(17)
-assert rev_scalar(13) != rev_scalar(17)
-assert rev_scalar(13) > rev_scalar(17)
-assert rev_scalar(13) >= rev_scalar(17)
-assert not rev_scalar(13) < rev_scalar(17)
-assert not rev_scalar(13) <= rev_scalar(17)
+print(ugp.fit.Scalar(2))
+print(ugp.fit.Integer(2))
+print(ugp.fit.Float(2))
+print(ugp.fit.reverse_fitness(ugp.fit.Scalar)(2))
+print(ugp.fit.reverse_fitness(ugp.fit.Integer)(2))
+print(ugp.fit.reverse_fitness(ugp.fit.Float)(2))
 
-rev_approximate = ugp.fit.reverse_fitness(ugp.fit.Approximate)
-# in a reversed fitness, the smaller, the better -- ie. 2 > 3
-assert rev_approximate(2) == rev_approximate(sqrt(2)**2)
-assert not rev_approximate(2) != rev_approximate(sqrt(2)**2)
-assert not rev_approximate(2) > rev_approximate(sqrt(2)**2)
-assert rev_approximate(2) >= rev_approximate(sqrt(2)**2)
-assert not rev_approximate(2) < rev_approximate(sqrt(2)**2)
-assert rev_approximate(2) <= rev_approximate(sqrt(2)**2)
-assert not rev_approximate(13) == rev_approximate(17)
-assert rev_approximate(13) != rev_approximate(17)
-assert rev_approximate(13) > rev_approximate(17)
-assert rev_approximate(13) >= rev_approximate(17)
-assert not rev_approximate(13) < rev_approximate(17)
-assert not rev_approximate(13) <= rev_approximate(17)
+print(
+    ugp.fit.Vector([
+        ugp.fit.reverse_fitness(ugp.fit.Scalar)(2),
+        ugp.fit.reverse_fitness(ugp.fit.Integer)(2),
+        ugp.fit.reverse_fitness(ugp.fit.Float)(2)
+    ]))
 
-with pytest.raises(AssertionError):
-    assert rev_approximate(13) <= rev_scalar(13)
+print(
+    ugp.fit.reverse_fitness(ugp.fit.Vector)([
+        ugp.fit.reverse_fitness(ugp.fit.Scalar)(2),
+        ugp.fit.reverse_fitness(ugp.fit.Integer)(2),
+        ugp.fit.reverse_fitness(ugp.fit.Float)(2)
+    ]))
