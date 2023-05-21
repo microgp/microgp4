@@ -24,30 +24,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#############################################################################
 # =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
-
-__all__ = ['PedanticABC']
-
-from abc import ABC, abstractmethod
-from typing import Any
-
-
-class PedanticABC(ABC):
-    """Abstract class: Pedantic classes do implement the `is_valid(x)` method."""
-
-    @abstractmethod
-    def is_valid(self, obj: Any) -> bool:
-        """Checks an object against the specifications.
-
-        The function checks the validity of an object against a Pedantic class, for example the current value of a
-        parameter against the parameter definition (eg. type, range), or a node against a Frame definition.
-
-        Args:
-            obj: Any object
-
-        Returns:
-            True if the object is valid, False otherwise
-        """
-        return True
+# version / ${MONTH_NAME_FULL} ${YEAR} / Author (INITIALS)
