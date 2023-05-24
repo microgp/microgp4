@@ -16,7 +16,7 @@ import pytest
 import microgp4 as ugp
 
 def test_value_bag():
-    test_dict = {'$a':False, 'b':'b', '_a':'c', '$1': True}
+    test_dict = {'$a':False, 'b':'b', '_a':1, '$1': True}
     vb1 = ugp.C.ValueBag(test_dict)
     vb2 = ugp.C.ValueBag(init=None, **test_dict)
     vb3 = ugp.C.ValueBag(init=vb1)

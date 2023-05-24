@@ -156,11 +156,12 @@ class ValueBag(dict):
         return super().items()
     
     def _is_valid(self, items):
+        """check if keys and values respect the guidelines"""
         for i in items:
             if not ValueBag.VALID_KEY.fullmatch(i):
                 raise MicroGPException(f"{i!r} is an invalid Key name")
             if ValueBag.FLAG_KEY.fullmatch(i):
                 assert items[i] in ValueBag.FLAG_PARAM
-            elif ValueBag.SAFE_KEY.fullmatch(i):
+            elif ValueBag.SAFE_KEY.fullmatch(i) and not i.startswith('_'): # no checks for reserved variables (eg: _foo)
                 assert ValueBag.SAFE_PARAM.fullmatch(items[i])
         return True
