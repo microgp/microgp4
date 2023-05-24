@@ -32,8 +32,9 @@ __all__ = ['MicroGPException', 'MicroGPError', 'MicroGPInvalidIndividual']
 
 class MicroGPException(Exception):
     """Base class for exceptions in MicroGP4."""
-
-
+    def __init__(self, *args: object) -> None:
+        super().__init__(*args)
+        
 class MicroGPError(MicroGPException):
     """Exception for a serious error in MicroGP4."""
 
