@@ -167,7 +167,10 @@ class Randy:
         assert self._get_current_state() == self._get_saved_state(), \
             "Generator has been modified"
         if strength == 1 or strength is None:
-            r = self._generator.choice(seq)
+            # generate equal probability for every element in seq, except seq[loc]
+            p = np.ones(len(seq))*(1/(len(seq)-1))
+            p[loc] = 0.0
+            r = self._generator.choice(seq, p=p)
         elif strength == 0:
             r = seq[loc]
         else:
