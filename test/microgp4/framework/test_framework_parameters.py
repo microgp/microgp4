@@ -12,18 +12,25 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from networkx.classes import MultiDiGraph
-from microgp4.classes.node_reference import NodeReference
+import microgp4 as ugp4
 
+def test_integer():
+    p1 = ugp4.f.integer_parameter(1,5)
+    p2 = ugp4.f.integer_parameter(1,6)
+    p3 = ugp4.f.integer_parameter(4,6)
+    a = p1()
+    b = p2()
+    c = p2()
+    d = p3()
+    assert a.value == 1
+    assert b.value == a.value
+    assert a != b
+    assert c != b
+    b.mutate(1)
+    assert a.value != b.value
+    assert b.value != c.value
+    assert d.value != a.value
 
-def test_node_reference():
-    G = MultiDiGraph()
-    p1 = NodeReference(G,1)
-    p2 = NodeReference(G,2)
-    assert p1 is not None
-    assert type(p1.graph) == type(G)
-    assert p1.node == 1 
-    assert p1 != p2
-    assert p2.node != 3
-    assert p1.graph == p2.graph
-
+def test_float():
+    #controlla test di Squillero per parameters
+    pass
