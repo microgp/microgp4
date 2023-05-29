@@ -32,5 +32,77 @@ def test_integer():
     assert d.value != a.value
 
 def test_float():
-    #controlla test di Squillero per parameters
-    pass
+    p1 = ugp4.f.float_parameter(0.1,2.2)
+    p2 = ugp4.f.float_parameter(0.1,3.2)
+    p3 = ugp4.f.float_parameter(1,2.2)
+    a = p1()
+    b = p2()
+    c = p2()
+    d = p3()
+    assert a.value == 0.1
+    assert b.value == a.value
+    assert a != b
+    assert c != b
+    b.mutate(1)
+    assert a.value != b.value
+    assert b.value != c.value
+    assert d.value != a.value
+
+def test_choice():
+    p1 = ugp4.f.choice_parameter(['a','b','c','d'])
+    p2 = ugp4.f.choice_parameter(['a','x','y','z'])
+    p3 = ugp4.f.choice_parameter(range(4))
+    a = p1()
+    b = p2()
+    c = p2()
+    d = p3()
+    assert a.value == 'a'
+    assert b.value == a.value
+    assert a != b
+    assert c != b
+    b.mutate(1)
+    assert a.value != b.value
+    assert b.value != c.value
+    assert d.value != a.value
+
+# def test_choice_mutation_working():
+#     p5 = ugp4.f.choice_parameter(range(12))
+#     f = p5()
+#     assert f.value == 0
+#     f.mutate(1)
+#     assert f.value != 0
+
+# def test_choice_mutation_no_generator():
+#     p5 = ugp4.f.choice_parameter(range(4))
+#     f = p5()
+#     assert f.value == 0
+#     f.mutate(0.5)
+#     assert f.value != 0
+
+# def test_choice_mutation_unexpected():
+#     p5 = ugp4.f.choice_parameter(range(11))
+#     f = p5()
+#     assert f.value == 0
+#     f.mutate(1)
+#     # NOTE [MS]: this shouldn't be correct
+#     # Test pass only if ran alone
+#     assert f.value == 0
+#     f.mutate(1)
+#     assert f.value != 0
+
+def test_array():
+    p1 = ugp4.f.array_parameter(['a','b','c','d'], 2)
+    p2 = ugp4.f.array_parameter(['a','x','y','z'], 2)
+    p3 = ugp4.f.array_parameter(['w','x','y','z'], 2)
+    a = p1()
+    b = p2()
+    c = p2()
+    d = p3()
+    assert a.value == 'aa'
+    assert b.value == a.value
+    assert a != b
+    assert c != b
+    b.mutate(1)
+    assert a.value != b.value
+    assert b.value != c.value
+    assert d.value != a.value
