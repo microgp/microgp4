@@ -27,20 +27,6 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-from functools import wraps
+from .decorators import *
+from .registrar import *
 
-from microgp4.classes.fitness import *
-
-
-def fitness_function(type_: type[FitnessABC]):
-
-    def decorator(func):
-
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            result = func(*args, **kwargs)
-            return type_(result)
-
-        return wrapper
-
-    return decorator

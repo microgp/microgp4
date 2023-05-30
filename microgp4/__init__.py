@@ -29,27 +29,42 @@
 
 import logging
 
+# noinspection PyUnresolvedReferences
 from microgp4.global_symbols import *
+# noinspection PyUnresolvedReferences
 from microgp4 import user_messages
+# noinspection PyUnresolvedReferences
 from microgp4.user_messages.modes import *
 
+# noinspection PyUnresolvedReferences
 from microgp4 import classes
+# noinspection PyUnresolvedReferences
 from microgp4 import classes as C
 
+# noinspection PyUnresolvedReferences
 from microgp4 import framework
+# noinspection PyUnresolvedReferences
 from microgp4 import framework as f
 
+# noinspection PyUnresolvedReferences
 from microgp4 import fitness_ as fitness
+# noinspection PyUnresolvedReferences
 from microgp4 import fitness_ as fit
 
+# noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as evaluator
+# noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as eval
 
 # Globals
 
+# noinspection PyUnresolvedReferences
 from microgp4.randy.randy import rrandom
+# noinspection PyUnresolvedReferences
 from microgp4.user_messages.messaging import microgp_logger
-from microgp4.decorators import fitness_function
+
+# noinspection PyUnresolvedReferences
+from microgp4.registry import *
 
 #############################################################################
 # Patch names to ease debugging and visualization

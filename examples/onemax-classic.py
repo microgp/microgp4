@@ -37,4 +37,11 @@ def main():
 
 
 if __name__ == '__main__':
+
+    from pprint import pprint
+    pprint(fitness)
+    pprint(fitness.__name__)
+    pprint(fitness.__doc__)
+    pprint(ugp.GLOBAL_REGISTER._register)
+
     main()

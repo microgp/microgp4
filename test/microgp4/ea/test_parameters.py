@@ -23,7 +23,6 @@ def test_shared():
             ugp.f.choice_parameter(range(10_000)),
             ugp.f.array_parameter("01X", 256)
     ]:
-
         s = ugp.f.make_shared_parameter(p)
         i1 = s()
         i2 = s()

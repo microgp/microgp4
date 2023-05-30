@@ -43,7 +43,9 @@ class Float(FitnessABC, float):
     """A single numeric value -- Larger is better."""
 
     def __new__(cls, *args, **kw):
-        syntax_warning_hint("'Float' fitness values suffer from FP arithmetic's issues and limitations (eg. .1 + .1 + .1 != .3). Consider using 'Scalar'")
+        syntax_warning_hint(
+            "'Float' fitness values suffer from Floating Point Arithmetic issues and limitations (eg. .1+.1+.1 != .3). Consider using 'Scalar'"
+        )
         return float.__new__(cls, *args, **kw)
 
     def _decorate(self):
