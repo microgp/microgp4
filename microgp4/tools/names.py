@@ -90,7 +90,7 @@ def _patch_class_info(obj: ABCMeta, name: str | None, tag: str = None) -> str:
     if name:
         obj.__name__ = name
     obj.__qualname__ = obj.__name__
-    obj.__module__ = 'micorgp4'
+    obj.__module__ = 'microgp4'
 
     if tag is not None:
         obj.__module__ += f'.{tag}'
