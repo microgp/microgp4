@@ -12,12 +12,12 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-import microgp4 as ugp4
+import microgp4 as ugp
 
 def test_integer():
-    p1 = ugp4.f.integer_parameter(1,5)
-    p2 = ugp4.f.integer_parameter(1,6)
-    p3 = ugp4.f.integer_parameter(4,6)
+    p1 = ugp.f.integer_parameter(1,5)
+    p2 = ugp.f.integer_parameter(1,6)
+    p3 = ugp.f.integer_parameter(4,6)
     a = p1()
     b = p2()
     c = p2()
@@ -32,9 +32,9 @@ def test_integer():
     assert d.value != a.value
 
 def test_float():
-    p1 = ugp4.f.float_parameter(0.1,2.2)
-    p2 = ugp4.f.float_parameter(0.1,3.2)
-    p3 = ugp4.f.float_parameter(1,2.2)
+    p1 = ugp.f.float_parameter(0.1,2.2)
+    p2 = ugp.f.float_parameter(0.1,3.2)
+    p3 = ugp.f.float_parameter(1,2.2)
     a = p1()
     b = p2()
     c = p2()
@@ -49,9 +49,9 @@ def test_float():
     assert d.value != a.value
 
 def test_choice():
-    p1 = ugp4.f.choice_parameter(['a','b','c','d'])
-    p2 = ugp4.f.choice_parameter(['a','x','y','z'])
-    p3 = ugp4.f.choice_parameter(range(4))
+    p1 = ugp.f.choice_parameter(['a','b','c','d'])
+    p2 = ugp.f.choice_parameter(['a','x','y','z'])
+    p3 = ugp.f.choice_parameter(range(4))
     a = p1()
     b = p2()
     c = p2()
@@ -91,9 +91,9 @@ def test_choice():
 #     assert f.value != 0
 
 def test_array():
-    p1 = ugp4.f.array_parameter(['a','b','c','d'], 2)
-    p2 = ugp4.f.array_parameter(['a','x','y','z'], 2)
-    p3 = ugp4.f.array_parameter(['w','x','y','z'], 2)
+    p1 = ugp.f.array_parameter(['a','b','c','d'], 2)
+    p2 = ugp.f.array_parameter(['a','x','y','z'], 2)
+    p3 = ugp.f.array_parameter(['w','x','y','z'], 2)
     a = p1()
     b = p2()
     c = p2()
