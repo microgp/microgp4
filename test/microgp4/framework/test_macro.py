@@ -12,6 +12,7 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
+import pytest
 import microgp4 as ugp
 
 def test_macro():
@@ -41,3 +42,6 @@ def test_macro():
     assert a != b
     a.mutate(1)
     assert a.parameters['p1'].value != 0
+
+    with pytest.raises(ugp.user_messages.MicroGPError):
+        ugp.f.macro(12)
