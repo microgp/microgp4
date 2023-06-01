@@ -59,7 +59,7 @@ from microgp4 import evaluator_ as eval
 # Globals
 
 # noinspection PyUnresolvedReferences
-from microgp4.randy.randy import rrandom
+from microgp4.randy.test_randy import rrandom
 # noinspection PyUnresolvedReferences
 from microgp4.user_messages.messaging import microgp_logger
 
