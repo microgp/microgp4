@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -25,4 +25,25 @@
 # limitations under the License.
 
 # =[ HISTORY ]===============================================================
-# v1 / May 2023 / Squillero (GX)
+# v1 / June 2023 / Squillero (GX)
+
+__all__ = ['FitnessLog']
+
+from pprint import pformat
+from datetime import datetime
+
+
+class FitnessLog:
+
+    def __init__(self):
+        self._log = list()
+
+    def __iadd__(self, value):
+        self._log.append((datetime.now(), value))
+
+    def __str__(self):
+        return '[' + ',\n '.join(f'({d}, {v})' for d, v in self._log) + ']'
+
+
+class OperatorLog:
+    pass

@@ -14,14 +14,37 @@
 
 import microgp4 as ugp
 
+#@ugp.genetic_operator(num_parents=1)
+#def foo():
+#    pass
 
-def test_fail():
-    ugp.rrandom.seed(None)
-    X = ugp.f.choice_parameter("ABC")
-    x = X()
-    s = ''
-    for _ in range(100):
-        x.mutate(1)
-        s += x.value
-    print("\n", s)
-    assert True
+
+@ugp.fitness_function
+def onemax1(x):
+    return x
+
+
+@ugp.fitness_function(type_=ugp.fitness.UniformVector)
+def onemax2(x):
+    return x, 1, x
+
+@ugp.genetic_operator(num_parents=1)
+def foo(x):
+    return x
+
+#print(ugp.GLOBAL_REGISTER[foo])
+for x in ugp.GLOBAL_REGISTER.operators:
+    print(x, ugp.GLOBAL_REGISTER.operators[x])
+x = foo('x')
+print(x)
+for x in ugp.GLOBAL_REGISTER.operators:
+    print(x, ugp.GLOBAL_REGISTER.operators[x])
+
+print(onemax1(1234.2))
+print(onemax1(1234.2))
+print(onemax1(1234.2))
+
+from pprint import pprint
+
+#print(ugp.GLOBAL_REGISTER[onemax2]['log'])
+pass

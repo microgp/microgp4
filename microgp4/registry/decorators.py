@@ -32,35 +32,67 @@ __all__ = ['fitness_function', 'genetic_operator']
 from functools import wraps
 
 from microgp4.classes.fitness import *
-from .registrar import GLOBAL_REGISTER
+from microgp4.classes import fitness_base
+
+from .registrar import *
+from .stats import *
 
 
-def fitness_function(type_: type[FitnessABC]):
+# A really cool hack suggested by bj0 on Stackoverflow
+# See "how-to-create-a-decorator-that-can-be-used-either-with-or-without-parameters"
+def doublewrap(func):
+    """A decorator decorator, allowing the decorator to be used with and without parameters"""
 
-    def decorator(func):
-
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            result = func(*args, **kwargs)
-            return type_(result)
-
-        GLOBAL_REGISTER.register(wrapper, 'fitness', { 'type': type_})
-
-        return wrapper
+    @wraps(func)
+    def decorator(*args, **kwargs):
+        if len(args) == 1 and len(kwargs) == 0:
+            assert callable(args[0]), f"TypeError: Incorrect use of decorator"
+            return func(args[0])
+        else:
+            assert not args, f"TypeError: Incorrect use of decorator"
+            return lambda realf: func(realf, *args, **kwargs)
 
     return decorator
 
 
-def genetic_operator(num_parents: int):
+@doublewrap
+def fitness_function(func, *, type_: type[FitnessABC] | None = None, registry: Register | None = None):
+
+    if not type_:
+        type_ = fitness_base.Scalar
+    if not registry:
+        registry = GLOBAL_REGISTER
+    log_ = FitnessLog()
+
+    @wraps(func)
+    def wrapper(*args, log=log_, **kwargs):
+        result = type_(func(*args, **kwargs))
+        log += result
+        return result
+
+    return wrapper
+
+
+def genetic_operator(*, num_parents: int = 1, registry: Register | None = None):
+
+    if not registry:
+        registry = GLOBAL_REGISTER
+    stats = OperatorStatistics()
 
     def decorator(func):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            return None
+            stats.calls += 1
+            try:
+                result = func(*args, **kwargs)
+            except:
+                pass
+            return result
 
-        GLOBAL_REGISTER.register(wrapper, 'genetic_operator', { 'num_parents': num_parents})
+        wrapper.num_parents = num_parents
+        registry.register_operator(wrapper, stats)
 
         return wrapper
 
-    return decorator()
+    return decorator

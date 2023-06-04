@@ -138,15 +138,15 @@ class UniformVector(Vector):
     fitness_type is the subtype, **kwargs are passed to fitness init
 
     Examples:
-        f1 = sgx.fitness.Vector([23, 10], fitness_type=Approximate, abs_tol=.1)
-        f2 = sgx.fitness.Vector([23, 10], fitness_type=Approximate, abs_tol=.001)
+        f1 = sgx.fitness.Vector([23, 10], fitness_type=Scalar, abs_tol=.1)
+        f2 = sgx.fitness.Vector([23, 10], fitness_type=Scalar, abs_tol=.001)
 
-        f1 > sgx.fitness.Vector([23, 9.99], fitness_type=Approximate, abs_tol=.1) is False
-        f2 > sgx.fitness.Vector([23, 9.99], fitness_type=Approximate, abs_tol=.001) is True
+        f1 > sgx.fitness.Vector([23, 9.99], fitness_type=Scalar, abs_tol=.1) is False
+        f2 > sgx.fitness.Vector([23, 9.99], fitness_type=Scalar, abs_tol=.001) is True
 
     """
 
-    def __init__(self, values: Sequence, type_: type[FitnessABC]):
+    def __init__(self, values: Sequence, type_: type[FitnessABC] = Scalar):
         fitness_values = [type_(v) for v in values]
         super().__init__(fitness_values)
 
