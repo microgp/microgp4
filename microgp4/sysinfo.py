@@ -27,6 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / June 2023 / Squillero (GX)
 
+
 import inspect
 from pprint import pformat
 from copy import copy
@@ -44,13 +45,15 @@ class View:
         return iter(self._data)
 
     def __getitem__(self, item):
+        if item not in self._data:
+            raise KeyError(item)
         return self._data[item]
 
     def __repr__(self):
-        return "⟦" + pformat(list(self._data.keys()))[1:-1] + "⟧"
+        return "⟦" + pformat(self._data)[1:-1] + "⟧"
 
     def __str__(self):
-        return "⟦" + ', '.join(repr(k) for k in self._data.keys()) + "⟧"
+        return "⟦" + ', '.join(k for k in self._data.keys()) + "⟧"
 
     def items(self):
         return tuple(self._data.items())
@@ -62,14 +65,50 @@ class View:
         return tuple(self._data.values())
 
 class SysInfo:
+    """Information about the current system.
+    Mostly useful in interactive environments such as a Jupyter Notebook.
+    """
+
     def __init__(self):
         pass
 
     @property
-    def operators(self):
+    def genetic_operators(self):
+        """Shows all genetic operators available in the current namespace"""
         ops = dict()
-        snapshot = inspect.currentframe().f_back.f_locals
+        snapshot = inspect.currentframe().f_back.f_globals
         for k, v in snapshot.items():
             if hasattr(v, 'microgp') and v.type == GENETIC_OPERATOR:
                 ops[k] = v
         return View(ops)
+
+    @property
+    def fitness_functions(self):
+        """Shows all fitness functions available in the current namespace"""
+        ops = dict()
+        snapshot = inspect.currentframe().f_back.f_globals
+        for k, v in snapshot.items():
+            if hasattr(v, 'microgp') and v.type == FITNESS_FUNCTION:
+                ops[k] = v
+        return View(ops)
+
+    def info(self, object):
+        """Gives some information about a MicroGP4 object. The name (string) can be used"""
+
+        if isinstance(object, str):
+            if object not in inspect.currentframe().f_back.f_globals:
+                raise KeyError(object)
+            object = inspect.currentframe().f_back.f_globals[object]
+
+        if hasattr(object, 'microgp') and object.type == GENETIC_OPERATOR:
+            print(f"Genetic operator: {object}")
+            print(f"  {object.stats}")
+        else:
+            print(f"Python object: {type(object)}")
+
+
+assert 'SYSINFO' not in globals(), \
+    f"SystemError: SYSINFO already initialized (paranoia check)"
+SYSINFO = SysInfo()
+assert 'SYSINFO' in globals(), \
+    f"SystemError: FRAMEWORK_DIRECTORY not initialized (paranoia check)"

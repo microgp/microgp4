@@ -57,12 +57,10 @@ def doublewrap(func):
 
 
 @doublewrap
-def fitness_function(func, *, type_: type[FitnessABC] | None = None, registry: Register | None = None):
+def fitness_function(func, *, type_: type[FitnessABC] | None = None, backend: str | None = 'dict'):
 
     if not type_:
         type_ = fitness_base.Scalar
-    if not registry:
-        registry = GLOBAL_REGISTER
     log_ = FitnessLog()
 
     @wraps(func)
@@ -76,17 +74,13 @@ def fitness_function(func, *, type_: type[FitnessABC] | None = None, registry: R
     return wrapper
 
 
-def genetic_operator(*, num_parents: int = 1, registry: Register | None = None):
-
-    if not registry:
-        registry = GLOBAL_REGISTER
-    stats = OperatorStatistics()
+def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
 
     def decorator(func):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
-            stats.calls += 1
+            wrapper.stats.calls += 1
             try:
                 result = func(*args, **kwargs)
             except:
@@ -96,7 +90,7 @@ def genetic_operator(*, num_parents: int = 1, registry: Register | None = None):
         wrapper.microgp = UGP4_TAG
         wrapper.type = GENETIC_OPERATOR
         wrapper.num_parents = num_parents
-        registry.register_operator(wrapper, stats)
+        wrapper.stats = Statistics()
 
         return wrapper
 

@@ -28,31 +28,26 @@ def onemax1(x):
 def onemax2(x):
     return x, 1, x
 
+
 @ugp.genetic_operator(num_parents=1)
 def foo(x):
     return x
 
-#print(ugp.GLOBAL_REGISTER[foo])
-for x in ugp.GLOBAL_REGISTER.operators:
-    print(x, ugp.GLOBAL_REGISTER.operators[x])
+
+print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
+print(foo.stats)
 x = foo('x')
-print(x)
-for x in ugp.GLOBAL_REGISTER.operators:
-    print(x, ugp.GLOBAL_REGISTER.operators[x])
+print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
+print(foo.stats)
 
 print(onemax1(1234.2))
 print(onemax1(1234.2))
 print(onemax1(1234.2))
 
-from pprint import pprint
+print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
+print(f"Fitness functions: {ugp.sysinfo.fitness_functions}")
 
-#print(ugp.GLOBAL_REGISTER[onemax2]['log'])
-
-from microgp4.sysinfo import *
-x = SysInfo()
-
-
-o = x.operators
-print(f"Genetic operators: {o}")
-
+ugp.sysinfo.info(foo)
+ugp.sysinfo.info('foo')
+ugp.sysinfo.info(print)
 pass

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['Register', 'GLOBAL_REGISTER', 'OperatorStatistics']
+__all__ = ['Statistics']
 
 from typing import Any
 from dataclasses import dataclass
@@ -43,7 +43,7 @@ FITNESS_LOG_FILENAME = 'fitness.db'
 
 
 @dataclass
-class OperatorStatistics:
+class Statistics:
     """Class for keeping stats of a genetic operator."""
     calls: int = 0
     aborts: int = 0
@@ -54,49 +54,3 @@ class OperatorStatistics:
     complete_successes: int = 0
     pass
 
-
-class Register:
-
-    def __init__(self, family_tree: str | None = 'dict', fitness_log: str = 'dict'):
-        # Functions
-        self._operators = dict()
-
-        # Family Tree
-        if family_tree == 'dict':
-            self._family_tree = dict()
-        elif family_tree == 'shelve':
-            self._family_tree = shelve.open(FAMILYTREE_FILENAME, protocol=HIGHEST_PROTOCOL)
-        elif not family_tree:
-            self._family_tree = None
-        else:
-            assert family_tree not in ['dict', 'shelve', None], \
-                f"ValueError: invalid 'family_tree' backend: {family_tree}"
-        # Fitness log
-        if fitness_log == 'dict':
-            self._fitness_log = dict()
-        elif fitness_log == 'shelve':
-            self._fitness_log = shelve.open(FAMILYTREE_FILENAME, protocol=HIGHEST_PROTOCOL)
-        elif not fitness_log:
-            self._fitness_log = None
-        else:
-            assert fitness_log not in ['dict', 'shelve', None], \
-                f"ValueError: invalid 'fitness_log' backend: {fitness_log}"
-
-    def register_operator(self, item: Any, stats: OperatorStatistics):
-        assert item not in self._operators, \
-            f"ValueError: operator already registered {item!r}"
-        self._operators[item] = stats
-
-    @property
-    def operators(self):
-        return copy(self._operators)
-
-
-#----------------------------------------------------------------------------
-# GLOBALS!
-
-assert 'GLOBAL_REGISTER' not in globals(), \
-    f"SystemError: GLOBAL_REGISTER already initialized (paranoia check)"
-GLOBAL_REGISTER = Register()
-assert 'GLOBAL_REGISTER' in globals(), \
-    f"SystemError: GLOBAL_REGISTER not initialized (paranoia check)"
