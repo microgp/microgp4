@@ -31,6 +31,7 @@ __all__ = ['fitness_function', 'genetic_operator']
 
 from functools import wraps
 
+from microgp4.global_symbols import *
 from microgp4.classes.fitness import *
 from microgp4.classes import fitness_base
 
@@ -70,6 +71,8 @@ def fitness_function(func, *, type_: type[FitnessABC] | None = None, registry: R
         log += result
         return result
 
+    wrapper.microgp = UGP4_TAG
+    wrapper.type = FITNESS_FUNCTION
     return wrapper
 
 
@@ -90,6 +93,8 @@ def genetic_operator(*, num_parents: int = 1, registry: Register | None = None):
                 pass
             return result
 
+        wrapper.microgp = UGP4_TAG
+        wrapper.type = GENETIC_OPERATOR
         wrapper.num_parents = num_parents
         registry.register_operator(wrapper, stats)
 

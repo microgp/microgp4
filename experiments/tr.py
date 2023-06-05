@@ -47,4 +47,12 @@ print(onemax1(1234.2))
 from pprint import pprint
 
 #print(ugp.GLOBAL_REGISTER[onemax2]['log'])
+
+from microgp4.sysinfo import *
+x = SysInfo()
+
+
+o = x.operators
+print(f"Genetic operators: {o}")
+
 pass
