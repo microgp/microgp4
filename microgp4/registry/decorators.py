@@ -55,7 +55,6 @@ def doublewrap(func):
 
     return decorator
 
-
 @doublewrap
 def fitness_function(func, *, type_: type[FitnessABC] | None = None, backend: str | None = 'dict'):
 

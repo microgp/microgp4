@@ -27,6 +27,11 @@
 # =[ HISTORY ]===============================================================
 # v1 / June 2023 / Squillero (GX)
 
+"""Information about the current system.
+Mostly useful in interactive environments such as a Jupyter Notebook.
+"""
+
+__all__ = ['info']
 
 import inspect
 from pprint import pformat
@@ -34,7 +39,9 @@ from copy import copy
 
 from microgp4.global_symbols import *
 
+
 class View:
+
     def __init__(self, data: dict):
         try:
             self._data = dict(sorted(data.items()))
@@ -64,10 +71,8 @@ class View:
     def values(self):
         return tuple(self._data.values())
 
+
 class SysInfo:
-    """Information about the current system.
-    Mostly useful in interactive environments such as a Jupyter Notebook.
-    """
 
     def __init__(self):
         pass
@@ -92,7 +97,7 @@ class SysInfo:
                 ops[k] = v
         return View(ops)
 
-    def info(self, object):
+    def show(self, object):
         """Gives some information about a MicroGP4 object. The name (string) can be used"""
 
         if isinstance(object, str):

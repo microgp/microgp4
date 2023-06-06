@@ -59,6 +59,8 @@ def unroll(individual: Individual, top: Type[FrameABC]) -> int | None:
 
     assert check_valid_types(individual, Individual)
     assert check_valid_types(top, FrameABC, Macro, subclass=True)
+    assert not individual.finalized, \
+        f"ValueError: individual is finalized (paranoia check)"
 
     G = individual.genome
     new_node = recursive_unroll(top, G)
@@ -75,7 +77,7 @@ def unroll(individual: Individual, top: Type[FrameABC]) -> int | None:
 
     # Initialize structural parameters
 
-    tree = get_grammar_tree(individual.genome)
+    tree = individual.grammar_tree
     if all(
             c.run_checks(NodeView(NodeReference(individual.genome, n))) for c, n in ((
                 G.nodes[n]['_frame'] if '_frame' in G.nodes[n] else G.nodes[n]['_macro'],

@@ -47,7 +47,11 @@ print(onemax1(1234.2))
 print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
 print(f"Fitness functions: {ugp.sysinfo.fitness_functions}")
 
-ugp.sysinfo.info(foo)
-ugp.sysinfo.info('foo')
-ugp.sysinfo.info(print)
+ugp.sysinfo.show(foo)
+ugp.sysinfo.show('foo')
+ugp.sysinfo.show(print)
 pass
+
+i = ugp.classes.Individual(None)
+i.fitness = ugp.fitness.Scalar(3)
+#i.fitness = ugp.fitness.Scalar(3)

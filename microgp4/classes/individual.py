@@ -29,8 +29,10 @@
 
 __all__ = ['Individual']
 
-from typing import Any
+from typing import Any, Callable
 from itertools import chain, zip_longest
+from copy import deepcopy
+from dataclasses import dataclass
 
 import networkx as nx
 
@@ -52,6 +54,12 @@ from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
 from microgp4.classes.frame import FrameABC
 from microgp4.classes.readymade_macros import MacroZero
+
+
+@dataclass(frozen=True)
+class Birth:
+    operator: Callable
+    parents: tuple['Individual']
 
 
 class Individual(EvolvableABC):
@@ -97,6 +105,7 @@ class Individual(EvolvableABC):
         self._genome.add_node(NODE_ZERO, root=True, _macro=MacroZero())
         self._fitness = None
         self._str = ''
+        self._grammar_tree = None
 
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
@@ -126,6 +135,10 @@ class Individual(EvolvableABC):
     # PROPERTIES
 
     @property
+    def finalized(self):
+        return self._fitness is not None
+
+    @property
     def G(self):
         """Individual's underlying NetworkX MultiDiGraph."""
         return self._genome
@@ -138,17 +151,29 @@ class Individual(EvolvableABC):
     @property
     def grammar_tree(self) -> nx.classes.DiGraph:
         """A tree with the grammar tree of the individual (ie. only edges of `kind=FRAMEWORK`)."""
-        # TODO: cache it?
-        return get_grammar_tree(self._genome)
+
+        if self._grammar_tree:
+            return self._grammar_tree
+        gt = get_grammar_tree(self._genome)
+        if self.finalized:
+            self._grammar_tree = gt
+        return gt
 
     @property
     def fitness(self):
         """The fitness of the individual."""
         return self._fitness
 
+    def _check_fitness(self, value):
+        check_valid_types(value, FitnessABC)
+        assert not self.finalized, \
+            f"ValueError: Individual marked as final, fitness value already set to {self._fitness} (paranoia check)"
+        return True
+
     @fitness.setter
-    def fitness(self, value):
+    def fitness(self, value: FitnessABC):
         """The fitness of the individual."""
+        assert self._check_fitness(value)
         self._fitness = value
 
     @property
@@ -259,6 +284,11 @@ class Individual(EvolvableABC):
     def mutate(self, strength: float = 1., **kwargs: Any) -> None:
         # TODO: Implement it!
         raise NotImplementedError
+
+    def clone(self) -> "Individual":
+        I = deepcopy(self)
+        I._fitness = None
+        return I
 
     def discard_useless_components(self):
         G = nx.MultiDiGraph()

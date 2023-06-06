@@ -28,9 +28,8 @@
 # v1 / April 2023 / Squillero (GX)
 
 __all__ = [
-    'version_info', '__version__', '__author__', '__copyright__',
-    'FRAMEWORK_DIRECTORY',
-    'FRAMEWORK', 'LINK', 'NODE_ZERO', 'UGP4_TAG', 'GENETIC_OPERATOR', 'FITNESS_FUNCTION'
+    'version_info', '__version__', '__author__', '__copyright__', 'FRAMEWORK_DIRECTORY', 'FRAMEWORK', 'LINK',
+    'NODE_ZERO', 'UGP4_TAG', 'GENETIC_OPERATOR', 'FITNESS_FUNCTION'
 ]
 
 from collections import namedtuple

@@ -53,4 +53,3 @@ class Statistics:
     partial_successes: int = 0
     complete_successes: int = 0
     pass
-

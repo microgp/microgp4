@@ -30,7 +30,9 @@
 import logging
 
 # noinspection PyUnresolvedReferences
-from microgp4.sysinfo import SYSINFO as sysinfo
+from microgp4.sys import SYSINFO as sysinfo
+# noinspection PyUnresolvedReferences
+from microgp4 import sys
 
 # noinspection PyUnresolvedReferences
 from microgp4.global_symbols import *
