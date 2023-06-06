@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -25,13 +25,24 @@
 # limitations under the License.
 
 # =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+# v1 / June 2023 / Squillero (GX)
 
-__all__ = ['VanillaEA']
+from microgp4.user_messages import *
+from microgp4.classes import Population, Individual
+from microgp4.ea.graph import *
+from microgp4.registry import *
 
-from microgp4.sys import *
 
+@genetic_operator(num_parents=0)
+def random_individual(population: Population) -> None:
+    """Add a valid random individual to the population."""
 
-def VanillaEA():
-    operators = get_operators()
-    print(operators)
+    new_root = None
+    new_individual = None
+    while new_root is None:
+        new_individual = Individual(population._top_frame)
+        try:
+            new_root = unroll(new_individual, population._top_frame)
+        except MicroGPInvalidIndividual:
+            new_root = None
+    return new_individual

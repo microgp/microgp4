@@ -49,7 +49,6 @@ class Population:
     _individuals: list[Individual]
     _mu: int
     _lambda: int
-    _node_count = 0
 
     DEFAULT_EXTRA_PARAMETERS = {
         '_comment': ';',
@@ -69,8 +68,6 @@ class Population:
         if extra_parameters is None:
             extra_parameters = dict()
         self._extra_parameters = Population.DEFAULT_EXTRA_PARAMETERS | extra_parameters
-        self._mu = 0
-        self._lambda = 0
         self._individuals = list()
         #self._node_count = 0
 
@@ -79,22 +76,12 @@ class Population:
     #    return self._node_count
 
     @property
-    def mu(self):
-        return self._mu
-
-    @mu.setter
-    def mu(self, new_value):
-        check_value_range(new_value, min_=1)
-        self._mu = new_value
+    def top_frame(self):
+        return self._top_frame
 
     @property
-    def lambda_(self):
-        return self._lambda
-
-    @lambda_.setter
-    def lambda_(self, new_value):
-        check_value_range(new_value, min_=0)
-        self._lambda = new_value
+    def evaluator(self):
+        return self._evaluator
 
     @property
     def individuals(self) -> list[Individual]:
@@ -104,7 +91,13 @@ class Population:
     def parameters(self) -> dict:
         return copy(self._extra_parameters)
 
-    def add_random_individual(self) -> None:
+    def __iadd__(self, individual):
+        assert check_valid_types(individual, Individual)
+        assert individual.check(), \
+            f"ValueError: invalid individual"
+        self._individuals.append(individual)
+
+    def __add_random_individual(self) -> None:
         """Add a valid random individual to the population."""
 
         new_root = None

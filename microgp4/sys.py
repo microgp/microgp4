@@ -31,7 +31,7 @@
 Mostly useful in interactive environments such as a Jupyter Notebook.
 """
 
-__all__ = ['info']
+__all__ = ['get_operators']
 
 import inspect
 from pprint import pformat
@@ -110,6 +110,10 @@ class SysInfo:
             print(f"  {object.stats}")
         else:
             print(f"Python object: {type(object)}")
+
+def get_operators():
+    snapshot = inspect.currentframe().f_back.f_globals
+    return [o for o in snapshot.values() if hasattr(o, 'microgp') and o.type == GENETIC_OPERATOR]
 
 
 assert 'SYSINFO' not in globals(), \

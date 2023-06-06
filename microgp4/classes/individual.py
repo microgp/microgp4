@@ -81,6 +81,8 @@ class Individual(EvolvableABC):
     Individuals are managed by a `Population` class.
     """
 
+    INDIVIDUAL_COUNTER: int = 0
+
     _genome: nx.classes.MultiDiGraph
     _fitness: FitnessABC | None
     _str: str
@@ -101,11 +103,14 @@ class Individual(EvolvableABC):
     ]
 
     def __init__(self, top_frame: type[FrameABC]) -> None:
+        Individual.INDIVIDUAL_COUNTER += 1
+        self._id = Individual.INDIVIDUAL_COUNTER
         self._genome = nx.MultiDiGraph(node_count=1, top_frame=top_frame)
         self._genome.add_node(NODE_ZERO, root=True, _macro=MacroZero())
         self._fitness = None
         self._str = ''
         self._grammar_tree = None
+
 
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
@@ -133,6 +138,10 @@ class Individual(EvolvableABC):
                     nx.dfs_preorder_nodes(self.G, NODE_ZERO), nx.dfs_preorder_nodes(other.G, NODE_ZERO)))
 
     # PROPERTIES
+
+    @property
+    def id(self):
+        return self._id
 
     @property
     def finalized(self):

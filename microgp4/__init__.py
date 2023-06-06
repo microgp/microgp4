@@ -30,8 +30,6 @@
 import logging
 
 # noinspection PyUnresolvedReferences
-from microgp4.sys import SYSINFO as sysinfo
-# noinspection PyUnresolvedReferences
 from microgp4 import sys
 
 # noinspection PyUnresolvedReferences
@@ -52,10 +50,12 @@ from microgp4 import framework
 from microgp4 import framework as f
 
 # noinspection PyUnresolvedReferences
+from microgp4 import ea
+
+# noinspection PyUnresolvedReferences
 from microgp4 import fitness_ as fitness
 # noinspection PyUnresolvedReferences
 from microgp4 import fitness_ as fit
-
 # noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as evaluator
 # noinspection PyUnresolvedReferences
@@ -67,9 +67,10 @@ from microgp4 import evaluator_ as eval
 from microgp4.randy.test_randy import rrandom
 # noinspection PyUnresolvedReferences
 from microgp4.user_messages.messaging import microgp_logger
-
 # noinspection PyUnresolvedReferences
 from microgp4.registry import *
+# noinspection PyUnresolvedReferences
+from microgp4.sys import SYSINFO as sysinfo
 
 #############################################################################
 # Patch names to ease debugging and visualization

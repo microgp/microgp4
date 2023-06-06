@@ -15,7 +15,7 @@
 import microgp4 as ugp
 
 
-@ugp.fitness_function(ugp.fit.Scalar)
+@ugp.fitness_function
 def fitness(individual: str):
     """xxx"""
     string = individual.split('\n')[1]
@@ -39,9 +39,4 @@ def main():
 if __name__ == '__main__':
 
     from pprint import pprint
-    pprint(fitness)
-    pprint(fitness.__name__)
-    pprint(fitness.__doc__)
-    pprint(ugp.GLOBAL_REGISTER._register)
-
     main()
