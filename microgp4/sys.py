@@ -111,6 +111,7 @@ class SysInfo:
         else:
             print(f"Python object: {type(object)}")
 
+
 def get_operators():
     snapshot = inspect.currentframe().f_back.f_globals
     return [o for o in snapshot.values() if hasattr(o, 'microgp') and o.type == GENETIC_OPERATOR]

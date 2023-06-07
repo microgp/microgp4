@@ -61,14 +61,16 @@ from microgp4 import evaluator_ as evaluator
 # noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as eval
 
-# Globals
-
+# noinspection PyUnresolvedReferences
+from microgp4.tools.dump import clean_dump
 # noinspection PyUnresolvedReferences
 from microgp4.randy.test_randy import rrandom
 # noinspection PyUnresolvedReferences
 from microgp4.user_messages.messaging import microgp_logger
 # noinspection PyUnresolvedReferences
 from microgp4.registry import *
+# noinspection PyUnresolvedReferences
+from microgp4.fitness_log import *
 # noinspection PyUnresolvedReferences
 from microgp4.sys import SYSINFO as sysinfo
 
@@ -110,4 +112,4 @@ def welcome(level=logging.DEBUG):
 
 
 if not notebook_mode:
-    assert welcome(logging.INFO)
+    welcome(logging.INFO)

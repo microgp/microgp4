@@ -111,7 +111,6 @@ class Individual(EvolvableABC):
         self._str = ''
         self._grammar_tree = None
 
-
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
 

@@ -40,3 +40,7 @@ class MicroGPError(MicroGPException):
 
 class MicroGPInvalidIndividual(MicroGPException):
     """Exception when an individual is invalid."""
+
+
+class MicroGPGeneticOperatorException(MicroGPException):
+    """Exception when an individual is invalid."""

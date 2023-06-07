@@ -27,11 +27,11 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['VanillaEA']
+__all__ = ['vanilla_ea']
 
 from microgp4.sys import *
 
 
-def VanillaEA():
+def vanilla_ea():
     operators = get_operators()
     print(operators)

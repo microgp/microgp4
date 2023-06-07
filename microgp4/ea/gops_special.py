@@ -27,12 +27,16 @@
 # =[ HISTORY ]===============================================================
 # v1 / June 2023 / Squillero (GX)
 
+__all__ = ['random_individual']
+
 from microgp4.user_messages import *
 from microgp4.classes import Population, Individual
-from microgp4.ea.graph import *
 from microgp4.registry import *
+from .graph import *
 
-
+# TODO: random individual non prende pop ma top frame
+# TODO: mutate -> inizialize (senza strength!)
+# TODO: mutation -> op gen
 @genetic_operator(num_parents=0)
 def random_individual(population: Population) -> None:
     """Add a valid random individual to the population."""

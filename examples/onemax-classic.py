@@ -15,11 +15,11 @@
 import microgp4 as ugp
 
 
+#@ugp.fitness_function(type_=ugp.fitness.Integer)
 @ugp.fitness_function
-def fitness(individual: str):
+def fitness(genotype: str):
     """xxx"""
-    string = individual.split('\n')[1]
-    return sum(b == '1' for b in string)
+    return sum(b == '1' for b in ugp.clean_dump(genotype))
 
 
 def main():
@@ -29,10 +29,12 @@ def main():
     evaluator = ugp.eval.PythonFunction(fitness)
     population = ugp.C.Population(frame, evaluator)
 
-    population.add_random_individual()
-    population.add_random_individual()
-    population.add_random_individual()
-    population.evaluate()
+    #population.add_random_individual()
+    ###population.add_random_individual()
+    #population.add_random_individual()
+    #population.evaluate()
+
+    ugp.ea.vanilla_ea()
     pass
 
 
