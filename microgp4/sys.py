@@ -38,6 +38,8 @@ from pprint import pformat
 from copy import copy
 
 from microgp4.global_symbols import *
+from microgp4.operators import *
+from microgp4.fitness import *
 
 
 class View:
@@ -113,6 +115,7 @@ class SysInfo:
 
 
 def get_operators():
+    x = random_individual
     snapshot = inspect.currentframe().f_back.f_globals
     return [o for o in snapshot.values() if hasattr(o, 'microgp') and o.type == GENETIC_OPERATOR]
 

@@ -30,7 +30,7 @@
 __all__ = ['Population']
 
 import logging
-from typing import Callable, Any, Type
+from typing import Callable, Any
 from copy import copy
 
 from microgp4.classes.fitness import FitnessABC
@@ -38,13 +38,10 @@ from microgp4.classes.individual import Individual
 from microgp4.classes.frame import FrameABC
 from microgp4.classes.evaluator import EvaluatorABC
 from microgp4.user_messages import *
-from microgp4.ea.graph import unroll
-
-##from _classes import FrameABC
 
 
 class Population:
-    _top_frame: Type[FrameABC]
+    _top_frame: type[FrameABC]
     _fitness_function: Callable[[Any], FitnessABC]
     _individuals: list[Individual]
     _mu: int
@@ -62,14 +59,13 @@ class Population:
         '_text_after_node': '',
     }
 
-    def __init__(self, top_frame: Type[FrameABC], evaluator: EvaluatorABC, extra_parameters: dict | None = None):
+    def __init__(self, top_frame: type[FrameABC], evaluator: EvaluatorABC, extra_parameters: dict | None = None):
         self._top_frame = top_frame
         self._evaluator = evaluator
         if extra_parameters is None:
             extra_parameters = dict()
         self._extra_parameters = Population.DEFAULT_EXTRA_PARAMETERS | extra_parameters
         self._individuals = list()
-        #self._node_count = 0
 
     #def get_new_node(self) -> int:
     #    self._node_count += 1
@@ -93,22 +89,10 @@ class Population:
 
     def __iadd__(self, individual):
         assert check_valid_types(individual, Individual)
-        assert individual.check(), \
+        assert individual.is_valid(), \
             f"ValueError: invalid individual"
         self._individuals.append(individual)
-
-    def __add_random_individual(self) -> None:
-        """Add a valid random individual to the population."""
-
-        new_root = None
-        new_individual = None
-        while new_root is None:
-            new_individual = Individual(self._top_frame)
-            try:
-                new_root = unroll(new_individual, self._top_frame)
-            except MicroGPInvalidIndividual:
-                new_root = None
-        self._individuals.append(new_individual)
+        return self
 
     def dump_individual(self, ind: int | Individual, extra_parameters: dict | None = None) -> str:
         if isinstance(ind, int):

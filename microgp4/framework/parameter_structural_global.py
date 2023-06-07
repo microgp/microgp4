@@ -27,8 +27,6 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-from typing import Type
-
 from itertools import chain
 from functools import cache
 from numbers import Number
@@ -40,7 +38,7 @@ from microgp4.randy import rrandom
 from microgp4.global_symbols import *
 
 from microgp4.classes.parameter import ParameterStructuralABC
-from microgp4.ea.graph import recursive_unroll, get_all_parameters
+from microgp4.operators.graph import recursive_unroll, get_all_parameters
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.frame import FrameABC
 
@@ -53,9 +51,9 @@ __all__ = ['global_reference']
 @cache
 def _global_reference(*,
                       target_name: str | None = None,
-                      target_frame: Type[FrameABC] | None = None,
+                      target_frame: type[FrameABC] | None = None,
                       first_macro: bool = True,
-                      creative_zeal: Number = 0) -> Type[ParameterStructuralABC]:
+                      creative_zeal: Number = 0) -> type[ParameterStructuralABC]:
 
     class T(ParameterStructuralABC):
 
@@ -101,7 +99,7 @@ def _global_reference(*,
                 targets = [None]
 
             if not targets:
-                raise MicroGPInvalidIndividual
+                raise InvalidIndividual
             return targets
 
         def mutate(self, strength: float = 1., node_reference: NodeReference | None = None, *args, **kwargs) -> None:
@@ -127,16 +125,16 @@ def _global_reference(*,
                 target = rrandom.sigma_choice(self.get_potential_targets([new_node]), self.value, strength)
 
             if not target:
-                raise MicroGPInvalidIndividual
+                raise InvalidIndividual
             self._node_reference.graph.add_edge(self._node_reference.node, target, key=self.key, kind=LINK)
 
     _patch_class_info(T, f'GlobalReference[{target_frame}]', tag='parameter')
     return T
 
 
-def global_reference(target_frame: str | Type[FrameABC],
+def global_reference(target_frame: str | type[FrameABC],
                      first_macro: bool = False,
-                     creative_zeal=0) -> Type[ParameterStructuralABC]:
+                     creative_zeal=0) -> type[ParameterStructuralABC]:
     assert isinstance(creative_zeal, int) or 0 < creative_zeal < 1, \
         f"ValueError: creative zeal is integer or 0 <= float < 1: found {creative_zeal}"
     if isinstance(target_frame, str):

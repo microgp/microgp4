@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -25,28 +25,39 @@
 # limitations under the License.
 
 # =[ HISTORY ]===============================================================
-# v1 / June 2023 / Squillero (GX)
+# v1 / April 2023 / Squillero (GX)
 
-__all__ = ['random_individual']
+__all__ = ['reverse_fitness']
 
+from abc import ABC, abstractmethod
+from functools import cache
+
+from microgp4.classes.fitness import FitnessABC
 from microgp4.user_messages import *
-from microgp4.classes import Population, Individual
-from microgp4.registry import *
-from .graph import *
+from microgp4.tools.names import _patch_class_info
 
-# TODO: random individual non prende pop ma top frame
-# TODO: mutate -> inizialize (senza strength!)
-# TODO: mutation -> op gen
-@genetic_operator(num_parents=0)
-def random_individual(population: Population) -> None:
-    """Add a valid random individual to the population."""
 
-    new_root = None
-    new_individual = None
-    while new_root is None:
-        new_individual = Individual(population._top_frame)
-        try:
-            new_root = unroll(new_individual, population._top_frame)
-        except MicroGPInvalidIndividual:
-            new_root = None
-    return new_individual
+@cache
+def reverse_fitness(fitness_class: type[FitnessABC]) -> type[FitnessABC]:
+    """Reverse fitness class turning a maximization problem into a minimization one."""
+    assert check_valid_type(fitness_class, FitnessABC, subclass=True)
+
+    class T(fitness_class):
+
+        def is_fitter(self, other: FitnessABC) -> bool:
+            assert self.__class__ == other.__class__, \
+                    f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
+            return super(T, other).is_fitter(self)
+
+        def is_dominant(self, other: FitnessABC) -> bool:
+            assert self.__class__ == other.__class__, \
+                    f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
+            return super(T, other).is_dominant(self)
+
+        def _decorate(self) -> str:
+            #return 'ᴙ⟦' + fitness_class._decorate(self) + '⟧'
+            return 'ᴙ' + fitness_class._decorate(self)
+
+    _patch_class_info(T, f'reverse[{fitness_class.__name__}]', tag='fitness')
+
+    return T

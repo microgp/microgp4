@@ -29,12 +29,12 @@
 
 __all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'UniformVector']
 
-from typing import Sequence, Any, Type
+from typing import Sequence
 
 from functools import partialmethod
 from math import isclose
 
-from .fitness import FitnessABC
+from microgp4.classes.fitness import FitnessABC
 from microgp4.tools.names import _patch_class_info
 from microgp4.user_messages import *
 

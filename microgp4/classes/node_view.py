@@ -48,7 +48,17 @@ class NodeView:
     _node_id: int
     framework_tree: nx.classes.DiGraph
 
-    def __init__(self, node_ref: NodeReference):
+    def __init__(
+        self,
+        *args: NodeReference,
+    ):
+        if len(args) == 1:
+            node_ref = args[0]
+        elif len(args) == 2:
+            node_ref = NodeReference(args[0], args[1])
+        else:
+            assert 1 <= len(args) <= 2, \
+                f"Expected NodeRef or (Graph, node)"
         assert check_valid_type(node_ref, NodeReference)
         self.__dict__['_ref'] = node_ref
         self.__dict__['_genome'] = node_ref.graph

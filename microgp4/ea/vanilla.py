@@ -29,9 +29,18 @@
 
 __all__ = ['vanilla_ea']
 
+# noinspection PyUnresolvedReferences
+from microgp4.operators import *
+# noinspection PyUnresolvedReferences
+from microgp4.fitness import *
 from microgp4.sys import *
+from microgp4.classes.population import Population
+from microgp4.classes.frame import FrameABC
+from microgp4.classes.evaluator import EvaluatorABC
 
 
-def vanilla_ea():
+def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20):
+    population = Population(top_frame, evaluator)
     operators = get_operators()
-    print(operators)
+    for op in operators:
+        print(op)

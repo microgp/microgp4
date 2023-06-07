@@ -28,10 +28,8 @@
 # v1 / May 2023 / Squillero (GX)
 
 from .checkable import *
-from .evolvable import *
 from .frame import *
 from .fitness import *
-from .fitness_base import *
 from .identifiable import *
 from .individual import *
 from .macro import *

@@ -29,7 +29,7 @@
 
 __all__ = ['make_shared_parameter']
 
-from typing import Any, Hashable, Type, SupportsInt
+from typing import Any
 from microgp4.classes.parameter import ParameterABC
 from microgp4.tools.names import _patch_class_info
 

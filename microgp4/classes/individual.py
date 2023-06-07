@@ -47,8 +47,9 @@ from microgp4.global_symbols import FRAMEWORK, LINK
 from microgp4.global_symbols import NODE_ZERO
 from microgp4.tools.graph import *
 
-from .fitness import FitnessABC
-from microgp4.classes.evolvable import EvolvableABC
+from microgp4.classes.fitness import FitnessABC
+from microgp4.classes.paranoid import Paranoid
+from microgp4.classes.pedantic import PedanticABC
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
@@ -62,7 +63,7 @@ class Birth:
     parents: tuple['Individual']
 
 
-class Individual(EvolvableABC):
+class Individual(Paranoid):
     """
     MicroGP individual, that is, a genotype and its fitness
 
@@ -81,7 +82,7 @@ class Individual(EvolvableABC):
     Individuals are managed by a `Population` class.
     """
 
-    INDIVIDUAL_COUNTER: int = 0
+    __COUNTER: int = 0
 
     _genome: nx.classes.MultiDiGraph
     _fitness: FitnessABC | None
@@ -103,8 +104,8 @@ class Individual(EvolvableABC):
     ]
 
     def __init__(self, top_frame: type[FrameABC]) -> None:
-        Individual.INDIVIDUAL_COUNTER += 1
-        self._id = Individual.INDIVIDUAL_COUNTER
+        Individual.__COUNTER += 1
+        self._id = Individual.__COUNTER
         self._genome = nx.MultiDiGraph(node_count=1, top_frame=top_frame)
         self._genome.add_node(NODE_ZERO, root=True, _macro=MacroZero())
         self._fitness = None
@@ -145,6 +146,22 @@ class Individual(EvolvableABC):
     @property
     def finalized(self):
         return self._fitness is not None
+
+    @property
+    def feasible(self) -> bool:
+        """Checks the syntax of the individual."""
+        for n in nx.dfs_preorder_nodes(self.grammar_tree, source=NODE_ZERO):
+            if '_frame' in self._genome.nodes[n]:
+                if not self._genome.nodes[n]['_frame'].run_checks(NodeView(self._genome, n)):
+                    return False
+            elif '_macro' in self._genome.nodes[n]:
+                if not self._genome.nodes[n]['_macro'].run_checks(NodeView(self._genome, n)):
+                    return False
+            elif 'root' in self._genome.nodes[n] and self._genome.nodes[n]['root'] is True:
+                pass  # safe
+            else:
+                raise SyntaxWarning(f"Unknown node type: {self._genome.nodes[n]}")
+        return True
 
     @property
     def G(self):
@@ -192,12 +209,6 @@ class Individual(EvolvableABC):
     def parameters(self):
         return get_parameters(self._genome)
 
-    # REQUIRED ABSTRACT METHODS
-
-    def is_valid(self, obj: Any) -> bool:
-        # TODO: Add implementation
-        raise NotImplementedError
-
     # PUBLIC METHODS
     def as_forest(self, *, figsize: tuple = (12, 10), filename: str | None = None, **kwargs) -> None:
         r"""Draw the grammar tree of the individual.
@@ -232,7 +243,7 @@ class Individual(EvolvableABC):
 
         """
 
-        if not plt:
+        if plt is None:
             user_warning(f"Rendering of individuals not available: {plt_errror}")
             return
 
@@ -288,10 +299,6 @@ class Individual(EvolvableABC):
             plt.close()
         else:
             self._draw_multipartite(figsize)
-
-    def mutate(self, strength: float = 1., **kwargs: Any) -> None:
-        # TODO: Implement it!
-        raise NotImplementedError
 
     def clone(self) -> "Individual":
         I = deepcopy(self)
@@ -352,21 +359,6 @@ class Individual(EvolvableABC):
         successors = list(get_successors(nr))
         for n in successors:
             self._dump(NodeReference(nr.graph, n), bag)
-
-    def check(self) -> bool:
-        """Checks the syntax of the individual."""
-        for n in nx.dfs_preorder_nodes(self.grammar_tree, source=NODE_ZERO):
-            if '_frame' in self._genome.nodes[n]:
-                if not self._genome.nodes[n]['_frame'].run_checks(NodeView(self._genome, n)):
-                    return False
-            elif '_macro' in self._genome.nodes[n]:
-                if not self._genome.nodes[n]['_macro'].run_checks(NodeView(self._genome, n)):
-                    return False
-            elif 'root' in self._genome.nodes[n] and self._genome.nodes[n]['root'] is True:
-                pass  # safe
-            else:
-                raise SyntaxWarning(f"Unknown node type: {self._genome.nodes[n]}")
-        return True
 
     def _draw_forest(self, figsize) -> None:
         """Draw individual using multipartite_layout"""

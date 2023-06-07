@@ -35,14 +35,15 @@ from typing import Any
 from microgp4.user_messages import *
 
 from microgp4.classes.checkable import Checkable
-from microgp4.classes.evolvable import EvolvableABC
+from microgp4.classes.paranoid import Paranoid
+from microgp4.classes.pedantic import PedanticABC
 from microgp4.classes.value_bag import USER_PARAMETER
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_view import NodeView
 from microgp4.classes.parameter import ParameterABC
 
 
-class Macro(EvolvableABC, Checkable):
+class Macro(Paranoid, PedanticABC, Checkable):
     """Base class for all the different Macros."""
 
     TEXT: str
@@ -89,10 +90,6 @@ class Macro(EvolvableABC, Checkable):
     def dump(self, extra_parameters: ValueBag) -> str:
         check_valid_type(extra_parameters, ValueBag)
         return self.text.format(**extra_parameters)
-
-    def mutate(self, strength: float) -> None:
-        for p in self.parameters.values():
-            p.mutate(strength)
 
     @staticmethod
     def is_name_valid(name: str) -> bool:

@@ -26,3 +26,6 @@
 
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
+
+from .reverse import *
+from .basic import *

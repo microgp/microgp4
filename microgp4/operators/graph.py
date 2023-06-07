@@ -29,8 +29,6 @@
 
 __all__ = ['unroll']
 
-from typing import Type
-
 import networkx as nx
 
 from microgp4.user_messages import *
@@ -45,7 +43,7 @@ from microgp4.classes.parameter import ParameterStructuralABC
 
 
 @monitor.failure_rate
-def unroll(individual: Individual, top: Type[FrameABC]) -> int | None:
+def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
     """
     Recursively unroll a Frame as a subtree inside the Individual's graph.
 
@@ -90,7 +88,7 @@ def unroll(individual: Individual, top: Type[FrameABC]) -> int | None:
 # NOTE[GX]: I'd love being reasonably generic and efficient in a recursive
 # function, but I can't use `singledispatch` from `functools` because I'm
 # choosing the implementation using the *value* of `top` -- it's a *type*,
-def recursive_unroll(top: Type[Macro | FrameABC], G: nx.classes.MultiDiGraph) -> int:
+def recursive_unroll(top: type[Macro | FrameABC], G: nx.classes.MultiDiGraph) -> int:
     """Unrolls a frame/macro over the graph."""
 
     if issubclass(top, FrameABC):

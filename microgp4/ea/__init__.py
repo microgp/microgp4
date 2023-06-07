@@ -28,4 +28,3 @@
 # v1 / June 2023 / Squillero (GX)
 
 from .vanilla import vanilla_ea
-#from .gops_special import *

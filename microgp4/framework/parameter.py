@@ -32,7 +32,7 @@ __all__ = ['integer_parameter', 'float_parameter', 'choice_parameter', 'array_pa
 from collections.abc import Collection
 from functools import cache
 from numbers import Number
-from typing import Any, Hashable, Type, SupportsInt
+from typing import Any, Hashable, SupportsInt
 
 from microgp4.user_messages import *
 from microgp4.tools.names import _patch_class_info
@@ -83,7 +83,7 @@ def _numeric(*, type_, min_, max_):
     return T
 
 
-def integer_parameter(min_: int, max_: int) -> Type[ParameterABC]:
+def integer_parameter(min_: int, max_: int) -> type[ParameterABC]:
     """An Int parameter: an integer number in the half-open range [min_, max_)."""
 
     def check_range():
@@ -114,7 +114,7 @@ def integer_parameter(min_: int, max_: int) -> Type[ParameterABC]:
     return _numeric(type_=int, min_=int(min_), max_=int(max_))
 
 
-def float_parameter(min_: float, max_: float) -> Type[ParameterABC]:
+def float_parameter(min_: float, max_: float) -> type[ParameterABC]:
     """A Float parameter: a floating point number in the half-open range [min_, max_)."""
     assert check_valid_type(min_, Number)
     assert check_valid_type(max_, Number)
@@ -122,7 +122,7 @@ def float_parameter(min_: float, max_: float) -> Type[ParameterABC]:
 
 
 @cache
-def _choice_parameter(alternatives: tuple[Hashable]) -> Type[ParameterABC]:
+def _choice_parameter(alternatives: tuple[Hashable]) -> type[ParameterABC]:
 
     class T(ParameterABC):
 
@@ -150,7 +150,7 @@ def _choice_parameter(alternatives: tuple[Hashable]) -> Type[ParameterABC]:
     return T
 
 
-def choice_parameter(alternatives: Collection[Hashable]) -> Type[ParameterABC]:
+def choice_parameter(alternatives: Collection[Hashable]) -> type[ParameterABC]:
     """A Choice parameter: an element from a fixed list of alternatives."""
 
     def check_size():
@@ -177,7 +177,7 @@ def choice_parameter(alternatives: Collection[Hashable]) -> Type[ParameterABC]:
 
 
 @cache
-def _array_parameter(symbols: tuple[str], length: int) -> Type[ParameterABC]:
+def _array_parameter(symbols: tuple[str], length: int) -> type[ParameterABC]:
 
     class T(ParameterABC):
 
@@ -213,7 +213,7 @@ def _array_parameter(symbols: tuple[str], length: int) -> Type[ParameterABC]:
     return T
 
 
-def array_parameter(symbols: Collection[str], length: SupportsInt) -> Type[ParameterABC]:
+def array_parameter(symbols: Collection[str], length: SupportsInt) -> type[ParameterABC]:
     """An Array parameter: a fixed-length array of symbols."""
 
     assert check_valid_type(symbols, Collection)

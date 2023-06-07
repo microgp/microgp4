@@ -29,7 +29,6 @@
 
 __all__ = ['FrameABC']
 
-from typing import Union, Type
 from types import NoneType
 from abc import abstractmethod
 from copy import copy
@@ -37,12 +36,13 @@ from copy import copy
 from microgp4.user_messages.checks import *
 
 from microgp4.classes.macro import Macro
-from microgp4.classes.evolvable import EvolvableABC
+from microgp4.classes.pedantic import PedanticABC
+from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.checkable import Checkable
 
 
-class FrameABC(EvolvableABC, Checkable):
+class FrameABC(Paranoid, PedanticABC, Checkable):
 
     _registered_names = set()
 
@@ -65,7 +65,7 @@ class FrameABC(EvolvableABC, Checkable):
 
     @property
     @abstractmethod
-    def successors(self) -> list[Type['FrameABC'] | Type[Macro]]:
+    def successors(self) -> list[type['FrameABC'] | type[Macro]]:
         pass
 
     def dump(self, extra_parameters: ValueBag) -> str:
@@ -83,11 +83,6 @@ class FrameABC(EvolvableABC, Checkable):
     @property
     def name(cls):
         return (cls.__name__)
-
-    @staticmethod
-    def generate_unique_name(tag: str = 'Unknown') -> str:
-        FrameABC._name_counter[tag] += 1
-        return f'{tag}#{FrameABC._name_counter[tag]}'
 
     @staticmethod
     def register_name(name: str) -> bool:

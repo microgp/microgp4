@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -25,18 +25,30 @@
 # limitations under the License.
 
 # =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+# v1 / June 2023 / Squillero (GX)
 
-__all__ = ['EvolvableABC']
+__all__ = ['random_individual']
 
-from abc import ABC, abstractmethod
+from microgp4.user_messages import *
+from microgp4.classes import Population, Individual
+from microgp4.registry import *
+from microgp4.operators.graph import *
 
-from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import PedanticABC
+# TODO: random individual non prende pop ma top frame
+# TODO: mutate -> inizialize (senza strength!)
+# TODO: mutation -> op gen
 
 
-class EvolvableABC(Paranoid, PedanticABC, ABC):
+@genetic_operator(num_parents=None)
+def random_individual(*, strength=1.0, top_frame=None) -> None:
+    """Generate a valid random individual to the population."""
 
-    @abstractmethod
-    def mutate(self, strength: float = 1., **kwargs) -> None:
-        pass
+    new_root = None
+    new_individual = None
+    while new_root is None:
+        new_individual = Individual(top_frame)
+        try:
+            new_root = unroll(new_individual, top_frame)
+        except InvalidIndividual:
+            new_root = None
+    return new_individual

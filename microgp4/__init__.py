@@ -51,15 +51,18 @@ from microgp4 import framework as f
 
 # noinspection PyUnresolvedReferences
 from microgp4 import ea
+# noinspection PyUnresolvedReferences
+from microgp4 import operators
+# noinspection PyUnresolvedReferences
+from microgp4 import operators as op
 
 # noinspection PyUnresolvedReferences
-from microgp4 import fitness_ as fitness
+from microgp4 import fitness as fitness
 # noinspection PyUnresolvedReferences
-from microgp4 import fitness_ as fit
+from microgp4 import fitness as fit
+
 # noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as evaluator
-# noinspection PyUnresolvedReferences
-from microgp4 import evaluator_ as eval
 
 # noinspection PyUnresolvedReferences
 from microgp4.tools.dump import clean_dump
