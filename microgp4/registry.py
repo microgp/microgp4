@@ -36,6 +36,7 @@ from functools import wraps
 
 from microgp4.user_messages import *
 from microgp4.global_symbols import *
+from microgp4.classes.individual import Individual
 from microgp4.classes.fitness import *
 from microgp4 import fitness
 from microgp4.fitness_log import *
@@ -114,10 +115,13 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
             except GeneticOperatorAbort:
                 offspring = list()
 
-            if offspring:
-                offspring = [i for i in offspring if i.feasible]
-                wrapper.stats.total_offsprint += len(offspring)
+            if offspring is None:
+                offspring = []
+            elif isinstance(offspring, Individual):
+                offspring = [offspring]
 
+            offspring = [i for i in offspring if i.is_feasible]
+            wrapper.stats.total_offsprint += len(offspring)
             return offspring
 
         wrapper.microgp = UGP4_TAG

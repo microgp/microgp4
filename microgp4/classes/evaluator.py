@@ -33,6 +33,7 @@ from typing import Callable, Sequence
 from abc import ABC, abstractmethod
 
 from microgp4.classes.fitness import FitnessABC
+from microgp4.classes.individual import Individual
 
 
 class EvaluatorABC(ABC):
@@ -40,7 +41,7 @@ class EvaluatorABC(ABC):
     """
 
     @abstractmethod
-    def evaluate(self, individuals: Sequence[str]) -> list[FitnessABC]:
+    def __call__(self, individuals: Sequence[str]) -> list[FitnessABC]:
         raise NotImplementedError
 
 
@@ -49,8 +50,12 @@ class PythonFunction(EvaluatorABC):
     def __init__(self, function: Callable[[str], FitnessABC]) -> None:
         self._function = function
 
-    def evaluate(self, individuals: Sequence[str]) -> list[FitnessABC]:
+    def __str__(self):
+        return f"PythonFunction❬{self._function.__module__}.{self._function.__name__}❭"
+
+    def __call__(self, individuals: Sequence[str]) -> list[FitnessABC]:
         return [self._function(i) for i in individuals]
+
 
 
 class Script(EvaluatorABC):

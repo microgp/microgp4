@@ -29,7 +29,7 @@
 
 __all__ = ['Population']
 
-import logging
+from collections.abc import Sequence
 from typing import Callable, Any
 from copy import copy
 
@@ -87,12 +87,32 @@ class Population:
     def parameters(self) -> dict:
         return copy(self._extra_parameters)
 
+    def __getitem__(self, item):
+        return self._individuals[item]
+
+    def __len__(self):
+        return len(self._individuals)
+
     def __iadd__(self, individual):
-        assert check_valid_types(individual, Individual)
-        assert individual.is_valid(), \
-            f"ValueError: invalid individual"
-        self._individuals.append(individual)
+        if isinstance(individual, Sequence):
+            assert all(check_valid_types(i, Individual) for i in individual)
+            assert all(i.is_feasible for i in individual), \
+                f"ValueError: invalid individual"
+            self._individuals.extend(individual)
+        else:
+            assert check_valid_types(individual, Individual)
+            assert individual.is_feasible, \
+                f"ValueError: invalid individual"
+            self._individuals.append(individual)
         return self
+
+    def __iter__(self):
+        return enumerate(self._individuals)
+
+    def __str__(self):
+        return f'{self.__class__.__name__} @ {hex(id(self))} (top frame: {self.top_frame.__name__}; evaluator: {self._evaluator})' + \
+            '\n• ' + \
+            '\n• '.join(str(i) for i in self._individuals)
 
     def dump_individual(self, ind: int | Individual, extra_parameters: dict | None = None) -> str:
         if isinstance(ind, int):

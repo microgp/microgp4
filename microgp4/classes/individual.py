@@ -123,10 +123,11 @@ class Individual(Paranoid):
         n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_macro'].parameters.items()
                                                          for n in self.G
                                                          if '_macro' in self.G.nodes[n]))
-        me = 'Individual with' + \
-             f''' {n_frames} frames and {n_macros} macros''' + \
+        me = f'𝕚{self._id}:' + \
+             f''' {n_frames} frame{'s' if n_frames != 1 else ''} and {n_macros} macro{'s' if n_frames != 1 else ''}''' + \
              f''' ({n_params:,} parameter{'s' if n_params != 1 else ''} total''' + \
-             f''', {n_links:,} structural)'''
+             f''', {n_links:,} structural)''' + \
+             f''' ⇨ {self.fitness}'''
         return me
 
     def __eq__(self, other: 'Individual') -> bool:
@@ -144,11 +145,11 @@ class Individual(Paranoid):
         return self._id
 
     @property
-    def finalized(self):
+    def is_finalized(self):
         return self._fitness is not None
 
     @property
-    def feasible(self) -> bool:
+    def is_feasible(self) -> bool:
         """Checks the syntax of the individual."""
         for n in nx.dfs_preorder_nodes(self.grammar_tree, source=NODE_ZERO):
             if '_frame' in self._genome.nodes[n]:
@@ -180,7 +181,7 @@ class Individual(Paranoid):
         if self._grammar_tree:
             return self._grammar_tree
         gt = get_grammar_tree(self._genome)
-        if self.finalized:
+        if self.is_finalized:
             self._grammar_tree = gt
         return gt
 
@@ -191,7 +192,7 @@ class Individual(Paranoid):
 
     def _check_fitness(self, value):
         check_valid_types(value, FitnessABC)
-        assert not self.finalized, \
+        assert not self.is_finalized, \
             f"ValueError: Individual marked as final, fitness value already set to {self._fitness} (paranoia check)"
         return True
 

@@ -26,19 +26,15 @@ def main():
     macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 16))
     frame = ugp.f.sequence([macro])
 
-    evaluator = ugp.eval.PythonFunction(fitness)
-    population = ugp.C.Population(frame, evaluator)
+    evaluator = ugp.evaluator.PythonFunction(fitness)
+    ugp.ea.vanilla_ea(frame, evaluator)
 
     #population.add_random_individual()
     ###population.add_random_individual()
     #population.add_random_individual()
     #population.evaluate()
-
-    ugp.ea.vanilla_ea()
     pass
 
 
 if __name__ == '__main__':
-
-    from pprint import pprint
     main()

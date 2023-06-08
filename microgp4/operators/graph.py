@@ -57,7 +57,7 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
 
     assert check_valid_types(individual, Individual)
     assert check_valid_types(top, FrameABC, Macro, subclass=True)
-    assert not individual.finalized, \
+    assert not individual.is_finalized, \
         f"ValueError: individual is finalized (paranoia check)"
 
     G = individual.genome
