@@ -24,31 +24,38 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# =[ HISTORY ]===============================================================
+#############################################################################
+# HISTORY
 # v1 / June 2023 / Squillero (GX)
 
-__all__ = ['random_individual']
-
 from microgp4.user_messages import *
-from microgp4.classes import Population, Individual
-from microgp4.registry import *
-from microgp4.operators.graph import *
+from microgp4.classes.parameter import ParameterABC
 
-# TODO: random individual non prende pop ma top frame
-# TODO: mutate -> inizialize (senza strength!)
-# TODO: mutation -> op gen
+__all__ = ['mutate']
 
 
-@genetic_operator(num_parents=None)
-def random_individual(*, strength=1.0, top_frame=None) -> None:
-    """Generate a valid random individual to the population."""
+def mutate(parameter: ParameterABC, /, strength: float) -> None:
+    """Mutates a parameter
 
-    new_root = None
-    new_individual = None
-    while new_root is None:
-        new_individual = Individual(top_frame)
-        try:
-            new_root = unroll(new_individual, top_frame)
-        except InvalidIndividual:
-            new_root = None
-    return new_individual
+    The function tries at least 100 times to change the parameter by calling `mutate` with the given strength.
+    However, if `strength` is 0, `mutate` is not called at all and the parameter is left untouched.
+
+    Parameters
+    ----------
+    parameter
+        the parameter to mutate
+
+    strength
+        the strength of the mutation
+    """
+
+    counter = 0
+    old_value = parameter.value
+
+    while strength > 0 and parameter.value == old_value and counter < 100:
+        counter += 1
+        parameter.mutate(strength=strength)
+
+    assert parameter.value != old_value or counter < 100 or strength < .01 or \
+           performance(f"Failed to mutate {parameter.__class__.__name__} with strength {strength} after {counter:,} attempts",
+        stacklevel_offset=1)

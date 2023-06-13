@@ -36,7 +36,6 @@ from copy import copy
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.individual import Individual
 from microgp4.classes.frame import FrameABC
-from microgp4.classes.evaluator import EvaluatorABC
 from microgp4.user_messages import *
 
 
@@ -59,9 +58,10 @@ class Population:
         '_text_after_node': '',
     }
 
-    def __init__(self, top_frame: type[FrameABC], evaluator: EvaluatorABC, extra_parameters: dict | None = None):
+    def __init__(self, top_frame: type[FrameABC], extra_parameters: dict | None = None):
+        assert check_valid_types(top_frame, FrameABC, subclass=True)
+        assert extra_parameters is None or check_valid_type(extra_parameters, dict)
         self._top_frame = top_frame
-        self._evaluator = evaluator
         if extra_parameters is None:
             extra_parameters = dict()
         self._extra_parameters = Population.DEFAULT_EXTRA_PARAMETERS | extra_parameters
@@ -74,10 +74,6 @@ class Population:
     @property
     def top_frame(self):
         return self._top_frame
-
-    @property
-    def evaluator(self):
-        return self._evaluator
 
     @property
     def individuals(self) -> list[Individual]:
@@ -107,10 +103,10 @@ class Population:
         return self
 
     def __iter__(self):
-        return enumerate(self._individuals)
+        return iter(self._individuals)
 
     def __str__(self):
-        return f'{self.__class__.__name__} @ {hex(id(self))} (top frame: {self.top_frame.__name__}; evaluator: {self._evaluator})' + \
+        return f'{self.__class__.__name__} @ {hex(id(self))} (top frame: {self.top_frame.__name__})' + \
             '\n• ' + \
             '\n• '.join(str(i) for i in self._individuals)
 
@@ -131,3 +127,18 @@ class Population:
                 microgp_logger.debug(f"evaluate: Individual {i:2d}: {f}")
         for i, f in zip(self.individuals, result):
             i.fitness = f
+
+    def sort(self):
+        fronts = list()
+        sorted_ = list()
+        individuals = set(self._individuals)
+
+        while individuals:
+            pareto = set(i1 for i1 in individuals if all(i1.fitness == i2.fitness or i1.fitness >> i2.fitness for i2 in individuals))
+            fronts.append(pareto)
+            individuals -= pareto
+            sorted_ += sorted(pareto, key=lambda i: (i.fitness, -i.id))
+
+        self._individuals = sorted_
+
+

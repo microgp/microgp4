@@ -75,7 +75,7 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
 
     # Initialize structural parameters
 
-    tree = individual.grammar_tree
+    tree = individual.structure_tree
     if all(
             c.run_checks(NodeView(NodeReference(individual.genome, n))) for c, n in ((
                 G.nodes[n]['_frame'] if '_frame' in G.nodes[n] else G.nodes[n]['_macro'],

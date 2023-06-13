@@ -21,20 +21,20 @@ def test_random_individual():
 
     m = ugp.f.macro("{n}", n=ugp.f.integer_parameter(-1_000_000, 1_000_000 + 1))
     bunch = ugp.framework.bunch(m, size=1_000)
-    population = ugp.classes.Population(top_frame=bunch, evaluator=None)
+    population = ugp.classes.Population(top_frame=bunch)
 
     ugp.rrandom.seed(42)
-    population.add_random_individual()
+    population += ugp.operators.random_individual(top_frame=bunch)
     reference = population.dump_individual(0)
 
-    population.add_random_individual()
+    population += ugp.operators.random_individual(top_frame=bunch)
     # Next individuals should be different
     assert reference != population.dump_individual(len(population.individuals) - 1)
 
     ugp.rrandom.seed(None)
-    population.add_random_individual()
+    population += ugp.operators.random_individual(top_frame=bunch)
     assert reference != population.dump_individual(len(population.individuals) - 1)
 
     ugp.rrandom.seed(42)
-    population.add_random_individual()
+    population += ugp.operators.random_individual(top_frame=bunch)
     assert reference == population.dump_individual(len(population.individuals) - 1)

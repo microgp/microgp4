@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -25,33 +25,26 @@
 # limitations under the License.
 
 # =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+# v1 / June 2023 / Squillero (GX)
 
-__all__ = ['safe_dump', 'cleanup_dump']
+__all__ = ['random_individual']
 
-from collections import Counter
-from microgp4.user_messages import microgp_logger
+from microgp4.user_messages import *
+from microgp4.classes import Population, Individual
+from microgp4.registry import *
+from microgp4.operators.graph import *
 
-_name_counter = Counter()
-_used_names = set()
 
+@genetic_operator(num_parents=None)
+def random_individual(top_frame) -> list[Individual]:
+    """Generate a valid random individual to the population."""
 
-def safe_dump(obj, **extra_parameters):
-    extra = dict(extra_parameters)
-    dumped = None
-    while not dumped:
+    new_root = None
+    new_individual = None
+    while new_root is None:
+        new_individual = Individual(top_frame)
         try:
-            dumped = obj.dump(**extra)
-        except KeyError as k:
-            if k.args[0] in extra:
-                microgp_logger.error(f"dump: Can't safely dump {obj!r}")
-                raise k
-            extra[k.args[0]] = '{' + k.args[0] + '}'
-        except Exception as e:
-            microgp_logger.error(f"dump: Can't safely dump {obj!r}")
-            raise e
-    return dumped
-
-
-def _strip_genome(raw_dump: str) -> str:
-    return '\n'.join(raw_dump.split('\n')[1:-1])
+            new_root = unroll(new_individual, top_frame)
+        except InvalidIndividual:
+            new_root = None
+    return new_individual

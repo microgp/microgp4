@@ -74,7 +74,7 @@ population.individuals.append(deepcopy(population.individuals[0]))
 I0 = population.individuals[0]
 I1 = population.individuals[1]
 
-I0.as_forest(filename='grammar-tree', figsize=(25, 15), bbox_inches='tight')
+I0.as_forest(filename='structure-tree', figsize=(25, 15), bbox_inches='tight')
 I0.as_lgp(filename='code.png', figsize=(25, 15), bbox_inches='tight')
 
 ugp.rrandom.seed()

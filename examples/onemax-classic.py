@@ -18,15 +18,15 @@ import microgp4 as ugp
 #@ugp.fitness_function(type_=ugp.fitness.Integer)
 @ugp.fitness_function
 def fitness(genotype: str):
-    """xxx"""
-    return sum(b == '1' for b in ugp.clean_dump(genotype))
+    """Vanilla 1-max"""
+    return sum(b == '1' for b in genotype)
 
 
 def main():
-    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 16))
+    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 100))
     frame = ugp.f.sequence([macro])
 
-    evaluator = ugp.evaluator.PythonFunction(fitness)
+    evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
     ugp.ea.vanilla_ea(frame, evaluator)
 
     #population.add_random_individual()

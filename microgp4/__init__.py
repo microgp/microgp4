@@ -33,6 +33,8 @@ import logging
 from microgp4 import sys
 
 # noinspection PyUnresolvedReferences
+from microgp4.functions import *
+# noinspection PyUnresolvedReferences
 from microgp4.global_symbols import *
 # noinspection PyUnresolvedReferences
 from microgp4 import user_messages
@@ -64,8 +66,6 @@ from microgp4 import fitness as fit
 # noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as evaluator
 
-# noinspection PyUnresolvedReferences
-from microgp4.tools.dump import clean_dump
 # noinspection PyUnresolvedReferences
 from microgp4.randy.test_randy import rrandom
 # noinspection PyUnresolvedReferences

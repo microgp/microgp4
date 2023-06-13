@@ -65,12 +65,12 @@ def _numeric(*, type_, min_, max_):
 
         if type_ == int:
 
-            def mutate(self, strength: float) -> None:
+            def mutate(self, strength: float = 1., **kwargs) -> None:
                 self.value = rrandom.sigma_randint(min_, max_, loc=self._value, strength=strength)
 
         elif type_ == float:
 
-            def mutate(self, strength: float) -> None:
+            def mutate(self, strength: float = 1., **kwargs) -> None:
                 self.value = rrandom.sigma_random(min_, max_, loc=self._value, strength=strength)
 
     if type_ == int and min_ == 0 and any(max_ == 2**n for n in range(4, 128 + 1)):
@@ -142,7 +142,7 @@ def _choice_parameter(alternatives: tuple[Hashable]) -> type[ParameterABC]:
                 f"ValueError: {self.value} not in alternative list: {alternatives}"
             return super().run_paranoia_checks()
 
-        def mutate(self, strength: float) -> None:
+        def mutate(self, strength: float = 1., **kwargs) -> None:
             self.value = rrandom.sigma_choice(alternatives, loc=alternatives.index(self._value), strength=strength)
 
     # NOTE[GX]: alternative symbol: – (not a minus!)
@@ -201,12 +201,11 @@ def _array_parameter(symbols: tuple[str], length: int) -> type[ParameterABC]:
                 f"ValueError: {self.value} not a valid array"
             return super().run_paranoia_checks()
 
-        def mutate(self, strength: float) -> None:
+        def mutate(self, strength: float = 1., **kwargs) -> None:
             if strength == 1:
                 new_value = [rrandom.choice(symbols) for _ in range(length)]
             else:
-                # TODO: small change
-                raise NotImplementedError
+                new_value = [rrandom.choice(symbols) if rrandom.boolean(strength) else old for old in self._value]
             self.value = ''.join(new_value)
 
     _patch_class_info(T, 'Array[' + ''.join(str(a) for a in symbols) + f'ｘ{length}]', tag='parameter')

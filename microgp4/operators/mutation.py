@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -24,34 +24,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+#############################################################################
+# HISTORY
+# v1 / June 2023 / Squillero (GX)
 
-__all__ = ['safe_dump', 'cleanup_dump']
-
-from collections import Counter
-from microgp4.user_messages import microgp_logger
-
-_name_counter = Counter()
-_used_names = set()
-
-
-def safe_dump(obj, **extra_parameters):
-    extra = dict(extra_parameters)
-    dumped = None
-    while not dumped:
-        try:
-            dumped = obj.dump(**extra)
-        except KeyError as k:
-            if k.args[0] in extra:
-                microgp_logger.error(f"dump: Can't safely dump {obj!r}")
-                raise k
-            extra[k.args[0]] = '{' + k.args[0] + '}'
-        except Exception as e:
-            microgp_logger.error(f"dump: Can't safely dump {obj!r}")
-            raise e
-    return dumped
+from microgp4.user_messages import *
+from microgp4.classes import Population, Individual
+from microgp4.registry import *
+from microgp4.functions import *
+from microgp4.randy import rrandom
 
 
-def _strip_genome(raw_dump: str) -> str:
-    return '\n'.join(raw_dump.split('\n')[1:-1])
+@genetic_operator(num_parents=1)
+def single_parameter_mutation(parent: Individual, strength=1.0) -> list['Individual']:
+    offspring = parent.clone
+    param = rrandom.choice(offspring.parameters)
+    mutate(param, strength=strength)
+    return [offspring]

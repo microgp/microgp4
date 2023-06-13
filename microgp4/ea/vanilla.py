@@ -39,16 +39,33 @@ from microgp4.classes.frame import FrameABC
 from microgp4.classes.evaluator import EvaluatorABC
 from microgp4.randy import rrandom
 
+from microgp4.registry import *
+
+
 def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20):
-    population = Population(top_frame, evaluator)
-    ops = [op for op in get_operators() if op.num_parents is None]
+    population = Population(top_frame)
+
+    # Initialize population
+    ops0 = [op for op in get_operators() if op.num_parents is None]
     while len(population) < mu:
-        o = rrandom.choice(ops)
+        o = rrandom.choice(ops0)
         population += o(top_frame=top_frame)
-    new_individuals = [(I, population.dump_individual(i)) for i, I in population if not I.is_finalized]
-    new_fitnesses = evaluator([g for _, g in new_individuals])
-    print(new_individuals)
-    print(new_fitnesses)
-    for I, f in zip(new_individuals, new_fitnesses):
-        I[0].fitness = f
+    evaluator(population)
     print(population)
+
+    # Let's roll
+    for _ in range(100):
+        ops = [op for op in get_operators() if op.num_parents is not None]
+        new_individuals = list()
+        for step in range(lambda_):
+            op = rrandom.choice(ops)
+            parent = rrandom.choice(population.individuals)
+            new_individuals += op(parent, strength=.05)
+        population += new_individuals
+        evaluator(population)
+        population.sort()
+        population.individuals[mu:] = []
+        print("\n")
+        print(population)
+
+    pass

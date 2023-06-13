@@ -33,6 +33,8 @@ from typing import Callable, Sequence
 from abc import ABC, abstractmethod
 
 from microgp4.classes.fitness import FitnessABC
+from microgp4.classes.population import Population
+from microgp4.tools.dump import _strip_genome
 from microgp4.classes.individual import Individual
 
 
@@ -41,21 +43,31 @@ class EvaluatorABC(ABC):
     """
 
     @abstractmethod
-    def __call__(self, individuals: Sequence[str]) -> list[FitnessABC]:
+    def evaluate_population(self, population: Population) -> None:
         raise NotImplementedError
+
+    def __call__(self, population: Population) -> None:
+        self.evaluate_population((population))
 
 
 class PythonFunction(EvaluatorABC):
 
-    def __init__(self, function: Callable[[str], FitnessABC]) -> None:
+    def __init__(self, function: Callable[[str], FitnessABC], strip_genome: bool = False) -> None:
+        if strip_genome:
+            self._cook = lambda g: _strip_genome(g)
+        else:
+            self._cook = lambda g: g
+
         self._function = function
 
     def __str__(self):
-        return f"PythonFunction❬{self._function.__module__}.{self._function.__name__}❭"
+        return f"PurePythonEvaluator❬{self._function.__module__}.{self._function.__name__}❭"
 
-    def __call__(self, individuals: Sequence[str]) -> list[FitnessABC]:
-        return [self._function(i) for i in individuals]
-
+    def evaluate_population(self, population: Population) -> None:
+        for i, ind in [_ for _ in enumerate(population) if _[1].is_finalized is False]:
+            genotype = self._cook(population.dump_individual(i))
+            fitness = self._function(genotype)
+            ind.fitness = fitness
 
 
 class Script(EvaluatorABC):

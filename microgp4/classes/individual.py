@@ -49,7 +49,6 @@ from microgp4.tools.graph import *
 
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import PedanticABC
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
@@ -59,7 +58,7 @@ from microgp4.classes.readymade_macros import MacroZero
 
 @dataclass(frozen=True)
 class Birth:
-    operator: Callable
+    operator: str
     parents: tuple['Individual']
 
 
@@ -110,7 +109,17 @@ class Individual(Paranoid):
         self._genome.add_node(NODE_ZERO, root=True, _macro=MacroZero())
         self._fitness = None
         self._str = ''
-        self._grammar_tree = None
+        self._structure_tree = None
+        self._birth = None
+
+    @property
+    def clone(self) -> 'Individual':
+        I = deepcopy(self)
+        I._fitness = None
+        I._birth = None
+        Individual.__COUNTER += 1
+        I._id = Individual.__COUNTER
+        return I
 
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
@@ -138,6 +147,9 @@ class Individual(Paranoid):
                 is_equal(NodeReference(self.G, n1), NodeReference(other.G, n2)) for n1, n2 in zip_longest(
                     nx.dfs_preorder_nodes(self.G, NODE_ZERO), nx.dfs_preorder_nodes(other.G, NODE_ZERO)))
 
+    def __hash__(self):
+        return hash(self._id)
+
     # PROPERTIES
 
     @property
@@ -151,7 +163,7 @@ class Individual(Paranoid):
     @property
     def is_feasible(self) -> bool:
         """Checks the syntax of the individual."""
-        for n in nx.dfs_preorder_nodes(self.grammar_tree, source=NODE_ZERO):
+        for n in nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO):
             if '_frame' in self._genome.nodes[n]:
                 if not self._genome.nodes[n]['_frame'].run_checks(NodeView(self._genome, n)):
                     return False
@@ -175,15 +187,19 @@ class Individual(Paranoid):
         return self._genome
 
     @property
-    def grammar_tree(self) -> nx.classes.DiGraph:
-        """A tree with the grammar tree of the individual (ie. only edges of `kind=FRAMEWORK`)."""
+    def structure_tree(self) -> nx.classes.DiGraph:
+        """A tree with the structure tree of the individual (ie. only edges of `kind=FRAMEWORK`)."""
 
-        if self._grammar_tree:
-            return self._grammar_tree
-        gt = get_grammar_tree(self._genome)
+        if self._structure_tree:
+            return self._structure_tree
+        gt = get_structure_tree(self._genome)
         if self.is_finalized:
-            self._grammar_tree = gt
+            self._structure_tree = gt
         return gt
+
+    @property
+    def birth(self):
+        return self._birth
 
     @property
     def fitness(self):
@@ -212,7 +228,7 @@ class Individual(Paranoid):
 
     # PUBLIC METHODS
     def as_forest(self, *, figsize: tuple = (12, 10), filename: str | None = None, **kwargs) -> None:
-        r"""Draw the grammar tree of the individual.
+        r"""Draw the structure tree of the individual.
 
         Generate a figure representing the individual using NetworkX's `multipartite_layout` [1]_
         with layers corresponding to the depth of nodes in the tree structure.
@@ -301,15 +317,10 @@ class Individual(Paranoid):
         else:
             self._draw_multipartite(figsize)
 
-    def clone(self) -> "Individual":
-        I = deepcopy(self)
-        I._fitness = None
-        return I
-
     def discard_useless_components(self):
         G = nx.MultiDiGraph()
         G.add_edges_from(self.G.edges)
-        T = self.grammar_tree
+        T = self.structure_tree
         for v in list(T.successors(0))[1:]:
             G.remove_edge(0, v)
         ccomp = list(nx.weakly_connected_components(G))

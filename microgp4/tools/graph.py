@@ -31,7 +31,7 @@ from collections.abc import Sequence
 import networkx as nx
 
 __all__ = [
-    'get_predecessor', 'get_siblings', 'get_successors', 'set_successors_order', 'get_grammar_tree', 'get_frames',
+    'get_predecessor', 'get_siblings', 'get_successors', 'set_successors_order', 'get_structure_tree', 'get_frames',
     'get_macros', 'get_parameters', 'get_node_color_dict', 'is_equal', '_get_first_macro'
 ]
 
@@ -54,7 +54,7 @@ def _check_genome(G: nx.MultiDiGraph) -> bool:
     return True
 
 
-def get_grammar_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
+def get_structure_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
     tree = nx.DiGraph()
     tree.add_edges_from((u, v) for u, v, k in G.edges(data='kind') if k == FRAMEWORK)
     assert nx.is_branching(tree) and nx.is_weakly_connected(tree), \
@@ -117,7 +117,7 @@ def get_frames(G: nx.MultiDiGraph, name: str | None = None):
     assert name is None or check_valid_types(name, str)
 
     return [
-        n for n in nx.dfs_preorder_nodes(get_grammar_tree(G), source=NODE_ZERO) if '_frame' in G.nodes[n] and
+        n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO) if '_frame' in G.nodes[n] and
         (name is None or uncanonize_name(G.nodes[n]['_frame'].__class__.__name__, user=True) == name)
     ]
 
@@ -136,7 +136,7 @@ def get_macros(G: nx.MultiDiGraph, root: int | None = None):
         root = NODE_ZERO
     assert '_frame' in G.nodes[root], \
         f"ValueError: {root} is not a frame node"
-    return [n for n in nx.dfs_preorder_nodes(get_grammar_tree(G), source=root) if '_macro' in G.nodes[n]]
+    return [n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=root) if '_macro' in G.nodes[n]]
 
 
 def get_parameters(G: nx.MultiDiGraph, root: int | None = None) -> list[ParameterABC]:
@@ -150,8 +150,8 @@ def get_parameters(G: nx.MultiDiGraph, root: int | None = None) -> list[Paramete
         A list of ParameterABC
     """
     return [
-        p for n in nx.dfs_preorder_nodes(get_grammar_tree(G), source=NODE_ZERO) if '_macro' in G.nodes[n]
-        for p in G.nodes[n]['_macro'].values() if isinstance(p, ParameterABC)
+        p for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO) if '_macro' in G.nodes[n]
+        for p in G.nodes[n]['_macro'].parameters.values()
     ]
 
 
