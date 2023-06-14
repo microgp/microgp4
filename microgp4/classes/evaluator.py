@@ -35,6 +35,8 @@ from abc import ABC, abstractmethod
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.population import Population
 from microgp4.tools.dump import _strip_genome
+from microgp4.registry import *
+from microgp4.global_symbols import *
 from microgp4.classes.individual import Individual
 
 
@@ -53,6 +55,8 @@ class EvaluatorABC(ABC):
 class PythonFunction(EvaluatorABC):
 
     def __init__(self, function: Callable[[str], FitnessABC], strip_genome: bool = False) -> None:
+        assert get_microgp4_type(function) == FITNESS_FUNCTION, \
+                f"TypeError: {function} has not be registered as a MicgroGP fitness function"
         if strip_genome:
             self._cook = lambda g: _strip_genome(g)
         else:

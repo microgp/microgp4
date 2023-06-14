@@ -12,6 +12,7 @@
 
 # Use pip install -U -r requirements.txt -r requirements-dev.txt
 
+pip
 yapf>=0.32
 toml>=0.10
 black[jupyter]>=23

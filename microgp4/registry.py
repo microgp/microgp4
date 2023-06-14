@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['Statistics', 'fitness_function', 'genetic_operator']
+__all__ = ['Statistics', 'fitness_function', 'genetic_operator', 'get_microgp4_type']
 
 from typing import Callable
 from dataclasses import dataclass
@@ -59,6 +59,12 @@ def _genetic_operator_proto(*, strength=1.0) -> list[Individual] | None:
 def _initializer_proto(top_frame) -> list[Individual] | None:
     """Example of signature for a genetic operator"""
     raise NotImplementedError
+
+
+def get_microgp4_type(object):
+    if not hasattr(object, 'microgp') or object.microgp != UGP4_TAG or not hasattr(object, 'type') :
+        return None
+    return object.type
 
 
 @dataclass

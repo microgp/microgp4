@@ -15,7 +15,7 @@
 import microgp4 as ugp
 
 
-#@ugp.fitness_function(type_=ugp.fitness.Integer)
+# explicit: @ugp.fitness_function(type_=ugp.fitness.Integer)
 @ugp.fitness_function
 def fitness(genotype: str):
     """Vanilla 1-max"""
