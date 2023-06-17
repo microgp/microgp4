@@ -24,16 +24,6 @@ def onemax1(x):
     return x
 
 
-@ugp.fitness_function(type_=ugp.fitness.UniformVector)
-def onemax2(x):
-    return x, 1, x
-
-
-@ugp.genetic_operator(num_parents=1)
-def foo(x):
-    return x
-
-
 print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
 print(foo.stats)
 x = foo('x')

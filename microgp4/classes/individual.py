@@ -27,6 +27,8 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
+# NOTE[GX]: This file contains code that some programmer may find upsetting
+
 __all__ = ['Individual']
 
 from typing import Any, Callable
@@ -58,8 +60,8 @@ from microgp4.classes.readymade_macros import MacroZero
 
 @dataclass(frozen=True)
 class Birth:
-    operator: str
-    parents: tuple['Individual']
+    operator: Callable
+    parents: tuple
 
 
 class Individual(Paranoid):
@@ -114,11 +116,12 @@ class Individual(Paranoid):
 
     @property
     def clone(self) -> 'Individual':
+        scratch = self._fitness, self._birth
+        self._fitness, self._birth = None, None
         I = deepcopy(self)
-        I._fitness = None
-        I._birth = None
         Individual.__COUNTER += 1
         I._id = Individual.__COUNTER
+        self._fitness, self._birth = scratch
         return I
 
     def __del__(self) -> None:
@@ -214,9 +217,15 @@ class Individual(Paranoid):
 
     @fitness.setter
     def fitness(self, value: FitnessABC):
-        """The fitness of the individual."""
+        """Set the fitness of the individual and update operator stats"""
         assert self._check_fitness(value)
         self._fitness = value
+        if any(value >> i.fitness for i in self._birth.parents) and \
+                any(value >> i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents):
+            self._birth.operator.stats.successes += 1
+        elif any(value << i.fitness for i in self.birth.parents) and \
+                any(value << i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents):
+            self._birth.operator.stats.failures += 1
 
     @property
     def macros(self):

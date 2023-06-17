@@ -27,9 +27,9 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'UniformVector']
+__all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'UniformVector', 'make_fitness']
 
-from typing import Sequence
+from typing import Sequence, Any
 
 from functools import partialmethod
 from math import isclose
@@ -151,6 +151,15 @@ class UniformVector(Vector):
         super().__init__(fitness_values)
 
 
+def make_fitness(data: Any):
+    if isinstance(data, Sequence):
+        return UniformVector(data)
+    elif isinstance(data, int):
+        return Integer(data)
+    else:
+        return Scalar(data)
+
+##############################################################################
 # Patch names
 _patch_class_info(Scalar, 'Scalar', tag='fitness')
 _patch_class_info(Integer, 'Integer', tag='fitness')

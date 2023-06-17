@@ -19,7 +19,7 @@ import microgp4 as ugp
 @ugp.fitness_function
 def fitness(genotype: str):
     """Vanilla 1-max"""
-    return sum(b == '1' for b in genotype)
+    return 0, 0, 0, sum(b == '1' for b in genotype)
 
 
 def main():

@@ -134,11 +134,10 @@ class Population:
         individuals = set(self._individuals)
 
         while individuals:
-            pareto = set(i1 for i1 in individuals if all(i1.fitness == i2.fitness or i1.fitness >> i2.fitness for i2 in individuals))
+            pareto = set(i1 for i1 in individuals
+                         if all(i1.fitness == i2.fitness or i1.fitness >> i2.fitness for i2 in individuals))
             fronts.append(pareto)
             individuals -= pareto
             sorted_ += sorted(pareto, key=lambda i: (i.fitness, -i.id))
 
         self._individuals = sorted_
-
-

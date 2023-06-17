@@ -27,6 +27,8 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
+# NOTE[GX]: This file contains code that some programmer may find upsetting
+
 __all__ = ['Statistics', 'fitness_function', 'genetic_operator', 'get_microgp4_type']
 
 from typing import Callable
@@ -34,6 +36,7 @@ from dataclasses import dataclass
 
 from functools import wraps
 from inspect import signature
+import weakref
 from copy import copy
 import shelve
 from pickle import HIGHEST_PROTOCOL
@@ -62,7 +65,7 @@ def _initializer_proto(top_frame) -> list[Individual] | None:
 
 
 def get_microgp4_type(object):
-    if not hasattr(object, 'microgp') or object.microgp != UGP4_TAG or not hasattr(object, 'type') :
+    if not hasattr(object, 'microgp') or object.microgp != UGP4_TAG or not hasattr(object, 'type'):
         return None
     return object.type
 
@@ -72,20 +75,19 @@ class Statistics:
     """Class for keeping stats of a genetic operator."""
     calls: int = 0
     aborts: int = 0
-    total_offsprint: int = 0
-    complete_failures: int = 0
-    partial_failures: int = 0
-    partial_successes: int = 0
-    complete_successes: int = 0
-    pass
+    offspring: int = 0
+    failures: int = 0
+    successes: int = 0
 
 
 def fitness_function(func: Callable[..., FitnessABC] | None = None,
                      /,
                      *,
-                     type_: type[FitnessABC] = fitness.Scalar,
+                     type_: type[FitnessABC] = None,
                      backend: str | None = 'list'):
 
+    if type_ is None:
+        type_ = lambda f: fitness.make_fitness(f)
     log_ = FitnessLog(backend)
 
     @wraps(func)
@@ -151,10 +153,12 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
             elif isinstance(offspring, Individual):
                 offspring = [offspring]
 
+            assert all(isinstance(i, Individual) for i in offspring), \
+                f"TypeError: offspring {offspring!r}: expected list['Individual']"
             offspring = [i for i in offspring if i.is_feasible]
             for i in offspring:
-                i._birth = Birth(func.__module__ + '.' + func.__name__, tuple(args))
-            wrapper.stats.total_offsprint += len(offspring)
+                i._birth = Birth(wrapper, tuple(weakref.proxy(a) for a in args))
+            wrapper.stats.offspring += len(offspring)
             return offspring
 
         wrapper.microgp = UGP4_TAG
