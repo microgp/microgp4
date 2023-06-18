@@ -62,8 +62,8 @@ def make_shared_parameter(parameter: type[ParameterABC]) -> type[ParameterABC]:
             if self._owner:
                 parameter_instance.mutate(strength, **kwargs)
 
-        def is_valid(self, obj: Any) -> bool:
-            return parameter_instance.is_valid(obj)
+        def is_correct(self, obj: Any) -> bool:
+            return parameter_instance.is_correct(obj)
 
     _patch_class_info(T, f'Shared❬{parameter_instance.__class__.__name__}❭', tag='parameter')
     return T

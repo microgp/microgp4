@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'UniformVector', 'make_fitness']
+__all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'Lexicographic', 'make_fitness']
 
 from typing import Sequence, Any
 
@@ -85,7 +85,7 @@ class Scalar(FitnessABC, float):
         assert self.check_comparable(other)
         return self != other and float(self) > float(other)
 
-    def check_comparable(self, other: 'Approximate'):
+    def check_comparable(self, other: 'Scalar'):
         assert super().check_comparable(other)
         assert self._abs_tol == other._abs_tol, \
             f"ValueError: different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol} (paranoia check)"
@@ -118,9 +118,9 @@ class Vector(FitnessABC):
         self.check_comparable(other)
         return list(self) > list(other)
 
-    def is_dominant(self, other: 'Vector') -> bool:
-        self.check_comparable(other)
-        return all(v1 >> v2 for v1, v2 in zip(self, other))
+    #def is_dominant(self, other: 'Vector') -> bool:
+    #    self.check_comparable(other)
+    #    return all(v1 >> v2 for v1, v2 in zip(self, other))
 
     def _decorate(self) -> str:
         return '(' + ', '.join(e._decorate() for e in self) + ')'
@@ -132,7 +132,7 @@ class Vector(FitnessABC):
         return hash(self._values)
 
 
-class UniformVector(Vector):
+class Lexicographic(Vector):
     """A generic vector of Fitness values.
 
     fitness_type is the subtype, **kwargs are passed to fitness init
@@ -153,11 +153,12 @@ class UniformVector(Vector):
 
 def make_fitness(data: Any):
     if isinstance(data, Sequence):
-        return UniformVector(data)
+        return Lexicographic(data)
     elif isinstance(data, int):
         return Integer(data)
     else:
         return Scalar(data)
+
 
 ##############################################################################
 # Patch names
@@ -165,7 +166,7 @@ _patch_class_info(Scalar, 'Scalar', tag='fitness')
 _patch_class_info(Integer, 'Integer', tag='fitness')
 _patch_class_info(Float, 'Float', tag='fitness')
 _patch_class_info(Vector, 'Vector', tag='fitness')
-_patch_class_info(UniformVector, 'Vector', tag='fitness')
+_patch_class_info(Lexicographic, 'Vector', tag='fitness')
 #_patch_class_info(ApproximateVector, 'VectorApproximate', tag='fitness')
 #_patch_class_info(IntegerVector, 'VectorInteger', tag='fitness')
 #_patch_class_info(ScalarVector, 'VectorScalar', tag='fitness')

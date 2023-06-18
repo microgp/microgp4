@@ -56,11 +56,11 @@ def _numeric(*, type_, min_, max_):
             self._value = min_
 
         def run_paranoia_checks(self) -> bool:
-            assert self.is_valid(self.value), \
+            assert self.is_correct(self.value), \
                 f"TypeError: not a {type_} in range {min_}-{max_}"
             return super().run_paranoia_checks()
 
-        def is_valid(self, obj: Any) -> bool:
+        def is_correct(self, obj: Any) -> bool:
             return isinstance(obj, type_) and min_ <= obj < max_
 
         if type_ == int:
@@ -134,11 +134,11 @@ def _choice_parameter(alternatives: tuple[Hashable]) -> type[ParameterABC]:
             super().__init__()
             self._value = alternatives[0]
 
-        def is_valid(self, obj: Any) -> bool:
+        def is_correct(self, obj: Any) -> bool:
             return obj in alternatives
 
         def run_paranoia_checks(self) -> bool:
-            assert self.is_valid(self.value), \
+            assert self.is_correct(self.value), \
                 f"ValueError: {self.value} not in alternative list: {alternatives}"
             return super().run_paranoia_checks()
 
@@ -190,14 +190,14 @@ def _array_parameter(symbols: tuple[str], length: int) -> type[ParameterABC]:
             super().__init__()
             self._value = ''.join(symbols[0] for _ in range(length))
 
-        def is_valid(self, obj: Any) -> bool:
+        def is_correct(self, obj: Any) -> bool:
             if len(obj) != length:
                 return False
             return all(e in set(symbols) for e in obj)
 
         def run_paranoia_checks(self) -> bool:
             # TODO: improve message
-            assert self.is_valid(self.value), \
+            assert self.is_correct(self.value), \
                 f"ValueError: {self.value} not a valid array"
             return super().run_paranoia_checks()
 

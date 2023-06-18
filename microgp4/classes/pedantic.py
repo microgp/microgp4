@@ -31,23 +31,51 @@
 __all__ = ['PedanticABC']
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Callable
+
+from microgp4.user_messages import microgp_logger
+from microgp4.global_symbols import *
+from microgp4.classes.node_view import NodeReference
 
 
-class PedanticABC(ABC):
-    """Abstract class: Pedantic classes do implement the `is_valid(x)` method."""
+class PedanticABC:
+    """Abstract class: Pedantic classes do implement the `is_correct(x)` method.
 
-    @abstractmethod
-    def is_valid(self, obj: Any) -> bool:
-        """Checks an object against the specifications.
+    Pedantic classes also allow to `add_check` and `run_checks`.
+    """
 
-        The function checks the validity of an object against a Pedantic class, for example the current value of a
-        parameter against the parameter definition (eg. type, range), or a node against a Frame definition.
 
-        Args:
-            obj: Any object
+
+    @property
+    def valid(self) -> bool:
+        """Checks an object against its specifications.
+
+        The property checks the validity of the object against its definition.
 
         Returns:
             True if the object is valid, False otherwise
         """
+        raise NotImplementedError
+
+    @classmethod
+    def add_node_check(cls, function: Callable) -> None:
+        try:
+            cls.NODE_CHECKS.append(function)
+        except AttributeError:
+            cls.NODE_CHECKS = [function]
+
+    @classmethod
+    def add_value_check(cls, function: Callable) -> None:
+        try:
+            cls.VALUE_CHECKS.append(function)
+        except AttributeError:
+            cls.VALUE_CHECKS = [function]
+
+    def is_correct(self, node: NodeReference | None = None) -> bool:
+        if hasattr(self.__class__, 'NODE_CHECKS') and not all(f(node) for f in self.NODE_CHECKS):
+            microgp_logger.debug(f"CheckFail: Fail NodeCheck: {self.__class__.NODE_CHECKS}")
+            return False
+        if hasattr(self.__class__, 'VALUE_CHECKS') and not all(f(self) for f in self.VALUE_CHECKS):
+            microgp_logger.debug(f"CheckFail: Fail ValueCheck: {self.__class__.VALUE_CHECKS}")
+            return False
         return True

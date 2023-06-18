@@ -87,7 +87,10 @@ include = ['microgp4/**']
 #requires = ["hatchling"]
 
 [tool.mypy]
-modules = ['src.microgp4']
+modules = ['microgp4']
+
+[tool.pytype]
+inputs = ['microgp4']
 
 [tool.pylint]
 max-line-length = 120

@@ -51,6 +51,7 @@ from microgp4.tools.graph import *
 
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.paranoid import Paranoid
+from microgp4.classes.pedantic import PedanticABC
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
@@ -64,7 +65,7 @@ class Birth:
     parents: tuple
 
 
-class Individual(Paranoid):
+class Individual(Paranoid, PedanticABC):
     """
     MicroGP individual, that is, a genotype and its fitness
 
@@ -163,8 +164,25 @@ class Individual(Paranoid):
     def is_finalized(self):
         return self._fitness is not None
 
+    # PEDANTIC
+
     @property
-    def is_feasible(self) -> bool:
+    def valid(self) -> bool:
+        """Checks the syntax of the individual."""
+        for node, data in self._genome.nodes(data=True):
+            # TODO: Pretty much alike, a single loop would be nicer ;-)
+            if '_frame' in data:
+                if not data['_frame'].valid or not data['_frame'].is_correct(NodeView(self._genome, node)):
+                    return False
+            elif '_macro' in data:
+                if not data['_macro'].valid or not data['_macro'].is_correct(NodeView(self._genome, node)):
+                    return False
+            else:
+                raise ValueError('Unknown node type')
+        return True
+
+    @property
+    def OLDISH_valid(self) -> bool:
         """Checks the syntax of the individual."""
         for n in nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO):
             if '_frame' in self._genome.nodes[n]:
@@ -172,6 +190,8 @@ class Individual(Paranoid):
                     return False
             elif '_macro' in self._genome.nodes[n]:
                 if not self._genome.nodes[n]['_macro'].run_checks(NodeView(self._genome, n)):
+                    return False
+                if not all(p.valid for p in self._genome.nodes[n]['_macro'].parameters.values()):
                     return False
             elif 'root' in self._genome.nodes[n] and self._genome.nodes[n]['root'] is True:
                 pass  # safe

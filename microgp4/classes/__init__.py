@@ -27,7 +27,6 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-from .checkable import *
 from .frame import *
 from .fitness import *
 from .identifiable import *

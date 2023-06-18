@@ -73,20 +73,17 @@ class ParameterABC(Paranoid, PedanticABC, ABC):
 
     @value.setter
     def value(self, new_value):
-        assert self.is_valid(new_value), \
+        assert self.is_correct(new_value), \
             f"ValueError: invalid value: {new_value} (paranoia check)"
         self._value = new_value
+
+    @property
+    def valid(self) -> bool:
+        return self.is_correct()
 
     @abstractmethod
     def mutate(self, strength: float = 1., **kwargs) -> None:
         pass
-
-    def is_valid(self, obj: Any) -> bool:
-        if not super().is_valid(obj):
-            return False
-        if obj is None:
-            return False
-        return True
 
 
 class ParameterStructuralABC(ParameterABC, ABC):
@@ -132,9 +129,9 @@ class ParameterStructuralABC(ParameterABC, ABC):
     def __format__(self, format_spec):
         return 'n' + format(self.value, format_spec)
 
-    def is_valid(self, obj: Any) -> bool:
+    def is_correct(self, obj: Any) -> bool:
         assert check_valid_type(obj, int)
-        if not super().is_valid(obj):
+        if not super().is_correct(obj):
             return False
         if not self.is_fastened:
             return False

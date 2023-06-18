@@ -38,8 +38,6 @@ from microgp4.functions import *
 from microgp4.global_symbols import *
 # noinspection PyUnresolvedReferences
 from microgp4 import user_messages
-# noinspection PyUnresolvedReferences
-from microgp4.user_messages.modes import *
 
 # noinspection PyUnresolvedReferences
 from microgp4 import classes
@@ -86,7 +84,7 @@ for name in sorted(dir()):
     if isinstance(item, type) and item.__name__.endswith('ABC'):
         _patch_class_info(item, item.__name__, tag='abc')
     elif isinstance(item, type):
-        _patch_class_info(item, item.__name__, tag=None)
+        _patch_class_info(item, item.__name__)
 del _patch_class_info
 
 #############################################################################

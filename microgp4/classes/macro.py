@@ -34,7 +34,6 @@ from typing import Any
 
 from microgp4.user_messages import *
 
-from microgp4.classes.checkable import Checkable
 from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.pedantic import PedanticABC
 from microgp4.classes.value_bag import USER_PARAMETER
@@ -43,7 +42,7 @@ from microgp4.classes.node_view import NodeView
 from microgp4.classes.parameter import ParameterABC
 
 
-class Macro(Paranoid, PedanticABC, Checkable):
+class Macro(Paranoid, PedanticABC):
     """Base class for all the different Macros."""
 
     TEXT: str
@@ -60,10 +59,15 @@ class Macro(Paranoid, PedanticABC, Checkable):
             return False
         return True
 
-    def is_valid(self, nv: Any) -> bool:
+    # PEDANTIC
+    @property
+    def valid(self) -> bool:
+        return all(p.valid for p in self.parameters.values())
+
+    def is_correct(self, nv: Any) -> bool:
         """Checks a NodeView against a macro."""
         assert check_valid_type(nv, NodeView)
-        return all(nv.attributes[n].is_valid(nv.attributes[n].value) for n, p in self.PARAMETERS.items())
+        return all(nv.attributes[n].is_correct(nv.attributes[n].value) for n, p in self.PARAMETERS.items())
 
     @property
     def text(self) -> str:
@@ -76,6 +80,7 @@ class Macro(Paranoid, PedanticABC, Checkable):
     @property
     def parameter_types(self) -> dict[str, type[ParameterABC]]:
         return self.PARAMETERS
+
 
     #def __getitem__(self, parameter: str) -> Any:
     #    assert Macro.is_name_valid(parameter), \

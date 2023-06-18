@@ -77,7 +77,7 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
 
     tree = individual.structure_tree
     if all(
-            c.run_checks(NodeView(NodeReference(individual.genome, n))) for c, n in ((
+            c.is_correct(NodeView(NodeReference(individual.genome, n))) for c, n in ((
                 G.nodes[n]['_frame'] if '_frame' in G.nodes[n] else G.nodes[n]['_macro'],
                 n) for n in nx.dfs_preorder_nodes(tree, source=NODE_ZERO) if n)):
         return new_node

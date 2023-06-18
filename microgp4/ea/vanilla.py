@@ -53,8 +53,9 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
     evaluator(population)
     print(population)
 
+    pass
     # Let's roll
-    for _ in range(100):
+    for _ in range(5):
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
         for step in range(lambda_):

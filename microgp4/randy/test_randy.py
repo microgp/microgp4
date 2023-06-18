@@ -20,7 +20,7 @@ import numpy as np
 from scipy.stats import truncnorm
 
 from microgp4.user_messages import *
-from microgp4.user_messages.modes import *
+from microgp4.global_symbols import *
 
 __all__ = ['Randy', 'rrandom']
 

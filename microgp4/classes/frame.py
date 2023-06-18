@@ -39,10 +39,9 @@ from microgp4.classes.macro import Macro
 from microgp4.classes.pedantic import PedanticABC
 from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import ValueBag
-from microgp4.classes.checkable import Checkable
 
 
-class FrameABC(Paranoid, PedanticABC, Checkable):
+class FrameABC(Paranoid, PedanticABC):
 
     _registered_names = set()
 
@@ -60,6 +59,11 @@ class FrameABC(Paranoid, PedanticABC, Checkable):
             return self.name == other.name
 
     @property
+    def valid(self) -> bool:
+        # TODO!
+        return True
+
+    @property
     def parameters(self):
         return copy(self._parameters)
 
@@ -71,10 +75,6 @@ class FrameABC(Paranoid, PedanticABC, Checkable):
     def dump(self, extra_parameters: ValueBag) -> str:
         check_valid_type(extra_parameters, ValueBag)
         return ''
-
-    def is_valid(self, obj) -> bool:
-        # TODO: Tupla Grafo/Nodo
-        return True
 
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()

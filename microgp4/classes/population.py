@@ -92,12 +92,12 @@ class Population:
     def __iadd__(self, individual):
         if isinstance(individual, Sequence):
             assert all(check_valid_types(i, Individual) for i in individual)
-            assert all(i.is_feasible for i in individual), \
+            assert all(i.valid for i in individual), \
                 f"ValueError: invalid individual"
             self._individuals.extend(individual)
         else:
             assert check_valid_types(individual, Individual)
-            assert individual.is_feasible, \
+            assert individual.valid, \
                 f"ValueError: invalid individual"
             self._individuals.append(individual)
         return self

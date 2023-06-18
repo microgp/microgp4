@@ -36,7 +36,7 @@ import logging
 import sys
 import warnings
 
-from .modes import notebook_mode
+from microgp4.global_symbols import notebook_mode
 
 BASE_STACKLEVEL = 3
 

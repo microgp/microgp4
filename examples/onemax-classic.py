@@ -11,6 +11,7 @@
 #############################################################################
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
+import logging
 
 import microgp4 as ugp
 
@@ -23,6 +24,8 @@ def fitness(genotype: str):
 
 
 def main():
+    ugp.microgp_logger.setLevel(logging.DEBUG)
+
     macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 100))
     frame = ugp.f.sequence([macro])
 

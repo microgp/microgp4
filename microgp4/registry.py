@@ -155,7 +155,7 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
 
             assert all(isinstance(i, Individual) for i in offspring), \
                 f"TypeError: offspring {offspring!r}: expected list['Individual']"
-            offspring = [i for i in offspring if i.is_feasible]
+            offspring = [i for i in offspring if i.valid]
             for i in offspring:
                 i._birth = Birth(wrapper, tuple(weakref.proxy(a) for a in args))
             wrapper.stats.offspring += len(offspring)
