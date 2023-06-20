@@ -29,7 +29,8 @@
 
 __all__ = [
     'version_info', '__version__', '__author__', '__copyright__', 'FRAMEWORK_DIRECTORY', 'FRAMEWORK', 'LINK',
-    'NODE_ZERO', 'UGP4_TAG', 'GENETIC_OPERATOR', 'FITNESS_FUNCTION', 'test_mode', 'notebook_mode', 'debug_mode'
+    'FRAME_NODE', 'MACRO_NODE', 'NODE_ZERO', 'UGP4_TAG', 'GENETIC_OPERATOR', 'FITNESS_FUNCTION', 'test_mode',
+    'notebook_mode', 'debug_mode'
 ]
 
 import sys
@@ -71,6 +72,8 @@ debug_mode = __debug__
 
 FRAMEWORK = 'framework'
 LINK = 'link'
+FRAME_NODE = 'frame'
+MACRO_NODE = 'macro'
 NODE_ZERO = 0
 UGP4_TAG = 'µGP⁴'
 GENETIC_OPERATOR = 'genetic_operator'

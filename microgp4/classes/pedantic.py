@@ -28,34 +28,29 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['PedanticABC']
+__all__ = ['Pedantic']
 
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Callable, Optional
 
 from microgp4.user_messages import microgp_logger
-from microgp4.global_symbols import *
-from microgp4.classes.node_view import NodeReference
 
 
-class PedanticABC:
-    """Abstract class: Pedantic classes do implement the `is_correct(x)` method.
+class Pedantic:
+    r"""Pedantic classes can check the validity of nodes references and of their own attributes.
 
-    Pedantic classes also allow to `add_check` and `run_checks`.
+    * Value checks can be added dynamically to a `Pedantic` class via the @classmethod `add_attributes_check`.
+
+    * Node checks can be added dynamically to a `Pedantic` class via the @classmethod `add_node_check`.
+
+    All checks, both value- and node- ones, can be later called from an instance with
+    `object.is_valid(node_reference)`. If the class does not implement node checks, the parameter
+    `node_reference` can be omitted or be explicitly ``None``.
     """
 
-
-
-    @property
-    def valid(self) -> bool:
-        """Checks an object against its specifications.
-
-        The property checks the validity of the object against its definition.
-
-        Returns:
-            True if the object is valid, False otherwise
-        """
-        raise NotImplementedError
+    __last_check_result: bool
+    NODE_CHECKS: list[Callable] = list()
+    ATTRIBUTE_CHECKS: list[Callable] = list()
 
     @classmethod
     def add_node_check(cls, function: Callable) -> None:
@@ -65,17 +60,28 @@ class PedanticABC:
             cls.NODE_CHECKS = [function]
 
     @classmethod
-    def add_value_check(cls, function: Callable) -> None:
+    def add_attributes_check(cls, function: Callable) -> None:
         try:
-            cls.VALUE_CHECKS.append(function)
+            cls.ATTRIBUTE_CHECKS.append(function)
         except AttributeError:
-            cls.VALUE_CHECKS = [function]
+            cls.ATTRIBUTE_CHECKS = [function]
 
-    def is_correct(self, node: NodeReference | None = None) -> bool:
-        if hasattr(self.__class__, 'NODE_CHECKS') and not all(f(node) for f in self.NODE_CHECKS):
-            microgp_logger.debug(f"CheckFail: Fail NodeCheck: {self.__class__.NODE_CHECKS}")
+    def is_valid(self, node: Optional['NodeReference'] = None) -> bool:
+        r"""Checks the validity of a `NodeReference` and internal attributes"""
+        self.__last_check_result = False
+        if hasattr(self.__class__, 'NODE_CHECKS') and not all(f(node) for f in self.__class__.NODE_CHECKS):
+            assert self._is_valid_debug(node)
             return False
-        if hasattr(self.__class__, 'VALUE_CHECKS') and not all(f(self) for f in self.VALUE_CHECKS):
-            microgp_logger.debug(f"CheckFail: Fail ValueCheck: {self.__class__.VALUE_CHECKS}")
+        if hasattr(self.__class__, 'ATTRIBUTE_CHECKS') and not all(f(self) for f in self.__class__.ATTRIBUTE_CHECKS):
+            assert self._is_valid_debug(node)
             return False
+        self.__last_check_result = True
         return True
+
+    def _is_valid_debug(self, node: 'NodeReference') -> None:
+        if hasattr(self.__class__, 'NODE_CHECKS'):
+            for f in self.__class__.NODE_CHECKS:
+                microgp_logger.debug(f"NodeChecks: {f.__name__}({node}): {f(node)}")
+        if hasattr(self.__class__, 'ATTRIBUTE_CHECKS'):
+            for f in self.__class__.ATTRIBUTE_CHECKS:
+                microgp_logger.debug(f"ValueChecks: {f.__name__}({self!r}): {f(self)}")

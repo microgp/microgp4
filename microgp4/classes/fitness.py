@@ -32,7 +32,7 @@ __all__ = ['FitnessABC']
 from abc import ABC, abstractmethod
 from functools import wraps, cache
 
-from microgp4.classes.pedantic import PedanticABC
+from microgp4.classes.pedantic import Pedantic
 from microgp4.classes.paranoid import Paranoid
 from microgp4.user_messages import *
 from microgp4.tools.names import _patch_class_info

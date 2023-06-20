@@ -29,12 +29,14 @@
 
 __all__ = ['unroll']
 
+from itertools import chain
 import networkx as nx
 
 from microgp4.user_messages import *
-from microgp4.global_symbols import FRAMEWORK, NODE_ZERO
+from microgp4.global_symbols import *
 from microgp4.tools.graph import *
 from microgp4.classes import monitor
+from microgp4.classes.parameter import ParameterABC
 from microgp4.classes.individual import Individual
 from microgp4.classes.node_view import NodeView, NodeReference
 from microgp4.classes.frame import FrameABC
@@ -64,7 +66,7 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
     new_node = recursive_unroll(top, G)
     if not new_node:
         return None
-    G.add_edge(NODE_ZERO, new_node, kind=FRAMEWORK)
+    G.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
 
     parameters = get_all_parameters(G, new_node, nodes=True)
     for p, n in parameters:
@@ -74,12 +76,9 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
             p.mutate(1)
 
     # Initialize structural parameters
+    # TODO???
 
-    tree = individual.structure_tree
-    if all(
-            c.is_correct(NodeView(NodeReference(individual.genome, n))) for c, n in ((
-                G.nodes[n]['_frame'] if '_frame' in G.nodes[n] else G.nodes[n]['_macro'],
-                n) for n in nx.dfs_preorder_nodes(tree, source=NODE_ZERO) if n)):
+    if individual.valid:
         return new_node
     else:
         return None
@@ -101,29 +100,31 @@ def recursive_unroll(top: type[Macro | FrameABC], G: nx.classes.MultiDiGraph) ->
     return new_node
 
 
-def _unroll_frame(top: type[FrameABC], G: nx.classes.MultiDiGraph) -> int:
+def _unroll_frame(frame_class: type[FrameABC], G: nx.classes.MultiDiGraph) -> int:
     node_id = G.graph['node_count']
     G.graph['node_count'] += 1
     G.add_node(node_id)
 
-    frame_instance = top()
-    G.nodes[node_id]['_frame'] = frame_instance
+    frame_instance = frame_class()
+    G.nodes[node_id]['_type'] = FRAME_NODE
+    G.nodes[node_id]['_element'] = frame_instance
     for f in frame_instance.successors:
         new_node_id = recursive_unroll(f, G)
-        G.add_edge(node_id, new_node_id, kind=FRAMEWORK)  # Checkout test/paranoia/networkx
+        G.add_edge(node_id, new_node_id, _type=FRAMEWORK)  # Checkout test/paranoia/networkx
 
     return node_id
 
 
-def _unroll_macro(top: type[Macro], G: nx.classes.MultiDiGraph) -> int:
+def _unroll_macro(macro_class: type[Macro], G: nx.classes.MultiDiGraph) -> int:
     node_id = G.graph['node_count']
     G.graph['node_count'] += 1
     G.add_node(node_id)
 
-    macro_instance = top()
-    G.nodes[node_id]['_macro'] = macro_instance
+    macro_instance = macro_class()
+    G.nodes[node_id]['_type'] = MACRO_NODE
+    G.nodes[node_id]['_element'] = macro_instance
     for k, p in macro_instance.parameter_types.items():
-        macro_instance.parameters[k] = p()
+        G.nodes[node_id][k] = p()
 
     return node_id
 
@@ -131,23 +132,33 @@ def _unroll_macro(top: type[Macro], G: nx.classes.MultiDiGraph) -> int:
 def get_all_frames(G: nx.classes.MultiDiGraph, root: int = 0):
     """~Returns a list of all macros in the tree starting at `root`"""
     tree = nx.classes.DiGraph()
-    tree.add_edges_from((u, v) for u, v, k in G.edges(data='kind') if k == FRAMEWORK)
-    return [G.nodes[n]['_frame'] for n in nx.dfs_preorder_nodes(tree, root) if '_frame' in G.nodes[n]]
+    tree.add_edges_from((u, v) for u, v, k in G.edges(data='_type') if k == FRAMEWORK)
+    return [G.nodes[n]['_frame'] for n in nx.dfs_preorder_nodes(tree, root) if G.nodes[n]['_type'] == FRAME_NODE]
 
 
 def get_all_macros(G: nx.classes.MultiDiGraph, root: int = 0, *, nodes: bool = False) -> list:
     """~Returns a list of all macros in the tree starting at `root`"""
     tree = nx.classes.DiGraph()
-    tree.add_edges_from((u, v) for u, v, k in G.edges(data='kind') if k == FRAMEWORK)
+    tree.add_edges_from((u, v) for u, v, k in G.edges(data='_type') if k == FRAMEWORK)
     if nodes:
-        return [(G.nodes[n]['_macro'], n) for n in nx.dfs_preorder_nodes(tree, root) if '_macro' in G.nodes[n]]
+        return [(G.nodes[n]['_element'], n) for n in nx.dfs_preorder_nodes(tree, root) if G.nodes[n]['_type'] == MACRO_NODE
+                ]
     else:
-        return [G.nodes[n]['_macro'] for n in nx.dfs_preorder_nodes(tree, root) if '_macro' in G.nodes[n]]
+        return [G.nodes[n]['_element'] for n in nx.dfs_preorder_nodes(tree, root) if G.nodes[n]['_type'] == MACRO_NODE]
 
 
 def get_all_parameters(G: nx.classes.MultiDiGraph, root: int = 0, *, nodes: bool = False) -> list:
     """~Returns a list of all macros in the tree starting at `root`"""
-    if nodes:
-        return [(p, n) for m, n in get_all_macros(G, root, nodes=True) for p in m.parameters.values()]
+    tree = nx.classes.DiGraph()
+    tree.add_edges_from((u, v) for u, v, k in G.edges(data='_type') if k == FRAMEWORK)
+    if not nodes:
+        return [p for p in chain.from_iterable(G.nodes[n].values() for n in nx.dfs_preorder_nodes(tree, root)) if
+                isinstance(p, ParameterABC)]
     else:
-        return [p for m in get_all_macros(G, root) for p in m.parameters.values()]
+        # TODO: Clean up
+        lst = list()
+        for n in nx.dfs_preorder_nodes(tree, root):
+            for p in G.nodes[n].values():
+                if isinstance(p, ParameterABC):
+                    lst.append((p, n))
+        return lst

@@ -80,7 +80,7 @@ def _global_reference(*,
             else:
                 suitable_frames_ = [
                     n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO)
-                    if '_frame' in G.nodes[n] and isinstance(G.nodes[n]['_frame'], self._target_frame)
+                    if G.nodes[n]['_type'] == FRAME_NODE and isinstance(G.nodes[n]['_element'], self._target_frame)
                 ]
             if first_macro:
                 targets = list(chain.from_iterable(get_macros(G, f)[:1] for f in suitable_frames_))
@@ -112,7 +112,7 @@ def _global_reference(*,
             target = rrandom.sigma_choice(self.get_potential_targets(), self.value, strength)
             if target is None:
                 new_node = recursive_unroll(self._target_frame, self._node_reference.graph)
-                self._node_reference.graph.add_edge(NODE_ZERO, new_node, kind=FRAMEWORK)
+                self._node_reference.graph.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
 
                 parameters = get_all_parameters(self._node_reference.graph, new_node, nodes=True)
                 for p, n in parameters:
@@ -126,7 +126,7 @@ def _global_reference(*,
 
             if not target:
                 raise InvalidIndividual
-            self._node_reference.graph.add_edge(self._node_reference.node, target, key=self.key, kind=LINK)
+            self._node_reference.graph.add_edge(self._node_reference.node, target, key=self.key, _type=LINK)
 
     _patch_class_info(T, f'GlobalReference[{target_frame}]', tag='parameter')
     return T

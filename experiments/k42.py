@@ -1,27 +1,30 @@
-#!/usr/bin/env python3
+# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #############################################################################
 #           __________                                                      #
-#    __  __/ ____/ __ \__ __   This file is part of MicroGP v4!2.0          #
+#    __  __/ ____/ __ \__ __   This file is part of MicroGP4 v4!2.0         #
 #   / / / / / __/ /_/ / // /   A versatile evolutionary optimizer & fuzzer  #
 #  / /_/ / /_/ / ____/ // /_   https://github.com/microgp/microgp4          #
 #  \__  /\____/_/   /__  __/                                                #
 #    /_/ --MicroGP4-- /_/      You don't need a big goal, be μ-ambitious!   #
 #                                                                           #
 #############################################################################
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-import microgp4 as ugp
+
+class MicroGPException(Exception):
+    """Base class for exceptions in MicroGP4."""
+
+    def __init__(self):
+        self.__foo = 0
+
+    def foo(self):
+        print(hasattr(self, '__foo'))
+        self.__foo += 1
+        print(hasattr(self, '__bar'))
+        self.__bar += 1
 
 
-def test_fail():
-    ugp.rrandom.seed(None)
-    X = ugp.f.choice_parameter("ABC")
-    x = X()
-    s = ''
-    for _ in range(100):
-        x.mutate(1)
-        s += x.value
-    print("\n", s)
-    assert True
+x = MicroGPException()
+x.foo()

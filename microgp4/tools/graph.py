@@ -44,19 +44,19 @@ from microgp4.tools.names import *
 
 def _check_genome(G: nx.MultiDiGraph) -> bool:
     all_edges = G.edges(keys=True, data=True)
-    assert all('kind' in d for u, v, k, d in all_edges), \
-        "ValueError: missing 'kind' attribute (paranoia check)"
-    tree_edges = [(u, v) for u, v, k, d in all_edges if d['kind'] == FRAMEWORK]
+    assert all('_type' in d for u, v, k, d in all_edges), \
+        "ValueError: missing '_type' attribute (paranoia check)"
+    tree_edges = [(u, v) for u, v, k, d in all_edges if d['_type'] == FRAMEWORK]
     assert len(tree_edges) == len(set(tree_edges)), \
         "ValueError: duplicated framework edge (paranoia check)"
-    assert all(d['kind'] != FRAMEWORK or len(d) == 1 for u, v, k, d in all_edges), \
+    assert all(d['_type'] != FRAMEWORK or len(d) == 1 for u, v, k, d in all_edges), \
         "ValueError: unknown attribute in tree edge (paranoia check)"
     return True
 
 
 def get_structure_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
     tree = nx.DiGraph()
-    tree.add_edges_from((u, v) for u, v, k in G.edges(data='kind') if k == FRAMEWORK)
+    tree.add_edges_from((u, v) for u, v, k in G.edges(data='_type') if k == FRAMEWORK)
     assert nx.is_branching(tree) and nx.is_weakly_connected(tree), \
         f"ValueError: Structure of {G!r} is not a valid tree (paranoia check)"
     return tree
@@ -64,11 +64,11 @@ def get_structure_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
 
 def get_successors(ref: NodeReference) -> list[int]:
     G = ref.graph
-    return [v for u, v, d in G.out_edges(ref.node, data='kind') if d == FRAMEWORK]
+    return [v for u, v, d in G.out_edges(ref.node, data='_type') if d == FRAMEWORK]
 
 
 def get_predecessor(ref: NodeReference) -> int:
-    return next((u for u, v, k in ref.graph.in_edges(ref.node, data='kind') if k == FRAMEWORK), 0)
+    return next((u for u, v, k in ref.graph.in_edges(ref.node, data='_type') if k == FRAMEWORK), 0)
 
 
 def get_siblings(ref: NodeReference) -> list[int]:
@@ -91,14 +91,14 @@ def set_successors_order(ref: NodeReference, new_order: Sequence[int]) -> None:
     assert check_valid_type(new_order, Sequence)
     G = ref.graph
     assert _check_genome(G)
-    current = list((u, v, k) for u, v, k, d in G.out_edges(ref.node, keys=True, data='kind') if d == FRAMEWORK)
+    current = list((u, v, k) for u, v, k, d in G.out_edges(ref.node, keys=True, data='_type') if d == FRAMEWORK)
     assert {v for u, v, k in current} == set(new_order), \
         f"ValueError: mismatching new order: {[v for u, v, k in current]} vs. {new_order} (paranoia check)"
 
     for u, v, k in current:
         G.remove_edge(u, v, k)
     for v in new_order:
-        G.add_edge(ref.node, v, kind=FRAMEWORK)
+        G.add_edge(ref.node, v, _type=FRAMEWORK)
 
 
 def get_frames(G: nx.MultiDiGraph, name: str | None = None):
@@ -117,7 +117,7 @@ def get_frames(G: nx.MultiDiGraph, name: str | None = None):
     assert name is None or check_valid_types(name, str)
 
     return [
-        n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO) if '_frame' in G.nodes[n] and
+        n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO) if G.nodes[n]['_type'] == FRAME_NODE and
         (name is None or uncanonize_name(G.nodes[n]['_frame'].__class__.__name__, user=True) == name)
     ]
 
@@ -134,9 +134,9 @@ def get_macros(G: nx.MultiDiGraph, root: int | None = None):
     """
     if root is None:
         root = NODE_ZERO
-    assert '_frame' in G.nodes[root], \
+    assert G.nodes[root]['_type'] == FRAME_NODE, \
         f"ValueError: {root} is not a frame node"
-    return [n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=root) if '_macro' in G.nodes[n]]
+    return [n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=root) if G.nodes[n]['_type'] == MACRO_NODE]
 
 
 def get_parameters(G: nx.MultiDiGraph, root: int | None = None) -> list[ParameterABC]:
@@ -150,8 +150,8 @@ def get_parameters(G: nx.MultiDiGraph, root: int | None = None) -> list[Paramete
         A list of ParameterABC
     """
     return [
-        p for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO) if '_macro' in G.nodes[n]
-        for p in G.nodes[n]['_macro'].parameters.values()
+        p for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO) if G.nodes[n]['_type'] == MACRO_NODE
+        for p in G.nodes[n]['_element'].parameters.values()
     ]
 
 
@@ -160,10 +160,7 @@ def get_node_color_dict(G: nx.MultiDiGraph) -> dict[int, int]:
     known_labels = dict()
     colors = dict()
     for n in G:
-        if '_macro' in G.nodes[n]:
-            name = G.nodes[n]['_macro'].__class__.__name__
-        else:
-            name = G.nodes[n]['_frame'].__class__.__name__
+        name = G.nodes[n]['_element'].__class__.__name__
         if name not in known_labels:
             known_labels[name] = len(known_labels)
         colors[n] = known_labels[name]
@@ -172,7 +169,7 @@ def get_node_color_dict(G: nx.MultiDiGraph) -> dict[int, int]:
 
 def _get_first_macro(root: int, G: nx.MultiDiGraph, T: nx.DiGraph) -> int:
     """Quick n' dirty."""
-    return next((n for n in nx.dfs_preorder_nodes(T, root) if '_macro' in G.nodes[n]), None)
+    return next((n for n in nx.dfs_preorder_nodes(T, root) if G.nodes[n]['_type'] == MACRO_NODE), None)
 
 
 def is_equal(ref1: NodeReference, ref2: NodeReference) -> bool:

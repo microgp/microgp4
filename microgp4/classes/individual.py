@@ -45,13 +45,12 @@ except ModuleNotFoundError as e:
     plt = None
 
 from microgp4.user_messages import *
-from microgp4.global_symbols import FRAMEWORK, LINK
-from microgp4.global_symbols import NODE_ZERO
+from microgp4.global_symbols import *
 from microgp4.tools.graph import *
 
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import PedanticABC
+from microgp4.classes.pedantic import Pedantic
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
@@ -65,7 +64,7 @@ class Birth:
     parents: tuple
 
 
-class Individual(Paranoid, PedanticABC):
+class Individual(Paranoid, Pedantic):
     """
     MicroGP individual, that is, a genotype and its fitness
 
@@ -109,7 +108,7 @@ class Individual(Paranoid, PedanticABC):
         Individual.__COUNTER += 1
         self._id = Individual.__COUNTER
         self._genome = nx.MultiDiGraph(node_count=1, top_frame=top_frame)
-        self._genome.add_node(NODE_ZERO, root=True, _macro=MacroZero())
+        self._genome.add_node(NODE_ZERO, root=True, _element=MacroZero(), _type=MACRO_NODE)
         self._fitness = None
         self._str = ''
         self._structure_tree = None
@@ -125,17 +124,23 @@ class Individual(Paranoid, PedanticABC):
         self._fitness, self._birth = scratch
         return I
 
+    @property
+    def nodes(self):
+        """Generate nodes in a depth-first-search pre-ordering visit of individual."""
+        return nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO)
+
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
 
     def __str__(self):
+        node_types = list(t for n, t in self.G.nodes(data='_type'))
         n_nodes = len(self.G)
-        n_macros = sum('_macro' in self.G.nodes[n] for n in self.G) - 1
-        n_frames = sum('_frame' in self.G.nodes[n] for n in self.G)
-        n_links = sum(True for _, _, k in self.G.edges(data='kind') if k != FRAMEWORK)
-        n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_macro'].parameters.items()
+        n_macros = node_types.count(MACRO_NODE) - 1
+        n_frames = node_types.count(FRAME_NODE)
+        n_links = sum(True for _, _, k in self.G.edges(data='_type') if k != FRAMEWORK)
+        n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_element'].parameter_types.items()
                                                          for n in self.G
-                                                         if '_macro' in self.G.nodes[n]))
+                                                         if self.G.nodes[n]['_type'] == MACRO_NODE))
         me = f'𝕚{self._id}:' + \
              f''' {n_frames} frame{'s' if n_frames != 1 else ''} and {n_macros} macro{'s' if n_frames != 1 else ''}''' + \
              f''' ({n_params:,} parameter{'s' if n_params != 1 else ''} total''' + \
@@ -148,8 +153,8 @@ class Individual(Paranoid, PedanticABC):
             return False
         else:
             return all(
-                is_equal(NodeReference(self.G, n1), NodeReference(other.G, n2)) for n1, n2 in zip_longest(
-                    nx.dfs_preorder_nodes(self.G, NODE_ZERO), nx.dfs_preorder_nodes(other.G, NODE_ZERO)))
+                is_equal(NodeReference(self.G, n1), NodeReference(other.G, n2))
+                for n1, n2 in zip_longest(self.nodes, other.nodes))
 
     def __hash__(self):
         return hash(self._id)
@@ -165,21 +170,10 @@ class Individual(Paranoid, PedanticABC):
         return self._fitness is not None
 
     # PEDANTIC
-
     @property
     def valid(self) -> bool:
-        """Checks the syntax of the individual."""
-        for node, data in self._genome.nodes(data=True):
-            # TODO: Pretty much alike, a single loop would be nicer ;-)
-            if '_frame' in data:
-                if not data['_frame'].valid or not data['_frame'].is_correct(NodeView(self._genome, node)):
-                    return False
-            elif '_macro' in data:
-                if not data['_macro'].valid or not data['_macro'].is_correct(NodeView(self._genome, node)):
-                    return False
-            else:
-                raise ValueError('Unknown node type')
-        return True
+        return all(self.genome.nodes[n]['_element'].is_valid(NodeView(NodeReference(self.genome, n)))
+                   for n in nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO))
 
     @property
     def OLDISH_valid(self) -> bool:
@@ -356,50 +350,41 @@ class Individual(Paranoid, PedanticABC):
         self.G.remove_nodes_from(chain.from_iterable(ccomp[1:]))
 
     def dump(self, extra_parameters: dict) -> str:
-        if '$omit_banner' in extra_parameters and extra_parameters['$omit_banner']:
-            deprecation('Removing the banner with $omit_banner is deprecated', stacklevel_offset=1)
-            m0_text = MacroZero.text
-            MacroZero.text = ''
         self._str = ''
-        self._dump(NodeReference(self.G, 0), extra_parameters)
-        if '$omit_banner' in extra_parameters and extra_parameters['$omit_banner']:
-            MacroZero.text = m0_text
+        for n in self.nodes:
+            self._str += Individual._dump_node(NodeReference(self.genome, n), extra_parameters)
         return self._str
 
-    def _dump(self, nr: NodeReference, parameters) -> None:
-
+    @staticmethod
+    def _dump_node(nr: NodeReference, parameters) -> str:
         local_parameters = parameters | nr.graph.nodes[nr.node] | {'_node': NodeView(nr)}
-        if '_macro' in nr.graph.nodes[nr.node]:
-            local_parameters |= nr.graph.nodes[nr.node]['_macro'].extra_parameters | \
-                                nr.graph.nodes[nr.node]['_macro'].parameters
-        if '_frame' in nr.graph.nodes[nr.node]:
-            local_parameters |= nr.graph.nodes[nr.node]['_frame'].parameters
+        #local_parameters |= nr.graph.nodes[nr.node]['_element'].parameters
+        if hasattr(nr.graph.nodes[nr.node]['_element'], 'extra_parameters'):
+            local_parameters |= nr.graph.nodes[nr.node]['_element'].extra_parameters
         bag = ValueBag(local_parameters)
 
         # GENERAL NODE HEADER
-        self._str += '{_text_before_node}'.format(**bag)
+        str = '{_text_before_node}'.format(**bag)
 
         if nr.graph.in_degree(nr.node) > 1:
-            self._str += bag['_label'].format(**bag)
+            str += bag['_label'].format(**bag)
 
-        if '_macro' in nr.graph.nodes[nr.node]:
-            self._str += '{_text_before_macro}'.format(**bag)
-            self._str += nr.graph.nodes[nr.node]['_macro'].dump(bag)
+        if nr.graph.nodes[nr.node]['_type'] == MACRO_NODE:
+            str += '{_text_before_macro}'.format(**bag)
+            str += nr.graph.nodes[nr.node]['_element'].dump(bag)
             if bag['$dump_node_info']:
-                self._str += '  {_comment}{_comment} {_node.pathname} ➜ {_node.name}'.format(**bag)
-            self._str += '{_text_after_macro}'.format(**bag)
-        elif '_frame' in nr.graph.nodes[nr.node]:
-            self._str += '{_text_before_frame}'.format(**bag)
+                str += '  {_comment}{_comment} {_node.pathname} ➜ {_node.name}'.format(**bag)
+            str += '{_text_after_macro}'.format(**bag)
+        elif nr.graph.nodes[nr.node]['_type'] == FRAME_NODE:
+            str += '{_text_before_frame}'.format(**bag)
             if bag['$dump_node_info']:
-                self._str += '{_comment}{_comment} {_node.pathname} ➜ {_node.name}{_text_after_macro}'.format(**bag)
-            self._str += '{_text_after_frame}'.format(**bag)
+                str += '{_comment}{_comment} {_node.pathname} ➜ {_node.name}{_text_after_macro}'.format(**bag)
+            str += '{_text_after_frame}'.format(**bag)
 
         # GENERAL NODE FOOTER
-        self._str += '{_text_after_node}'.format(**bag)
+        str += '{_text_after_node}'.format(**bag)
 
-        successors = list(get_successors(nr))
-        for n in successors:
-            self._dump(NodeReference(nr.graph, n), bag)
+        return str
 
     def _draw_forest(self, figsize) -> None:
         """Draw individual using multipartite_layout"""
@@ -410,7 +395,7 @@ class Individual(Paranoid, PedanticABC):
         ##############################################################################
         # get T
         T = nx.DiGraph()
-        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='kind') if k == FRAMEWORK)
+        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == FRAMEWORK)
         for n in T:
             T.nodes[n]['depth'] = len(nx.shortest_path(T, 0, n))
         pos = nx.multipartite_layout(T, subset_key="depth", align="horizontal")
@@ -420,7 +405,7 @@ class Individual(Paranoid, PedanticABC):
         # draw structure
         nx.draw_networkx_edges(T, pos, style=':', edge_color='lightgray', ax=ax)
         # draw macros
-        nodelist = [n for n in T if '_macro' in self.G.nodes[n]]
+        nodelist = [n for n in T if self.G.nodes[n]['_type'] == MACRO_NODE]
         nx.draw_networkx_nodes(T,
                                pos,
                                nodelist=nodelist,
@@ -428,7 +413,7 @@ class Individual(Paranoid, PedanticABC):
                                cmap=plt.cm.tab20,
                                ax=ax)
         # draw frames
-        nodelist = [n for n in self.G if '_frame' in self.G.nodes[n]]
+        nodelist = [n for n in self.G if self.G.nodes[n]['_type'] == FRAME_NODE]
         nx.draw_networkx_nodes(T,
                                pos,
                                nodelist=nodelist,
@@ -441,8 +426,9 @@ class Individual(Paranoid, PedanticABC):
         ##############################################################################
         # Draw links
         U = nx.DiGraph()
-        U.add_edges_from(
-            (u, v) for u, v, k in self.G.edges(data='kind') if k == LINK and T.nodes[u]['depth'] == T.nodes[v]['depth'])
+        U.add_edges_from((u, v)
+                         for u, v, k in self.G.edges(data='_type')
+                         if k == LINK and T.nodes[u]['depth'] == T.nodes[v]['depth'])
         nx.draw_networkx_edges(
             U,
             pos,
@@ -452,8 +438,9 @@ class Individual(Paranoid, PedanticABC):
             connectionstyle='arc3,rad=-.3',
             ax=ax)
         U = nx.DiGraph()
-        U.add_edges_from(
-            (u, v) for u, v, k in self.G.edges(data='kind') if k == LINK and T.nodes[u]['depth'] != T.nodes[v]['depth'])
+        U.add_edges_from((u, v)
+                         for u, v, k in self.G.edges(data='_type')
+                         if k == LINK and T.nodes[u]['depth'] != T.nodes[v]['depth'])
         nx.draw_networkx_edges(
             U,
             pos,
@@ -473,7 +460,7 @@ class Individual(Paranoid, PedanticABC):
         ##############################################################################
         # get T
         T = nx.DiGraph()
-        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='kind') if k == FRAMEWORK)
+        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == FRAMEWORK)
         prev = 0
         # get P
         P = nx.DiGraph()
@@ -482,13 +469,13 @@ class Individual(Paranoid, PedanticABC):
                 prev = None
             if prev:
                 P.add_edge(prev, n)
-            if '_macro' in self.G.nodes[n]:
+            if self.G.nodes[n]['_type'] == MACRO_NODE:
                 prev = n
         for u, v in list(P.edges):
-            if '_frame' in self.G.nodes[v]:
+            if self.G.nodes[n]['_type'] == MACRO_NODE:
                 for succ in P.successors(v):
                     P.add_edge(u, succ)
-        P.remove_nodes_from([0] + [n for n in P.nodes if '_macro' not in self.G.nodes[n]])
+        P.remove_nodes_from([0] + [n for n in P.nodes if self.G.nodes[n]['_type'] != MACRO_NODE])
         # get components
         ccomp = list(nx.weakly_connected_components(P))
         ccomp_lat = {n: pi for pi, part in enumerate(ccomp) for n in part}
@@ -517,7 +504,7 @@ class Individual(Paranoid, PedanticABC):
         ##############################################################################
         # Draw links
         U = nx.DiGraph()
-        U.add_edges_from((u, v) for u, v, k in self.G.edges(data='kind') if k == LINK and ccomp_lat[u] == ccomp_lat[v])
+        U.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == LINK and ccomp_lat[u] == ccomp_lat[v])
         nx.draw_networkx_edges(
             U,
             pos,
@@ -529,7 +516,7 @@ class Individual(Paranoid, PedanticABC):
             connectionstyle='arc3,rad=-.4',
             ax=ax)
         U = nx.DiGraph()
-        U.add_edges_from((u, v) for u, v, k in self.G.edges(data='kind') if k == LINK and ccomp_lat[u] != ccomp_lat[v])
+        U.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == LINK and ccomp_lat[u] != ccomp_lat[v])
         nx.draw_networkx_edges(
             U,
             pos,

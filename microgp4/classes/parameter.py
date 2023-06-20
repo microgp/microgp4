@@ -36,11 +36,11 @@ from networkx.classes import MultiDiGraph
 
 from microgp4.user_messages import *
 from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import PedanticABC
+from microgp4.classes.pedantic import Pedantic
 from microgp4.classes.node_reference import NodeReference
 
 
-class ParameterABC(Paranoid, PedanticABC, ABC):
+class ParameterABC(Paranoid, Pedantic, ABC):
     """Generic class for storing a Macro parameter"""
 
     __slots__ = ['target_variable']  # Preventing the automatic creation of __dict__
@@ -76,10 +76,6 @@ class ParameterABC(Paranoid, PedanticABC, ABC):
         assert self.is_correct(new_value), \
             f"ValueError: invalid value: {new_value} (paranoia check)"
         self._value = new_value
-
-    @property
-    def valid(self) -> bool:
-        return self.is_correct()
 
     @abstractmethod
     def mutate(self, strength: float = 1., **kwargs) -> None:

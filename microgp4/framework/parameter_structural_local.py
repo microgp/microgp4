@@ -88,7 +88,7 @@ def _local_reference(backward: bool = True,
 
             self.drop_link()
             n = rrandom.sigma_choice(pt, self.value, strength)
-            self._node_reference.graph.add_edge(self._node_reference.node, n, key=self.key, kind=LINK)
+            self._node_reference.graph.add_edge(self._node_reference.node, n, key=self.key, _type=LINK)
 
     _patch_class_info(
         T,

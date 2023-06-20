@@ -113,11 +113,10 @@ class Population:
     def dump_individual(self, ind: int | Individual, extra_parameters: dict | None = None) -> str:
         if isinstance(ind, int):
             ind = self.individuals[ind]
-        if extra_parameters is not None:
-            assert extra_parameters is None or check_valid_type(extra_parameters, dict)
-            return ind.dump(self.parameters | extra_parameters)
-        else:
-            return ind.dump(self.parameters)
+        if extra_parameters is None:
+            extra_parameters = dict()
+        assert extra_parameters is None or check_valid_type(extra_parameters, dict)
+        return ind.dump(self.parameters | extra_parameters)
 
     def evaluate(self):
         whole_pop = [self.dump_individual(i) for i in self.individuals]

@@ -46,4 +46,4 @@ program = ugp.f.sequence([body])
 
 pass
 
-ugp.ea.vanilla_ea()
+ugp.ea.vanilla_ea(program, None)

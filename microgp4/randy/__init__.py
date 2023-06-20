@@ -27,4 +27,4 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-from .test_randy import *
+from .randy import *

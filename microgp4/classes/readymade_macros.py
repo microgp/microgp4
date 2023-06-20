@@ -45,7 +45,7 @@ class MacroZero(Macro):
             f''' on {datetime.today().strftime('%d-%b-%Y')}''' + \
             f''' at {datetime.today().strftime('%H:%M:%S')}'''
     EXTRA_PARAMETERS = dict()
-    _parameter_types = dict()
+    PARAMETERS = dict()
 
     @property
     def valid(self) -> bool:

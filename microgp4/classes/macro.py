@@ -35,14 +35,14 @@ from typing import Any
 from microgp4.user_messages import *
 
 from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import PedanticABC
+from microgp4.classes.pedantic import Pedantic
 from microgp4.classes.value_bag import USER_PARAMETER
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_view import NodeView
 from microgp4.classes.parameter import ParameterABC
 
 
-class Macro(Paranoid, PedanticABC):
+class Macro(Paranoid, Pedantic):
     """Base class for all the different Macros."""
 
     TEXT: str
@@ -50,24 +50,23 @@ class Macro(Paranoid, PedanticABC):
     EXTRA_PARAMETERS: dict[str, Any]
 
     def __init__(self):
-        self.parameters = dict()
+        self._dont_use_this_parameters = dict()
 
     def __eq__(self, other: 'Macro') -> bool:
         if type(self) != type(other):
             return False
-        elif self.text != other.text or self.parameters != other.parameters:
+        elif self.text != other.text or self.parameter_types != other.parameter_types:
             return False
+        #elif self.text != other.text or self.parameters != other.parameters:
+        #    return False
         return True
 
     # PEDANTIC
-    @property
-    def valid(self) -> bool:
-        return all(p.valid for p in self.parameters.values())
-
     def is_correct(self, nv: Any) -> bool:
         """Checks a NodeView against a macro."""
-        assert check_valid_type(nv, NodeView)
-        return all(nv.attributes[n].is_correct(nv.attributes[n].value) for n, p in self.PARAMETERS.items())
+        return True
+        #assert check_valid_type(nv, NodeView)
+        #return all(nv.attributes[n].is_correct(nv.attributes[n].value) for n, p in self.PARAMETERS.items())
 
     @property
     def text(self) -> str:
@@ -80,7 +79,6 @@ class Macro(Paranoid, PedanticABC):
     @property
     def parameter_types(self) -> dict[str, type[ParameterABC]]:
         return self.PARAMETERS
-
 
     #def __getitem__(self, parameter: str) -> Any:
     #    assert Macro.is_name_valid(parameter), \
