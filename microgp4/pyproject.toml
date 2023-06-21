@@ -48,6 +48,7 @@ ignore_patterns = [
     ".*",
     "venv",
 ]
+
 [tool.black]
 # black .
 exclude = "(^\\.|^__pycache__|^venv)"
@@ -56,6 +57,9 @@ line-length = 120
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[tool.pytype]
+inputs = ["microgp4"]
 
 [tool.coverage.run]
 # coverage run -m pytest

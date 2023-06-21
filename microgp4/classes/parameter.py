@@ -35,12 +35,12 @@ from typing import Any
 from networkx.classes import MultiDiGraph
 
 from microgp4.user_messages import *
+from microgp4.classes.selement import SElement
 from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import Pedantic
 from microgp4.classes.node_reference import NodeReference
 
 
-class ParameterABC(Paranoid, Pedantic, ABC):
+class ParameterABC(SElement, Paranoid, ABC):
     """Generic class for storing a Macro parameter"""
 
     __slots__ = ['target_variable']  # Preventing the automatic creation of __dict__

@@ -27,8 +27,8 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-from .frame import *
 from .fitness import *
+from .frame import *
 from .identifiable import *
 from .individual import *
 from .macro import *
@@ -37,8 +37,8 @@ from .node_reference import *
 from .node_view import *
 from .parameter import *
 from .paranoid import *
-from .pedantic import *
 from .population import *
+from .selement import SElement
 from .shared import *
 from .value_bag import *
 

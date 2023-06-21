@@ -50,7 +50,6 @@ from microgp4.tools.graph import *
 
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import Pedantic
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
@@ -64,7 +63,7 @@ class Birth:
     parents: tuple
 
 
-class Individual(Paranoid, Pedantic):
+class Individual(Paranoid):
     """
     MicroGP individual, that is, a genotype and its fitness
 

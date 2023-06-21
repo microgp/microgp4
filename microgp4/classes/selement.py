@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -24,20 +24,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#############################################################################
 # =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+# v1 / June 2023 / Squillero (GX)
 
-__all__ = ['Pedantic']
+from typing import Optional, Callable
 
-from abc import ABC, abstractmethod
-from typing import Callable, Optional
+from microgp4.user_messages import *
 
-from microgp4.user_messages import microgp_logger
-
-
-class Pedantic:
-    r"""Pedantic classes can check the validity of nodes references and of their own attributes.
+class SElement:
+    r"""Syntactic Element (SElement) classes can check the validity of nodes references and of their own attributes.
 
     * Value checks can be added dynamically to a `Pedantic` class via the @classmethod `add_attributes_check`.
 

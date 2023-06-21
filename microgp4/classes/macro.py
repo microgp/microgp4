@@ -34,15 +34,15 @@ from typing import Any
 
 from microgp4.user_messages import *
 
+from microgp4.classes.selement import SElement
 from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import Pedantic
 from microgp4.classes.value_bag import USER_PARAMETER
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_view import NodeView
 from microgp4.classes.parameter import ParameterABC
 
 
-class Macro(Paranoid, Pedantic):
+class Macro(SElement, Paranoid):
     """Base class for all the different Macros."""
 
     TEXT: str

@@ -36,12 +36,12 @@ from copy import copy
 from microgp4.user_messages.checks import *
 
 from microgp4.classes.macro import Macro
-from microgp4.classes.pedantic import Pedantic
+from microgp4.classes.selement import SElement
 from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import ValueBag
 
 
-class FrameABC(Paranoid, Pedantic):
+class FrameABC(SElement, Paranoid):
 
     _registered_names = set()
 
