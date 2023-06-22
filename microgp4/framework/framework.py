@@ -34,6 +34,7 @@ from collections import abc
 from microgp4.global_symbols import FRAMEWORK, FRAMEWORK_DIRECTORY
 from microgp4.user_messages import *
 from microgp4.tools.names import canonize_name, _patch_class_info
+from microgp4.classes.selement import SElement
 from microgp4.classes.frame import FrameABC
 from microgp4.classes.macro import Macro
 from microgp4.framework.macro import macro
@@ -41,7 +42,7 @@ from microgp4.framework.utilities import cook_sequence
 from microgp4.randy import rrandom
 
 
-def alternative(alternatives: abc.Collection[type[FrameABC] | type[Macro]],
+def alternative(alternatives: abc.Collection[type[SElement]],
                 *,
                 name: str | None = None,
                 extra_parameters: dict = None) -> type[FrameABC]:
@@ -116,7 +117,7 @@ def alternative(alternatives: abc.Collection[type[FrameABC] | type[Macro]],
     return T
 
 
-def sequence(seq: abc.Sequence[type[FrameABC] | type[Macro] | str],
+def sequence(seq: abc.Sequence[type[SElement] | str],
              *,
              name: str | None = None,
              extra_parameters: dict = None) -> type[FrameABC]:

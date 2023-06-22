@@ -107,7 +107,7 @@ class Individual(Paranoid):
         Individual.__COUNTER += 1
         self._id = Individual.__COUNTER
         self._genome = nx.MultiDiGraph(node_count=1, top_frame=top_frame)
-        self._genome.add_node(NODE_ZERO, root=True, _element=MacroZero(), _type=MACRO_NODE)
+        self._genome.add_node(NODE_ZERO, root=True, _selement=MacroZero(), _type=MACRO_NODE)
         self._fitness = None
         self._str = ''
         self._structure_tree = None
@@ -137,7 +137,7 @@ class Individual(Paranoid):
         n_macros = node_types.count(MACRO_NODE) - 1
         n_frames = node_types.count(FRAME_NODE)
         n_links = sum(True for _, _, k in self.G.edges(data='_type') if k != FRAMEWORK)
-        n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_element'].parameter_types.items()
+        n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_selement'].parameter_types.items()
                                                          for n in self.G
                                                          if self.G.nodes[n]['_type'] == MACRO_NODE))
         me = f'𝕚{self._id}:' + \
@@ -171,7 +171,7 @@ class Individual(Paranoid):
     # PEDANTIC
     @property
     def valid(self) -> bool:
-        return all(self.genome.nodes[n]['_element'].is_valid(NodeView(NodeReference(self.genome, n)))
+        return all(self.genome.nodes[n]['_selement'].is_valid(NodeView(NodeReference(self.genome, n)))
                    for n in nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO))
 
     @property
@@ -242,11 +242,11 @@ class Individual(Paranoid):
 
     @property
     def macros(self):
-        return [self._genome.nodes[n]['_macro'] for n in get_macros(self._genome)]
+        return [self._genome.nodes[n]['_macro'] for n in get_all_macros(self._genome)]
 
     @property
     def parameters(self):
-        return get_parameters(self._genome)
+        return get_all_parameters(self._genome)
 
     # PUBLIC METHODS
     def as_forest(self, *, figsize: tuple = (12, 10), filename: str | None = None, **kwargs) -> None:
@@ -357,9 +357,9 @@ class Individual(Paranoid):
     @staticmethod
     def _dump_node(nr: NodeReference, parameters) -> str:
         local_parameters = parameters | nr.graph.nodes[nr.node] | {'_node': NodeView(nr)}
-        #local_parameters |= nr.graph.nodes[nr.node]['_element'].parameters
-        if hasattr(nr.graph.nodes[nr.node]['_element'], 'extra_parameters'):
-            local_parameters |= nr.graph.nodes[nr.node]['_element'].extra_parameters
+        #local_parameters |= nr.graph.nodes[nr.node]['_selement'].parameters
+        if hasattr(nr.graph.nodes[nr.node]['_selement'], 'extra_parameters'):
+            local_parameters |= nr.graph.nodes[nr.node]['_selement'].extra_parameters
         bag = ValueBag(local_parameters)
 
         # GENERAL NODE HEADER
@@ -370,7 +370,7 @@ class Individual(Paranoid):
 
         if nr.graph.nodes[nr.node]['_type'] == MACRO_NODE:
             str += '{_text_before_macro}'.format(**bag)
-            str += nr.graph.nodes[nr.node]['_element'].dump(bag)
+            str += nr.graph.nodes[nr.node]['_selement'].dump(bag)
             if bag['$dump_node_info']:
                 str += '  {_comment}{_comment} {_node.pathname} ➜ {_node.name}'.format(**bag)
             str += '{_text_after_macro}'.format(**bag)

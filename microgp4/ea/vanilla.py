@@ -68,6 +68,5 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         population.individuals[mu:] = []
         print("\n")
         print(population)
-        pass
-
+        microgp_logger.warning("🍀")
     pass

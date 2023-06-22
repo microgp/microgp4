@@ -31,10 +31,14 @@ from typing import Optional, Callable
 
 from microgp4.user_messages import *
 
-class SElement:
-    r"""Syntactic Element (SElement) classes can check the validity of nodes references and of their own attributes.
 
-    * Value checks can be added dynamically to a `Pedantic` class via the @classmethod `add_attributes_check`.
+class SElement:
+    r"""Syntactic Element (SElement)
+
+    SElement classe is the building block of the syntax of the individual, the common ancestor of both `macros` and
+    `frames`. SElements can check the validity of nodes references and of their own attributes.
+
+    * Attribute checks can be added dynamically to a `Pedantic` class via the @classmethod `add_attributes_check`.
 
     * Node checks can be added dynamically to a `Pedantic` class via the @classmethod `add_node_check`.
 

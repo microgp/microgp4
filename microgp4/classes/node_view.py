@@ -105,7 +105,7 @@ class NodeView:
         elif item == 'name':
             # TODO!!!!!!!!!!!!!!!!!
             raise NotImplementedError
-            name = G.nodes[id]['_element'].__class__.__name__
+            name = G.nodes[id]['_selement'].__class__.__name__
             self.__dict__[item] = name
         elif item == 'path':
             # Tuple of the path from top-frame to node

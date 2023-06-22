@@ -17,11 +17,13 @@ import microgp4 as ugp
 # BASIC PARAMETERS
 
 m_int = ugp.f.macro("{var} = {num1} {op} {num2}",
-                var=ugp.f.choice_parameter(['x', 'y', 'z']),
-                num1=ugp.f.integer_parameter(0, 256),
-                op=ugp.f.choice_parameter(list("+-*")),
-                num2=ugp.f.integer_parameter(0, 256))
-m_float = ugp.f.macro("{var} = {var} * {num}", var=ugp.f.choice_parameter(['x', 'y', 'z']), num=ugp.f.float_parameter(0, 1))
+                    var=ugp.f.choice_parameter(['x', 'y', 'z']),
+                    num1=ugp.f.integer_parameter(0, 256),
+                    op=ugp.f.choice_parameter(list("+-*")),
+                    num2=ugp.f.integer_parameter(0, 256))
+m_float = ugp.f.macro("{var} = {var} * {num}",
+                      var=ugp.f.choice_parameter(['x', 'y', 'z']),
+                      num=ugp.f.float_parameter(0, 1))
 m_array = ugp.f.macro("DNA: {dna}", dna=ugp.f.array_parameter("CGAT", 42))
 macros = [m_int, m_float, m_array]
 
@@ -51,9 +53,10 @@ m_jmp = ugp.f.macro("JUMP TO {ref}", ref=ugp.f.local_reference())
 # GLOBAL REFERENCE
 
 zap = ugp.f.macro("zap!")
-subs = ugp.f.bunch([zap], size=3)
+subs = ugp.f.bunch([zap], size=3, name='whazoo')
 
-m_outer = ugp.f.macro("OUTER JUMP TO {ref}", ref=ugp.f.global_reference(target_frame=subs, creative_zeal=1))
+#m_outer = ugp.f.macro("OUTER JUMP TO {ref}", ref=ugp.f.global_reference(target_frame=subs, creative_zeal=1))
+m_outer = ugp.f.macro("OUTER JUMP TO {ref}", ref=ugp.f.global_reference(target_frame='whazoo', creative_zeal=1))
 block2 = ugp.f.sequence([m_int, m_outer])
 
 population = ugp.classes.Population(block2)

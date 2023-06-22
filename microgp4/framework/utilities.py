@@ -31,15 +31,14 @@ __all__ = ['cook_sequence']
 
 from collections import abc
 from microgp4.user_messages import *
+from microgp4.classes.selement import SElement
 from microgp4.classes.frame import FrameABC
 from microgp4.classes.parameter import ParameterABC
 from microgp4.classes.macro import Macro
 from microgp4.framework.macro import macro
 
 
-def cook_sequence(
-        raw_sequence: list[type[FrameABC] | type[Macro] | type[ParameterABC] | str]
-) -> list[type[FrameABC] | type[Macro]]:
+def cook_sequence(raw_sequence: list[type[SElement] | type[ParameterABC] | str]) -> list[type[SElement]]:
     assert check_valid_type(raw_sequence, abc.Sequence)
 
     cooked_seq = list()

@@ -80,12 +80,15 @@ def _global_reference(*,
             else:
                 suitable_frames_ = [
                     n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO)
-                    if G.nodes[n]['_type'] == FRAME_NODE and isinstance(G.nodes[n]['_element'], self._target_frame)
+                    if G.nodes[n]['_type'] == FRAME_NODE and isinstance(G.nodes[n]['_selement'], self._target_frame)
                 ]
             if first_macro:
-                targets = list(chain.from_iterable(get_macros(G, f)[:1] for f in suitable_frames_))
+                targets = list(
+                    chain.from_iterable(
+                        get_all_macros(G, root=f, data=False, node_id=True)[:1] for f in suitable_frames_))
             else:
-                targets = list(chain.from_iterable(get_macros(G, f) for f in suitable_frames_))
+                targets = list(
+                    chain.from_iterable(get_all_macros(G, root=f, data=False, node_id=True) for f in suitable_frames_))
 
             if suitable_frames:
                 pass
@@ -114,7 +117,7 @@ def _global_reference(*,
                 new_node = recursive_unroll(self._target_frame, self._node_reference.graph)
                 self._node_reference.graph.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
 
-                parameters = get_all_parameters(self._node_reference.graph, new_node, nodes=True)
+                parameters = get_all_parameters(self._node_reference.graph, new_node, node_id=True)
                 for p, n in parameters:
                     if isinstance(p, ParameterStructuralABC):
                         p.mutate(1, NodeReference(self._node_reference.graph, n))

@@ -73,6 +73,8 @@ from microgp4.randy.randy import rrandom
 # noinspection PyUnresolvedReferences
 from microgp4.user_messages.messaging import microgp_logger
 # noinspection PyUnresolvedReferences
+from microgp4.user_messages.messaging import microgp_logger as logger
+# noinspection PyUnresolvedReferences
 from microgp4.registry import *
 # noinspection PyUnresolvedReferences
 from microgp4.fitness_log import *
