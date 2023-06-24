@@ -20,7 +20,7 @@ import microgp4 as ugp
 @ugp.fitness_function
 def fitness(genotype: str):
     """Vanilla 1-max"""
-    return 0, 0, 0, sum(b == '1' for b in genotype)
+    return sum(b == '1' for b in genotype)
 
 
 def main():
@@ -32,10 +32,6 @@ def main():
     evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
     ugp.ea.vanilla_ea(frame, evaluator)
 
-    #population.add_random_individual()
-    ###population.add_random_individual()
-    #population.add_random_individual()
-    #population.evaluate()
     pass
 
 

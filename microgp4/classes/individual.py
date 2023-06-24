@@ -62,6 +62,16 @@ class Birth:
     operator: Callable
     parents: tuple
 
+    def __str__(self):
+        parents = list()
+        for p in self.parents:
+            try:
+                parents.append(str(p))
+            except ReferenceError:
+                parents.append('✝')
+
+        return self.operator.__name__ + '(' + ', '.join(parents) + ')'
+
 
 class Individual(Paranoid):
     """
@@ -132,20 +142,7 @@ class Individual(Paranoid):
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
 
     def __str__(self):
-        node_types = list(t for n, t in self.G.nodes(data='_type'))
-        n_nodes = len(self.G)
-        n_macros = node_types.count(MACRO_NODE) - 1
-        n_frames = node_types.count(FRAME_NODE)
-        n_links = sum(True for _, _, k in self.G.edges(data='_type') if k != FRAMEWORK)
-        n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_selement'].parameter_types.items()
-                                                         for n in self.G
-                                                         if self.G.nodes[n]['_type'] == MACRO_NODE))
-        me = f'𝕚{self._id}:' + \
-             f''' {n_frames} frame{'s' if n_frames != 1 else ''} and {n_macros} macro{'s' if n_frames != 1 else ''}''' + \
-             f''' ({n_params:,} parameter{'s' if n_params != 1 else ''} total''' + \
-             f''', {n_links:,} structural)''' + \
-             f''' ⇨ {self.fitness}'''
-        return me
+        return f'𝕚{self._id}'
 
     def __eq__(self, other: 'Individual') -> bool:
         if type(self) != type(other):
@@ -249,6 +246,45 @@ class Individual(Paranoid):
         return get_all_parameters(self._genome)
 
     # PUBLIC METHODS
+
+    def describe(self,
+                 *,
+                 include_fitness: bool = True,
+                 include_structure: bool = True,
+                 include_birth: bool = True,
+                 max_recursion: int = 0,
+                 _indent_level: str = ''):
+        desc = str(self)
+        delem = list()
+        if include_fitness:
+            delem.append(f'fitness: {self.fitness}')
+        if include_structure:
+            node_types = list(t for n, t in self.G.nodes(data='_type'))
+            n_nodes = len(self.G)
+            n_macros = node_types.count(MACRO_NODE) - 1
+            n_frames = node_types.count(FRAME_NODE)
+            n_links = sum(True for _, _, k in self.G.edges(data='_type') if k != FRAMEWORK)
+            n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_selement'].parameter_types.items()
+                                                             for n in self.G
+                                                             if self.G.nodes[n]['_type'] == MACRO_NODE))
+            delem.append(f'''{n_frames} frame{'s' if n_frames != 1 else ''} and {n_macros} macro{'s' if n_frames != 1 else ''}''' + \
+                f''' ({n_params:,} parameter{'s' if n_params != 1 else ''} total''' + \
+                f''', {n_links:,} structural)''')
+        if include_birth:
+            delem.append(str(self.birth))
+        descr = f'''{_indent_level}{desc} ⇨ {' / '.join(delem)}'''
+        if max_recursion > 0:
+            for p in self.birth.parents:
+                try:
+                    descr += '\n' + p.describe(include_fitness=include_fitness,
+                                               include_structure=include_structure,
+                                               include_birth=include_birth,
+                                               max_recursion=max_recursion - 1,
+                                               _indent_level=_indent_level + '  ')
+                except ReferenceError:
+                    pass
+        return descr
+
     def as_forest(self, *, figsize: tuple = (12, 10), filename: str | None = None, **kwargs) -> None:
         r"""Draw the structure tree of the individual.
 

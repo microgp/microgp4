@@ -51,11 +51,16 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         o = rrandom.choice(ops0)
         population += o(top_frame=top_frame)
     evaluator(population)
-    print(population)
+    population.sort()
+    best = population[0]
+    microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
 
     pass
+
+    all_individuals = set()
+
     # Let's roll
-    for _ in range(5):
+    for _ in range(50):
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
         for step in range(lambda_):
@@ -65,8 +70,15 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         population += new_individuals
         evaluator(population)
         population.sort()
+
+        #all_individuals |= set(population)
+
         population.individuals[mu:] = []
-        print("\n")
-        print(population)
-        microgp_logger.warning("🍀")
+
+        if best.fitness << population[0].fitness:
+            best = population[0]
+            microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
+
+    for i in population:
+        print(i.describe(include_structure=False, max_recursion=99))
     pass

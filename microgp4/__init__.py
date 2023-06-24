@@ -114,7 +114,8 @@ def welcome(level=logging.DEBUG):
     from sys import stderr
     stderr.flush()
     for m in __welcome__.split('\n'):
-        user_messages.microgp_logger.log(level, f"*: {m}")
+        # stars: ⚝ ⭐
+        user_messages.microgp_logger.log(level, f"⭐: {m}")
     return True
 
 
