@@ -13,22 +13,23 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from microgp4.classes import ValueBag
+import microgp4 as ugp
+
 
 
 def test_valuebag_init():
-    vb = ValueBag()
+    vb = ugp.classes.ValueBag()
     assert dict(vb) == {}
 
-    vb = ValueBag({'a': 1, 'b': 2, '$c': 3})
+    vb = ugp.classes.ValueBag({'a': 1, 'b': 2, '$c': 3})
     assert dict(vb) == {'a': 1, 'b': 2}
 
-    vb = ValueBag(a=1, b=2, c=3)
+    vb = ugp.classes.ValueBag(a=1, b=2, c=3)
     assert dict(vb) == {'a': 1, 'b': 2, 'c': 3}
 
 
 def test_valuebag_readonly():
-    vb = ValueBag({'a': 1, 'b': 2, '$c': 3})
+    vb = ugp.classes.ValueBag({'a': 1, 'b': 2, '$c': 3})
     with pytest.raises(NotImplementedError):
         vb['d'] = 4
 
@@ -43,14 +44,14 @@ def test_valuebag_readonly():
 
 
 def test_valuebag_missing():
-    vb = ValueBag({'a': 1, 'b': 2, '$c': 3})
+    vb = ugp.classes.ValueBag({'a': 1, 'b': 2, '$c': 3})
     assert vb['d'] is None
 
     assert vb['$d'] is False
 
 
 def test_valuebag_safe_keys():
-    vb = ValueBag({'a': 1, 'b': 2, '$c': 3})
+    vb = ugp.classes.ValueBag({'a': 1, 'b': 2, '$c': 3})
     assert vb.a == 1
     assert vb.b == 2
 
@@ -60,7 +61,7 @@ def test_valuebag_safe_keys():
 
 
 def test_valuebag_key_filtering():
-    vb = ValueBag({'a': 1, 'b': 2, '$c': 3, '$d': 4, 'e': 5})
+    vb = ugp.classes.ValueBag({'a': 1, 'b': 2, '$c': 3, '$d': 4, 'e': 5})
     assert set(vb.keys()) == {'a', 'b', 'e'}
     assert set(vb.values()) == {1, 2, 5}
     assert set(vb.items()) == {('a', 1), ('b', 2), ('e', 5)}

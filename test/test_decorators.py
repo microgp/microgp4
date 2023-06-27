@@ -12,12 +12,9 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from microgp4.classes.fitness import FitnessABC
-from microgp4.decorators import fitness_function
+import microgp4 as ugp
 
-
-class MyFitness(FitnessABC):
-
+class MyFitness(ugp.classes.FitnessABC):
     def __init__(self, value):
         self.value = value
 
@@ -28,10 +25,8 @@ class MyFitness(FitnessABC):
     def is_fitter(cls, fitness1, fitness2):
         pass
 
-
 def test_fitness_function():
-
-    @fitness_function(MyFitness)
+    @ugp.decorators.fitness_function(MyFitness)
     def my_fitness_function():
         return MyFitness(42)
 

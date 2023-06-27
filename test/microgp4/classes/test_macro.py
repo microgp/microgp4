@@ -13,13 +13,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from typing import Any
+import microgp4 as ugp
 import pytest
-from microgp4.classes.parameter import ParameterABC
-from microgp4.framework.macro import macro
 
-
-class MockParameter(ParameterABC):
-
+class MockParameter(ugp.classes.ParameterABC):
     def __init__(self):
         super().__init__()
         self._value = "test"
@@ -27,12 +24,11 @@ class MockParameter(ParameterABC):
     def is_valid(self, obj: Any) -> bool:
         return super().is_valid(obj) and isinstance(obj, str)
 
-
 def test_macro():
     text = "Hello, {name}"
     parameters = {"name": MockParameter}
 
-    MacroClass = macro(text, **parameters)
+    MacroClass = ugp.framework.macro(text, **parameters)
 
     macro_instance = MacroClass()
 

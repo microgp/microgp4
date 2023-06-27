@@ -13,19 +13,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from collections import defaultdict
-from microgp4.classes.checkable import Checkable
-from microgp4.classes.evolvable import EvolvableABC
-from microgp4.classes.value_bag import ValueBag
-from microgp4.classes.node_view import NodeView
-from microgp4.classes.parameter import ParameterABC
-from microgp4.classes.macro import Macro
-
+import microgp4 as ugp 
 
 @pytest.fixture
 def macro():
-
-    class TestMacro(Macro):
+    class TestMacro(ugp.classes.Macro):
         TEXT = 'test'
         PARAMETERS = {}
         EXTRA_PARAMETERS = {}
@@ -35,9 +27,7 @@ def macro():
 
 @pytest.fixture
 def parameter_abc():
-
-    class TestParameterABC(ParameterABC):
-
+    class TestParameterABC(ugp.classes.ParameterABC):
         def mutate(self, strength: float = 1., **kwargs) -> None:
             pass
 
@@ -46,9 +36,7 @@ def parameter_abc():
 
 @pytest.fixture
 def node_view():
-
-    class TestNodeView(NodeView):
-
+    class TestNodeView(ugp.classes.NodeView):
         def __init__(self):
             pass
 
@@ -56,9 +44,9 @@ def node_view():
 
 
 def test_macro_initialization(macro):
-    assert isinstance(macro, Macro)
-    assert isinstance(macro, EvolvableABC)
-    assert isinstance(macro, Checkable)
+    assert isinstance(macro, ugp.classes.Macro)
+    assert isinstance(macro, ugp.classes.EvolvableABC)
+    assert isinstance(macro, ugp.classes.Checkable)
     assert macro.parameters == {}
 
 
@@ -66,7 +54,7 @@ def test_macro_eq(macro):
     same_macro = macro
     assert macro == same_macro
 
-    different_macro = Macro()
+    different_macro = ugp.classes.Macro()
     assert macro != different_macro
 
 
@@ -91,15 +79,14 @@ def test_macro_str(macro):
 
 
 def test_macro_dump(macro):
-    extra_parameters = ValueBag({'test': 'value'})
+    extra_parameters = ugp.classes.ValueBag({'test': 'value'})
     assert macro.dump(extra_parameters) == 'test'
 
 
 def test_macro_mutate(macro, parameter_abc):
     macro.parameters = {'test': parameter_abc}
-    macro.mutate(0.5)
-
+    macro.mutate(0.5)  
 
 def test_macro_is_name_valid():
-    assert Macro.is_name_valid('test')
-    assert not Macro.is_name_valid(123)
+    assert ugp.classes.Macro.is_name_valid('test') 
+    assert not ugp.classes.Macro.is_name_valid(123)

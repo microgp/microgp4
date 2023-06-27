@@ -13,12 +13,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-
-from microgp4.tools.dump import safe_dump
-
+import microgp4.tools.dump as ugp
 
 class TestObject:
-
     def __init__(self, key_to_raise=None):
         self.key_to_raise = key_to_raise
 
@@ -28,38 +25,31 @@ class TestObject:
         else:
             return f"success: {kwargs.get(self.key_to_raise, '')}"
 
-
 def test_safe_dump():
     obj = TestObject()
-    assert safe_dump(obj) == "success: "
+    assert ugp.safe_dump(obj) == "success: "
 
     obj = TestObject("key")
-    assert safe_dump(obj) == "success: {key}"
+    assert ugp.safe_dump(obj) == "success: {key}" 
 
     obj = TestObject("key")
-    assert safe_dump(obj, key="value") == "success: value"
-
-
+    assert ugp.safe_dump(obj, key="value") == "success: value" 
 class TestObjectException(Exception):
     pass
 
-
 class TestObjectWithException:
-
     def __init__(self, exception):
         self.exception = exception
 
     def dump(self, **kwargs):
         raise self.exception
 
-
 def test_safe_dump_with_general_exception():
     obj = TestObjectWithException(TestObjectException())
     with pytest.raises(TestObjectException):
-        safe_dump(obj)
-
+        ugp.safe_dump(obj)
 
 def test_safe_dump_with_key_error_exception():
     obj = TestObjectWithException(KeyError('key'))
     with pytest.raises(KeyError):
-        safe_dump(obj)
+        ugp.safe_dump(obj)

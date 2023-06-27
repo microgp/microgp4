@@ -13,20 +13,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from collections import abc
 from typing import Type
-from microgp4.classes.frame import FrameABC
-from microgp4.classes.macro import Macro
-from microgp4.framework.macro import macro
-from microgp4.framework.framework import alternative
-
+import microgp4 as ugp
 
 class TestAlternative:
-
-    class MockFrame(FrameABC):
+    class MockFrame(ugp.classes.FrameABC):
         pass
 
-    class MockMacro(Macro):
+    class MockMacro(ugp.classes.Macro):
         pass
 
     @pytest.fixture
@@ -38,13 +32,14 @@ class TestAlternative:
         return self.MockMacro
 
     def test_alternative_with_valid_input(self, mock_frame, mock_macro):
-        result = alternative([mock_frame, mock_macro], name='test')
+        result = ugp.f.alternative([mock_frame, mock_macro], name='test')
         assert isinstance(result, Type)
-        assert issubclass(result, FrameABC)
+        assert issubclass(result, ugp.classes.FrameABC)
         assert result.ALTERNATIVES == (mock_frame, mock_macro)
 
+
     def some_test(self):
-        print(alternative(['smth here should be a class']))
+        print(ugp.f.alternative(['smth here should be a class']))
 
     # def test_alternative_with_invalid_input(self):
     #     with pytest.raises(AssertionError):
@@ -55,13 +50,13 @@ class TestAlternative:
     #         alternative([])
 
     def test_alternative_with_only_frame(self, mock_frame):
-        result = alternative([mock_frame])
+        result = ugp.f.alternative([mock_frame])
         assert isinstance(result, Type)
-        assert issubclass(result, FrameABC)
+        assert issubclass(result, ugp.classes.FrameABC)
         assert result.ALTERNATIVES == (mock_frame,)
 
     def test_alternative_with_only_macro(self, mock_macro):
-        result = alternative([mock_macro])
+        result = ugp.f.alternative([mock_macro])
         assert isinstance(result, Type)
-        assert issubclass(result, FrameABC)
+        assert issubclass(result, ugp.classes.FrameABC)
         assert result.ALTERNATIVES == (mock_macro,)

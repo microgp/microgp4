@@ -13,7 +13,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import microgp4 as ugp
-from microgp4.framework.shared import make_shared_parameter
 
 
 def test_make_shared_parameter():
@@ -24,7 +23,7 @@ def test_make_shared_parameter():
             ugp.f.array_parameter("01X", 256)
     ]:
 
-        SharedParameter = make_shared_parameter(p)
+        SharedParameter = ugp.f.make_shared_parameter(p)
         shared_param1 = SharedParameter()
         shared_param2 = SharedParameter()
 
@@ -35,7 +34,7 @@ def test_make_shared_parameter():
         assert shared_param1.value == shared_param2.value
         assert shared_param1.value != tmp
 
-        SharedParameter2 = make_shared_parameter(p)
+        SharedParameter2 = ugp.f.make_shared_parameter(p)
         shared_param3 = SharedParameter2()
 
         tmp2 = shared_param3.value

@@ -12,11 +12,11 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from microgp4.framework.parameter_structural_global import _global_reference, global_reference
+import microgp4 as ugp
 import pytest
-from microgp4.framework.parameter_structural_global import *
+
 # def test_global_reference_creation():
-#     gr = GlobalReference(target_frame='Frame')
+#     gr = ugp.f.GlobalReference(target_frame='Frame')
 #     assert isinstance(gr, GlobalReference)
 #     assert gr.target_frame == 'Frame'
 #     assert gr.creative_zeal == 0

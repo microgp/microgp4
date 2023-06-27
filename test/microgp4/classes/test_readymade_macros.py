@@ -13,27 +13,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-from datetime import datetime, timedelta
-import sys
-import platform
-import psutil
-import networkx as nx
-from datetime import datetime
-from microgp4.global_symbols import __version__ as version
-
-from microgp4.classes.readymade_macros import *
-from microgp4.classes.value_bag import ValueBag
 
 
-class MutableValueBag(ValueBag):
+import microgp4 as ugp
 
+
+class MutableValueBag(ugp.classes.ValueBag):
     def __setitem__(self, key, value):
         self.__dict__[key] = value
 
-
 def test_macro_zero():
-    mz = MacroZero()
-    assert isinstance(mz, MacroZero)
+    mz = ugp.classes.readymade_macros.MacroZero()
+    assert isinstance(mz, ugp.classes.readymade_macros.MacroZero)
     assert hasattr(mz, 'TEXT')
     assert hasattr(mz, 'EXTRA_PARAMETERS')
     assert hasattr(mz, '_parameter_types')
@@ -41,10 +32,9 @@ def test_macro_zero():
     assert mz.EXTRA_PARAMETERS == dict()
     assert mz._parameter_types == dict()
 
-
 def test_info():
-    info = Info()
-    assert isinstance(info, Info)
+    info = ugp.classes.readymade_macros.Info()
+    assert isinstance(info, ugp.classes.readymade_macros.Info)
     assert hasattr(info, 'TEXT')
     assert hasattr(info, 'EXTRA_PARAMETERS')
     assert hasattr(info, '_parameter_types')
@@ -53,23 +43,23 @@ def test_info():
     assert info._parameter_types == dict()
 
 
-def test_macro_zero_creation():
-    mz = MacroZero()
-    assert isinstance(mz, MacroZero)
 
+def test_macro_zero_creation():
+    mz = ugp.classes.readymade_macros.MacroZero()
+    assert isinstance(mz, ugp.classes.readymade_macros.MacroZero)
 
 def test_info_creation():
-    info = Info()
-    assert isinstance(info, Info)
+    info = ugp.classes.readymade_macros.Info()
+    assert isinstance(info, ugp.classes.readymade_macros.Info)
 
 
 def test_macro_equality():
-    mz1 = MacroZero()
-    mz2 = MacroZero()
+    mz1 = ugp.classes.readymade_macros.MacroZero()
+    mz2 = ugp.classes.readymade_macros.MacroZero()
     assert mz1 == mz2
 
-    info1 = Info()
-    info2 = Info()
+    info1 = ugp.classes.readymade_macros.Info()
+    info2 = ugp.classes.readymade_macros.Info()
     assert info1 == info2
 
     assert mz1 != info1

@@ -12,61 +12,51 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from microgp4.classes.checkable import Checkable
-
+import microgp4 as ugp
 
 def test_add_check():
-
     def check_function():
         return True
 
-    Checkable.add_check(check_function)
-    assert check_function in Checkable._CLASS_CHECKS
-
+    ugp.classes.Checkable.add_check(check_function)
+    assert check_function in ugp.classes.Checkable._CLASS_CHECKS
 
 def test_add_instance_check():
-
     def check_function():
         return True
 
-    checkable = Checkable()
+    checkable = ugp.classes.Checkable()
     checkable.add_instance_check(check_function)
     assert check_function in checkable._Checkable__instance_checks
 
-
 def test_run_checks():
-
     def class_check_function():
         return True
 
     def instance_check_function():
         return True
 
-    Checkable.add_check(class_check_function)
+    ugp.classes.Checkable.add_check(class_check_function)
 
-    checkable = Checkable()
+    checkable = ugp.classes.Checkable()
     checkable.add_instance_check(instance_check_function)
 
     assert checkable.run_checks() == True
 
-
 def test_failed_class_check():
-
     def class_check_function():
-        return False
+        return False  
 
-    Checkable.add_check(class_check_function)
+    ugp.classes.Checkable.add_check(class_check_function)
 
-    checkable = Checkable()
-    assert checkable.run_checks() == False
-
+    checkable = ugp.classes.Checkable()
+    assert checkable.run_checks() == False  
 
 def test_failed_instance_check():
-
     def instance_check_function():
-        return False
+        return False  
 
-    checkable = Checkable()
+    checkable = ugp.classes.Checkable()
     checkable.add_instance_check(instance_check_function)
 
     assert checkable.run_checks() == False

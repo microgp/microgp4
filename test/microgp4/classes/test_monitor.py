@@ -13,19 +13,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-import warnings
-from microgp4.classes import failure_rate
+import microgp4 as ugp
 
-
-@failure_rate
+@ugp.classes.failure_rate
 def always_succeeds():
     return True
 
-
-@failure_rate
+@ugp.classes.failure_rate
 def always_fails():
     return False
-
 
 def test_failure_rate():
     for _ in range(100):
@@ -35,7 +31,7 @@ def test_failure_rate():
         for _ in range(100):
             assert not always_fails()
 
-    @failure_rate
+    @ugp.classes.failure_rate
     def raises_exception():
         raise ValueError("This is an exception")
 

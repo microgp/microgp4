@@ -11,18 +11,15 @@
 #############################################################################
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
-
+    
 import sys
-from microgp4.global_symbols import *
-
+import microgp4 as ugp
 
 def test_test_mode():
-    assert test_mode == ('pytest' in sys.modules)
-
+    assert ugp.user_messages.modes.test_mode == ('pytest' in sys.modules)
 
 def test_notebook_mode():
-    assert notebook_mode == False
-
+    assert ugp.user_messages.modes.notebook_mode == False
 
 def test_debug_mode():
-    assert debug_mode == __debug__
+    assert ugp.user_messages.modes.debug_mode == __debug__
