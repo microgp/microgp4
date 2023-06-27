@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 #############################################################################
 #           __________                                                      #
-#    __  __/ ____/ __ \__ __   This file is part of MicroGP4 v4!2.0         #
+#    __  __/ ____/ __ \__ __   This file is part of MicroGP v4!2.0          #
 #   / / / / / __/ /_/ / // /   A versatile evolutionary optimizer & fuzzer  #
 #  / /_/ / /_/ / ____/ // /_   https://github.com/microgp/microgp4          #
 #  \__  /\____/_/   /__  __/                                                #
@@ -10,14 +12,14 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-# Use pip install -U -r requirements.txt -r requirements-dev.txt
+import pytest
+from microgp4.framework.bnf import bnf
+from microgp4.framework.bnf import *
+from microgp4.classes.readymade_frames import SELF
 
-pip
-yapf>=0.32
-black[jupyter]>=23
-ipykernel>=6.22
-pytest>=7.3
-coverage>=7.2
-mypy>=1.3
-pylint>=2.17
-matplotlib>=3.7
+
+def test_bnf():
+    production = [[SELF]]
+    name = "test_bnf"
+    frame = bnf(production, name)
+    assert frame.__name__ == "Frame<test_bnf>"

@@ -1,6 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 #############################################################################
 #           __________                                                      #
-#    __  __/ ____/ __ \__ __   This file is part of MicroGP4 v4!2.0         #
+#    __  __/ ____/ __ \__ __   This file is part of MicroGP v4!2.0          #
 #   / / / / / __/ /_/ / // /   A versatile evolutionary optimizer & fuzzer  #
 #  / /_/ / /_/ / ____/ // /_   https://github.com/microgp/microgp4          #
 #  \__  /\____/_/   /__  __/                                                #
@@ -10,14 +12,17 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-# Use pip install -U -r requirements.txt -r requirements-dev.txt
+import sys
+from microgp4.global_symbols import *
 
-pip
-yapf>=0.32
-black[jupyter]>=23
-ipykernel>=6.22
-pytest>=7.3
-coverage>=7.2
-mypy>=1.3
-pylint>=2.17
-matplotlib>=3.7
+
+def test_test_mode():
+    assert test_mode == ('pytest' in sys.modules)
+
+
+def test_notebook_mode():
+    assert notebook_mode == False
+
+
+def test_debug_mode():
+    assert debug_mode == __debug__
