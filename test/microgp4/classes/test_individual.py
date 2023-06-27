@@ -11,6 +11,7 @@
 #############################################################################
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
+
 from microgp4.global_symbols import FRAMEWORK, NODE_ZERO
 from microgp4.classes.readymade_macros import MacroZero
 from microgp4.classes.fitness import FitnessABC
