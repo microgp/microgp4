@@ -12,13 +12,13 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from microgp4.classes.parameter import ParameterABC
-from microgp4.global_symbols import FRAMEWORK, NODE_ZERO
-from microgp4.tools.graph import _check_genome
-from microgp4.tools.graph import *
-import pytest
+
 import networkx as nx
-from microgp4.classes.node_reference import NodeReference
+import microgp4 as ugp
+
+FRAMEWORK = 'framework'
+NODE_ZERO = 0
+
 class Frame1:
     pass
 
@@ -31,12 +31,12 @@ class Frame3:
 def test_check_genome():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
-    assert _check_genome(G) == True
+    assert ugp.tools.graph._check_genome(G) == True
 
 def test_get_grammar_tree():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
-    tree = get_grammar_tree(G)
+    tree = ugp.tools.graph.get_grammar_tree(G)
     assert isinstance(tree, nx.DiGraph)
     assert list(tree.edges) == [(1, 2)]
 
@@ -44,29 +44,29 @@ def test_get_successors():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
-    ref = NodeReference(G, 1)
-    assert get_successors(ref) == [2, 3]
+    ref = ugp.classes.NodeReference(G, 1)
+    assert ugp.tools.graph.get_successors(ref) == [2, 3]
 
 def test_get_predecessor():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
-    ref = NodeReference(G, 2)
-    assert get_predecessor(ref) == 1
+    ref = ugp.classes.NodeReference(G, 2)
+    assert ugp.tools.graph.get_predecessor(ref) == 1
 
 def test_get_siblings():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
-    ref = NodeReference(G, 2)
-    assert get_siblings(ref) == [2, 3]
+    ref = ugp.classes.NodeReference(G, 2)
+    assert ugp.tools.graph.get_siblings(ref) == [2, 3]
 
 def test_set_successors_order():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
-    ref = NodeReference(G, 1)
-    set_successors_order(ref, [3, 2])
+    ref = ugp.classes.NodeReference(G, 1)
+    ugp.tools.graph.set_successors_order(ref, [3, 2])
     assert list(G.successors(1)) == [3, 2]
 
 
@@ -75,8 +75,8 @@ def test_get_successors():
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
 
-    node_ref = NodeReference(G, 1)
-    successors = get_successors(node_ref)
+    node_ref = ugp.classes.NodeReference(G, 1)
+    successors = ugp.tools.graph.get_successors(node_ref)
 
     assert sorted(successors) == [2, 3]
 
@@ -86,8 +86,8 @@ def test_get_predecessor():
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
 
-    node_ref = NodeReference(G, 2)
-    predecessor = get_predecessor(node_ref)
+    node_ref = ugp.classes.NodeReference(G, 2)
+    predecessor = ugp.tools.graph.get_predecessor(node_ref)
 
     assert predecessor == 1
 
@@ -97,11 +97,11 @@ def test_set_successors_order():
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
 
-    node_ref = NodeReference(G, 1)
+    node_ref = ugp.classes.NodeReference(G, 1)
     new_order = [3, 2]
-    set_successors_order(node_ref, new_order)
+    ugp.tools.graph.set_successors_order(node_ref, new_order)
 
-    assert get_successors(node_ref) == new_order
+    assert ugp.tools.graph.get_successors(node_ref) == new_order
 
 def test_is_equal():
     G1 = nx.MultiDiGraph()
@@ -112,17 +112,17 @@ def test_is_equal():
     G2.add_edge(1, 2, kind='framework')
     G2.add_edge(1, 3, kind='framework')
 
-    node_ref1 = NodeReference(G1, 1)
-    node_ref2 = NodeReference(G2, 1)
+    node_ref1 = ugp.classes.NodeReference(G1, 1)
+    node_ref2 = ugp.classes.NodeReference(G2, 1)
 
-    assert is_equal(node_ref1, node_ref2)
+    assert ugp.tools.graph.is_equal(node_ref1, node_ref2)
 
 def test_get_node_color_dict():
     G = nx.MultiDiGraph()
     G.add_node(1, _frame=Frame1())
     G.add_node(2, _frame=Frame2())
     G.add_node(3, _frame=Frame3())
-    color_dict = get_node_color_dict(G)
+    color_dict = ugp.tools.graph.get_node_color_dict(G)
     assert len(set(color_dict.values())) == len(G.nodes)
     assert color_dict == {1: 0, 2: 1, 3: 2}
 
@@ -136,7 +136,7 @@ def test_get_macros():
     G.add_edge(NODE_ZERO, 2, kind=FRAMEWORK)
     G.add_edge(NODE_ZERO, 3, kind=FRAMEWORK)
 
-    macros = get_macros(G)
+    macros = ugp.tools.graph.get_macros(G)
     assert macros == [1, 2, 3]
 
 def test_get_frames():
@@ -149,10 +149,10 @@ def test_get_frames():
     G.add_edge(NODE_ZERO, 2, kind=FRAMEWORK)
     G.add_edge(NODE_ZERO, 3, kind=FRAMEWORK)
 
-    frames = get_frames(G)
+    frames = ugp.tools.graph.get_frames(G)
     assert frames == [NODE_ZERO, 1, 2, 3]
 
-class Parameter(ParameterABC):
+class Parameter(ugp.classes.ParameterABC):
     def mutate(self):
         pass
 
@@ -166,7 +166,7 @@ def test_get_parameters():
     G.add_edge(NODE_ZERO, 2, kind=FRAMEWORK)
     G.add_edge(NODE_ZERO, 3, kind=FRAMEWORK)
 
-    parameters = get_parameters(G)
+    parameters = ugp.tools.graph.get_parameters(G)
     assert len(parameters) == 4
     assert all(isinstance(param, Parameter) for param in parameters)
 def test_get_first_macro():
@@ -177,5 +177,5 @@ def test_get_first_macro():
     G.add_node(3, _frame='frame1')
     T.add_edge(1, 2)
     T.add_edge(2, 3)
-    first_macro = _get_first_macro(1, G, T)
+    first_macro = ugp.tools.graph._get_first_macro(1, G, T)
     assert first_macro == 1

@@ -12,18 +12,13 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from collections import abc
 import pytest
-from unittest.mock import patch, MagicMock
 from typing import Type
-from microgp4.classes.frame import FrameABC
-from microgp4.classes.macro import Macro
-from microgp4.classes.parameter import ParameterABC
-from microgp4.framework.utilities import cook_sequence
-from microgp4.classes.evolvable import EvolvableABC
-from microgp4.user_messages.checks import check_valid_type, check_valid_types
 
-class MyFrame(FrameABC):
+
+import microgp4 as ugp
+
+class MyFrame(ugp.classes.FrameABC):
     def __init__(self, parameters=None):
         super().__init__(parameters=parameters)
 
@@ -40,11 +35,11 @@ class MyFrame(FrameABC):
 
     def is_valid(self, obj):
         return True
-    def mutate(self, mutation_rate: float) -> Type['EvolvableABC']:
+    def mutate(self, mutation_rate: float) -> Type['ugp.classes.EvolvableABC']:
         pass
 
 
-class MyMacro(Macro):
+class MyMacro(ugp.classes.Macro):
     def __init__(self, parameters=None):
         super().__init__(parameters=parameters)
 
@@ -61,16 +56,14 @@ class MyMacro(Macro):
 
     def is_valid(self, obj):
         return True
-    def mutate(self, mutation_rate: float) -> Type['EvolvableABC']:
+    def mutate(self, mutation_rate: float) -> Type['ugp.classes.EvolvableABC']:
         pass
 
 
 def test_cook_sequence():
 
-    expected_output = [FrameABC, MyFrame, Macro, MyMacro]
-
-
-    cooked = cook_sequence([FrameABC, MyFrame, Macro, MyMacro])
+    expected_output = [ugp.classes.FrameABC, MyFrame, ugp.classes.Macro, MyMacro]
+    cooked = ugp.f.utilities.cook_sequence([ugp.classes.FrameABC, MyFrame, ugp.classes.Macro, MyMacro])
     assert cooked == expected_output
 
 

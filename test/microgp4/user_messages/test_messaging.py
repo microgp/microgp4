@@ -12,18 +12,17 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from microgp4.user_messages.messaging import *
-
+import microgp4 as ugp
 
 def test_messaging():
-    assert deprecation("This feature is deprecated.") == True
+    assert ugp.user_messages.deprecation("This feature is deprecated.") == True
 
-    assert performance("This code may be slow.") == True
+    assert ugp.user_messages.performance("This code may be slow.") == True
 
-    assert runtime_warning("This code may have unexpected behavior.") == True
+    assert ugp.user_messages.runtime_warning("This code may have unexpected behavior.") == True
 
-    assert user_warning("This code may have unexpected behavior for end users.") == True
+    assert ugp.user_messages.user_warning("This code may have unexpected behavior for end users.") == True
 
-    assert syntax_warning("This code may have syntax errors or other issues.") == True
+    assert ugp.user_messages.syntax_warning("This code may have syntax errors or other issues.") == True
 
-    assert syntax_warning_hint("This code may have syntax errors or other issues.") == True
+    assert ugp.user_messages.syntax_warning_hint("This code may have syntax errors or other issues.") == True

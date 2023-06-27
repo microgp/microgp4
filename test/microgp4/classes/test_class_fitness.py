@@ -12,10 +12,10 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from microgp4.classes.fitness import FitnessABC, reverse_fitness
 import pytest
+import microgp4 as ugp
 
-class ExampleFitness(FitnessABC):
+class ExampleFitness(ugp.classes.fitness.FitnessABC):
     def __init__(self, value: float):
         self.value = value
 
@@ -55,7 +55,7 @@ def test_decorate():
     assert fitness._decorate() == "5.0"
 
 def test_reverse_fitness():
-    reversed_fitness = reverse_fitness(ExampleFitness)
+    reversed_fitness = ugp.classes.fitness.reverse_fitness(ExampleFitness)
     reversed_fitness1 = reversed_fitness(5.0)
     reversed_fitness2 = reversed_fitness(3.0)
     

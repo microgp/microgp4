@@ -12,14 +12,11 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-import pytest
-from microgp4.framework.bnf import bnf
-from microgp4.framework.bnf import *
-from microgp4.classes.readymade_frames import SELF
+import microgp4 as ugp
 
 
 def test_bnf():
-    production = [[SELF]]
+    production = [[ugp.f.SELF]]
     name = "test_bnf"
-    frame = bnf(production, name)
+    frame = ugp.f.bnf(production, name)
     assert frame.__name__ == "Frame<test_bnf>"

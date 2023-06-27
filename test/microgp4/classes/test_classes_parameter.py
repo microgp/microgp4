@@ -11,17 +11,16 @@
 #############################################################################
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
-from microgp4.classes.parameter import ParameterABC, ParameterStructuralABC
+
 import pytest
 import networkx as nx
-from microgp4.classes.node_reference import NodeReference
+import microgp4 as ugp
 
-
-class ConcreteParameter(ParameterABC):
+class ConcreteParameter(ugp.classes.ParameterABC):
     def mutate(self, strength: float = 1., **kwargs) -> None:
         self.value = self.value + strength
 
-class ConcreteStructuralParameter(ParameterStructuralABC):
+class ConcreteStructuralParameter(ugp.classes.ParameterStructuralABC):
     def mutate(self, strength: float = 1., **kwargs) -> None:
         if self.is_fastened:
             self._node_reference.node += strength
@@ -44,7 +43,7 @@ def test_ParameterABC():
 def test_ParameterStructuralABC():
     graph = nx.MultiDiGraph()
     graph.add_node(1)
-    node_ref = NodeReference(graph, 1)
+    node_ref = ugp.classes.NodeReference(graph, 1)
 
     parameter_structural_abc = ConcreteStructuralParameter()
     parameter_structural_abc._fasten(node_ref)

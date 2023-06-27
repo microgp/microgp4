@@ -14,31 +14,23 @@
 
 import pytest
 from unittest.mock import MagicMock
-from microgp4.classes.fitness import FitnessABC
-from microgp4.classes.individual import Individual
-from microgp4.classes.frame import FrameABC
-from microgp4.classes.evaluator import EvaluatorABC
-from microgp4.classes.population import Population 
-from unittest.mock import patch
-from microgp4.user_messages.checks import check_valid_types
-from microgp4.user_messages.exception import MicroGPError
 import microgp4 as ugp
 
 @pytest.fixture
 def mock_frame():
-    return MagicMock(spec=FrameABC)
+    return MagicMock(spec=ugp.classes.frame.FrameABC)
 
 @pytest.fixture
 def mock_evaluator():
-    return MagicMock(spec=EvaluatorABC)
+    return MagicMock(spec=ugp.classes.evaluator.EvaluatorABC)
 
 @pytest.fixture
 def mock_individual():
-    return MagicMock(spec=Individual)
+    return MagicMock(spec=ugp.classes.individual.Individual)
 
 @pytest.fixture
 def population(mock_frame, mock_evaluator):
-    return Population(top_frame=mock_frame, evaluator=mock_evaluator)
+    return ugp.classes.Population(top_frame=mock_frame, evaluator=mock_evaluator)
 
 def test_mu_setter(population):
     population.mu = 10
