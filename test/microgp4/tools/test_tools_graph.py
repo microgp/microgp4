@@ -12,133 +12,170 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
+from microgp4.classes.parameter import ParameterABC
+from microgp4.global_symbols import FRAMEWORK, NODE_ZERO
+from microgp4.tools.graph import _check_genome
+from microgp4.tools.graph import *
+import pytest
+import networkx as nx
+from microgp4.classes.node_reference import NodeReference
+class Frame1:
+    pass
 
-# from microgp4.classes.node_reference import *
-# from microgp4.global_symbols import *
-# from microgp4.tools.graph import *
-# from microgp4.tools.graph import _check_genome
-# import pytest
-# import networkx as nx
-# from collections import abc
-# import random
+class Frame2:
+    pass
 
-# def create_test_graph():
-#     G = nx.MultiDiGraph()
-#     nodes = [n for n in range(1, 10)]
-#     random.shuffle(nodes)
-#     G.add_node(NODE_ZERO, _frame='frame1')
-#     for n in nodes:
-#         G.add_node(str(n), _frame='frame1', _macro={'param1': 'value1', 'param2': 'value2'})
-#         G.add_edge(NODE_ZERO, str(n), kind=FRAMEWORK)
-#     return G
+class Frame3:
+    pass
 
+def test_check_genome():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    assert _check_genome(G) == True
 
-# def test_check_genome():
-#     G = create_test_graph()
-#     assert _check_genome(G) is True
+def test_get_grammar_tree():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    tree = get_grammar_tree(G)
+    assert isinstance(tree, nx.DiGraph)
+    assert list(tree.edges) == [(1, 2)]
 
-# def test_get_grammar_tree():
-#     G = create_test_graph()
-#     tree = get_grammar_tree(G)
-#     assert isinstance(tree, nx.DiGraph)
+def test_get_successors():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    G.add_edge(1, 3, kind='framework')
+    ref = NodeReference(G, 1)
+    assert get_successors(ref) == [2, 3]
 
-# def test_get_successors():
-#     G = create_test_graph()
-#     ref = NodeReference(G, NODE_ZERO)
-#     assert isinstance(get_successors(ref), list)
+def test_get_predecessor():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    G.add_edge(1, 3, kind='framework')
+    ref = NodeReference(G, 2)
+    assert get_predecessor(ref) == 1
 
-# def test_get_predecessor():
-#     G = create_test_graph()
-#     ref = NodeReference(G, '1')
-#     assert get_predecessor(ref) == NODE_ZERO
+def test_get_siblings():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    G.add_edge(1, 3, kind='framework')
+    ref = NodeReference(G, 2)
+    assert get_siblings(ref) == [2, 3]
 
-# def test_get_siblings():
-#     G = create_test_graph()
-#     ref = NodeReference(G, '1')
-#     assert isinstance(get_siblings(ref), list)
-
-# def test_set_successors_order():
-#     G = create_test_graph()
-#     ref = NodeReference(G, NODE_ZERO)
-#     old_order = get_successors(ref)
-#     new_order = old_order[::-1] 
-#     set_successors_order(ref, new_order)
-#     assert get_successors(ref) == new_order
+def test_set_successors_order():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    G.add_edge(1, 3, kind='framework')
+    ref = NodeReference(G, 1)
+    set_successors_order(ref, [3, 2])
+    assert list(G.successors(1)) == [3, 2]
 
 
-# def test_get_frames():
-#     G = create_test_graph()
-#     assert isinstance(get_frames(G), list)
+def test_get_successors():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    G.add_edge(1, 3, kind='framework')
 
-# def test_get_macros():
-#     G = create_test_graph()
-#     assert isinstance(get_macros(G), list)
+    node_ref = NodeReference(G, 1)
+    successors = get_successors(node_ref)
 
-# def test_get_parameters():
-#     G = create_test_graph()
-#     assert isinstance(get_parameters(G), list)
+    assert sorted(successors) == [2, 3]
 
-# def test_get_node_color_dict():
-#     G = create_test_graph()
-#     assert isinstance(get_node_color_dict(G), dict)
 
-# def test_get_first_macro():
-#     G = create_test_graph()
-#     T = get_grammar_tree(G)
-#     assert _get_first_macro(NODE_ZERO, G, T) is not None
+def test_get_predecessor():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    G.add_edge(1, 3, kind='framework')
 
-# def test_is_equal():
-#     G = create_test_graph()
-#     ref1 = NodeReference(G, '1')
-#     ref2 = NodeReference(G, '1')
-#     assert is_equal(ref1, ref2) is True
+    node_ref = NodeReference(G, 2)
+    predecessor = get_predecessor(node_ref)
 
-# def test_check_genome_empty():
-#     G = nx.MultiDiGraph()
-#     with pytest.raises(AssertionError):
-#         _check_genome(G)
+    assert predecessor == 1
 
-# def test_get_grammar_tree_empty():
-#     G = nx.MultiDiGraph()
-#     with pytest.raises(AssertionError):
-#         get_grammar_tree(G)
 
-# def test_get_successors_no_successors():
-#     G = create_test_graph()
-#     ref = NodeReference(G, '1')
-#     assert get_successors(ref) == []
+def test_set_successors_order():
+    G = nx.MultiDiGraph()
+    G.add_edge(1, 2, kind='framework')
+    G.add_edge(1, 3, kind='framework')
 
-# def test_get_predecessor_no_predecessor():
-#     G = nx.MultiDiGraph()
-#     G.add_node('1')
-#     ref = NodeReference(G, '1')
-#     assert get_predecessor(ref) == 0
+    node_ref = NodeReference(G, 1)
+    new_order = [3, 2]
+    set_successors_order(node_ref, new_order)
 
-# def test_set_successors_order_single_successor():
-#     G = create_test_graph()
-#     ref = NodeReference(G, NODE_ZERO)
-#     set_successors_order(ref, ['1'])
-#     assert get_successors(ref) == ['1']
+    assert get_successors(node_ref) == new_order
 
-# def test_get_frames_no_frames():
-#     G = nx.MultiDiGraph()
-#     assert get_frames(G) == []
+def test_is_equal():
+    G1 = nx.MultiDiGraph()
+    G1.add_edge(1, 2, kind='framework')
+    G1.add_edge(1, 3, kind='framework')
 
-# def test_get_macros_no_macros():
-#     G = create_test_graph()
-#     for node in G.nodes():
-#         G.nodes[node].pop('_macro', None)
-#     assert get_macros(G) == []
+    G2 = nx.MultiDiGraph()
+    G2.add_edge(1, 2, kind='framework')
+    G2.add_edge(1, 3, kind='framework')
 
-# def test_get_parameters_no_parameters():
-#     G = create_test_graph()
-#     for node in G.nodes():
-#         G.nodes[node].pop('_macro', None)
-#     assert get_parameters(G) == []
+    node_ref1 = NodeReference(G1, 1)
+    node_ref2 = NodeReference(G2, 1)
 
-# def test_is_equal_different_nodes():
-#     G = create_test_graph()
-#     ref1 = NodeReference(G, '1')
-#     ref2 = NodeReference(G, '3')
-#     assert is_equal(ref1, ref2) is False
+    assert is_equal(node_ref1, node_ref2)
 
+def test_get_node_color_dict():
+    G = nx.MultiDiGraph()
+    G.add_node(1, _frame=Frame1())
+    G.add_node(2, _frame=Frame2())
+    G.add_node(3, _frame=Frame3())
+    color_dict = get_node_color_dict(G)
+    assert len(set(color_dict.values())) == len(G.nodes)
+    assert color_dict == {1: 0, 2: 1, 3: 2}
+
+def test_get_macros():
+    G = nx.MultiDiGraph()
+    G.add_node(NODE_ZERO, _frame='frame')
+    G.add_node(1, _macro='macro1')
+    G.add_node(2, _macro='macro2')
+    G.add_node(3, _macro='macro3')
+    G.add_edge(NODE_ZERO, 1, kind=FRAMEWORK)
+    G.add_edge(NODE_ZERO, 2, kind=FRAMEWORK)
+    G.add_edge(NODE_ZERO, 3, kind=FRAMEWORK)
+
+    macros = get_macros(G)
+    assert macros == [1, 2, 3]
+
+def test_get_frames():
+    G = nx.MultiDiGraph()
+    G.add_node(NODE_ZERO, _frame='frame')
+    G.add_node(1, _frame='frame1')
+    G.add_node(2, _frame='frame2')
+    G.add_node(3, _frame='frame3')
+    G.add_edge(NODE_ZERO, 1, kind=FRAMEWORK)
+    G.add_edge(NODE_ZERO, 2, kind=FRAMEWORK)
+    G.add_edge(NODE_ZERO, 3, kind=FRAMEWORK)
+
+    frames = get_frames(G)
+    assert frames == [NODE_ZERO, 1, 2, 3]
+
+class Parameter(ParameterABC):
+    def mutate(self):
+        pass
+
+def test_get_parameters():
+    G = nx.MultiDiGraph()
+    G.add_node(NODE_ZERO, _frame='frame', _macro={'param1': Parameter()})
+    G.add_node(1, _frame='frame1', _macro={'param2': Parameter()})
+    G.add_node(2, _frame='frame2', _macro={'param3': Parameter()})
+    G.add_node(3, _frame='frame3', _macro={'param4': Parameter()})
+    G.add_edge(NODE_ZERO, 1, kind=FRAMEWORK)
+    G.add_edge(NODE_ZERO, 2, kind=FRAMEWORK)
+    G.add_edge(NODE_ZERO, 3, kind=FRAMEWORK)
+
+    parameters = get_parameters(G)
+    assert len(parameters) == 4
+    assert all(isinstance(param, Parameter) for param in parameters)
+def test_get_first_macro():
+    G = nx.MultiDiGraph()
+    T = nx.DiGraph()
+    G.add_node(1, _macro='macro1')
+    G.add_node(2, _frame='frame1')
+    G.add_node(3, _frame='frame1')
+    T.add_edge(1, 2)
+    T.add_edge(2, 3)
+    first_macro = _get_first_macro(1, G, T)
+    assert first_macro == 1

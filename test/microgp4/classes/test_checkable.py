@@ -43,4 +43,20 @@ def test_run_checks():
 
     assert checkable.run_checks() == True
 
-    
+def test_failed_class_check():
+    def class_check_function():
+        return False  
+
+    Checkable.add_check(class_check_function)
+
+    checkable = Checkable()
+    assert checkable.run_checks() == False  
+
+def test_failed_instance_check():
+    def instance_check_function():
+        return False  
+
+    checkable = Checkable()
+    checkable.add_instance_check(instance_check_function)
+
+    assert checkable.run_checks() == False

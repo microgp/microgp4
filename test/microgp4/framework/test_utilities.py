@@ -11,45 +11,70 @@
 #############################################################################
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
+from collections import abc
+import pytest
+from unittest.mock import patch, MagicMock
+from typing import Type
+from microgp4.classes.frame import FrameABC
+from microgp4.classes.macro import Macro
+from microgp4.classes.parameter import ParameterABC
+from microgp4.framework.utilities import cook_sequence
+from microgp4.classes.evolvable import EvolvableABC
+from microgp4.user_messages.checks import check_valid_type, check_valid_types
 
-# import pytest
-# from microgp4.classes.frame import FrameABC
-# from microgp4.classes.parameter import ParameterABC
-# from microgp4.framework.utilities import cook_sequence
-# from microgp4.framework.macro import macro
+class MyFrame(FrameABC):
+    def __init__(self, parameters=None):
+        super().__init__(parameters=parameters)
 
-# class MockFrame(FrameABC):
-#     def __init__(self, parameters: dict = None):
-#         super().__init__(parameters)
+    @property
+    def successors(self):
+        return []
 
-#     @property
-#     def successors(self):
-#         return None  
+    @property
+    def name(self):
+        return 'MyFrame'
 
-# class MockParameter(ParameterABC):
-#     def __init__(self):
-#         super().__init__()
+    def dump(self, extra_parameters):
+        return f'{self.name}({self.parameters})'
 
-#     def mutate(self):
-#         pass  
+    def is_valid(self, obj):
+        return True
+    def mutate(self, mutation_rate: float) -> Type['EvolvableABC']:
+        pass
 
-    
-# def test_cook_sequence():
-#     mock_param = MockParameter()
-#     mock_macro = macro('test_macro', p=mock_param)
-#     mock_frame = MockFrame()
 
-#     raw_sequence = [mock_frame, mock_macro, mock_param, 'test', [mock_frame, 2]]
+class MyMacro(Macro):
+    def __init__(self, parameters=None):
+        super().__init__(parameters=parameters)
 
-#     cooked_sequence = cook_sequence(raw_sequence)
+    @property
+    def successors(self):
+        return []
 
-#     assert len(cooked_sequence) == 6
+    @property
+    def name(self):
+        return 'MyMacro'
 
-#     for e in cooked_sequence:
-#         assert isinstance(e, (type(mock_frame), type(mock_macro)))
+    def dump(self, extra_parameters):
+        return f'{self.name}({self.parameters})'
 
-# def test_cook_sequence_error():
-#     raw_sequence = [1, 2, 3]
+    def is_valid(self, obj):
+        return True
+    def mutate(self, mutation_rate: float) -> Type['EvolvableABC']:
+        pass
 
-#     with pytest.raises(AssertionError):
-#         cook_sequence(raw_sequence)
+
+def test_cook_sequence():
+
+    expected_output = [FrameABC, MyFrame, Macro, MyMacro]
+
+
+    cooked = cook_sequence([FrameABC, MyFrame, Macro, MyMacro])
+    assert cooked == expected_output
+
+
+
+    # somelist = [FrameABC, FrameABC]
+    # cooked = cook_sequence(somelist)
+    # print("smth is cooked")
+    # print(cooked)
