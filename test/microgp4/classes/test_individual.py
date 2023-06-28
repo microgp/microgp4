@@ -95,7 +95,7 @@ def test_individual_class():
     # ind1.G.add_node(0, _frame=ugp.classes.readymade_macros.MacroZero)
     # ind1.check()
 
-    print(ind.parameters)
+    #print(ind.parameters)
 
     # G1 = nx.MultiDiGraph()
     # G1.add_edge(0, 1, kind=FRAMEWORK)
