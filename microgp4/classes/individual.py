@@ -319,10 +319,10 @@ class Individual(EvolvableABC):
         """Checks the syntax of the individual."""
         for n in nx.dfs_preorder_nodes(self.grammar_tree, source=NODE_ZERO):
             if '_frame' in self._genome.nodes[n]:
-                if not self._genome.nodes[n]['_frame'].run_checks(NodeView(self._genome, n)):
+                if not self._genome.nodes[n]['_frame'].run_checks(NodeView(NodeReference(self._genome, n))):
                     return False
             elif '_macro' in self._genome.nodes[n]:
-                if not self._genome.nodes[n]['_macro'].run_checks(NodeView(self._genome, n)):
+                if not self._genome.nodes[n]['_macro'].run_checks(NodeView(NodeReference(self._genome, n))):
                     return False
             elif 'root' in self._genome.nodes[n] and self._genome.nodes[n]['root'] is True:
                 pass  # safe
