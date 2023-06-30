@@ -90,28 +90,38 @@ def test_individual_class():
 
     assert ind.as_forest(filename="somefile.jpg") == None
     
-    #print(ind.as_lgp()) # what to do?
-    # ind1.G.add_edge(0, 1, kind=FRAMEWORK)
-    # ind1.G.add_node(0, _frame=ugp.classes.readymade_macros.MacroZero)
-    # ind1.check()
+    # MARCO's try
+    ind.G.add_edge(1,3, kind=FRAMEWORK)
+    ind.G.add_edge(2,4, kind=FRAMEWORK)
+    ind.G.add_node(3, _macro=macro1a)
+    ind.G.add_node(4, _macro=macro1a)
+    # ok but what if an individual has only two nodes? Is it invalid?
+    # lgp correctly ignore the node 0. But if the only nodes existing are those connected to 0, they will be ignored because the function
+    # focus on the edges and not on the nodes.
+    # end MARCO's try
+    print(ind.as_lgp())
 
-    #print(ind.parameters)
+    ind1.G.add_edge(0, 1, kind=FRAMEWORK)
+    ind1.G.add_node(0, _frame=ugp.classes.readymade_macros.MacroZero)
+    ind1.check() # still problematic, some stuff happening in NodeView init
 
-    # G1 = nx.MultiDiGraph()
-    # G1.add_edge(0, 1, kind=FRAMEWORK)
+    print(ind.parameters)
 
-    # ind1 = ugp.classes.Individual(top_frame=G1)
-    # print(ind1.G.nodes(data=True))
-    # print("aywa")
-    # tree = ind1.grammar_tree()
+    G1 = nx.MultiDiGraph()
+    G1.add_edge(0, 1, kind=FRAMEWORK)
 
-    # expected_tree = nx.DiGraph()
-    # expected_tree.add_edge(1, 2)
-    # expected_tree.add_edge(2, 3)
+    ind1 = ugp.classes.Individual(top_frame=G1)
+    print(ind1.G.nodes(data=True))
+    print("aywa")
+    tree = ind1.grammar_tree()
 
-    # assert nx.is_isomorphic(tree, expected_tree)
+    expected_tree = nx.DiGraph()
+    expected_tree.add_edge(1, 2)
+    expected_tree.add_edge(2, 3)
 
-    # assert nx.is_branching(tree) and nx.is_weakly_connected(tree)
+    assert nx.is_isomorphic(tree, expected_tree)
+
+    assert nx.is_branching(tree) and nx.is_weakly_connected(tree)
 
 
 
