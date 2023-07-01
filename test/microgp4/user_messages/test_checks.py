@@ -32,10 +32,11 @@ def test_check_valid_type():
 
     class someClass:
         pass
+
     class someSubClass(someClass):
         pass
-    assert ugp.user_messages.check_valid_type(someClass, object, False) == True
 
+    assert ugp.user_messages.check_valid_type(someClass, object, False) == True
 
 
 def test_check_valid_types():
@@ -47,8 +48,6 @@ def test_check_valid_types():
     assert ugp.user_messages.check_valid_types({1, 2, 3}, set) == True
     assert ugp.user_messages.check_valid_types(3.14, (int, float)) == True
     assert ugp.user_messages.check_valid_types("world", (str, list)) == True
-
-
 
     with pytest.raises(ugp.user_messages.exception.MicroGPError):
         ugp.user_messages.check_valid_types(42, str)
@@ -66,6 +65,7 @@ def test_check_valid_types():
         ugp.user_messages.check_valid_types(3.14, int)
     with pytest.raises(ugp.user_messages.exception.MicroGPError):
         ugp.user_messages.check_valid_types("world", int)
+
 
 def test_check_value_range():
     assert ugp.user_messages.check_value_range(42, 0, 100) == True

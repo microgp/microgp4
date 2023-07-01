@@ -16,6 +16,7 @@ import pytest
 
 import microgp4 as ugp
 
+
 class FrameConcrete(ugp.classes.FrameABC):
     _name_counter = {}
 
@@ -31,24 +32,29 @@ def test_frame_instance_creation():
     frame_instance = FrameConcrete(parameters={"test": "test"})
     assert frame_instance._parameters == {"test": "test"}
 
+
 def test_frame_eq_method():
     frame_instance1 = FrameConcrete()
     frame_instance2 = FrameConcrete()
     assert frame_instance1 == frame_instance2
 
+
 def test_frame_dump_method():
     frame_instance = FrameConcrete()
     assert frame_instance.dump(ugp.classes.ValueBag()) == ""
+
 
 def test_frame_is_valid():
     frame_instance = FrameConcrete()
     assert frame_instance.is_valid(None) == True
 
+
 def test_frame_name():
     assert FrameConcrete.name == "FrameConcrete"
 
+
 def test_frame_register_name():
-    FrameConcrete._registered_names = set() 
+    FrameConcrete._registered_names = set()
     assert FrameConcrete.register_name("TestName") == True
     with pytest.raises(AssertionError):
-        FrameConcrete.register_name("TestName") 
+        FrameConcrete.register_name("TestName")

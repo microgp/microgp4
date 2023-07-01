@@ -16,13 +16,16 @@ from typing import Any
 import microgp4 as ugp
 import pytest
 
+
 class MockParameter(ugp.classes.ParameterABC):
+
     def __init__(self):
         super().__init__()
         self._value = "test"
 
     def is_valid(self, obj: Any) -> bool:
         return super().is_valid(obj) and isinstance(obj, str)
+
 
 def test_macro():
     text = "Hello, {name}"

@@ -15,13 +15,16 @@
 import pytest
 import microgp4 as ugp
 
+
 @ugp.classes.failure_rate
 def always_succeeds():
     return True
 
+
 @ugp.classes.failure_rate
 def always_fails():
     return False
+
 
 def test_failure_rate():
     for _ in range(100):

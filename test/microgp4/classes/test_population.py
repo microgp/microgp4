@@ -16,35 +16,44 @@ import pytest
 from unittest.mock import MagicMock
 import microgp4 as ugp
 
+
 @pytest.fixture
 def mock_frame():
     return MagicMock(spec=ugp.classes.frame.FrameABC)
+
 
 @pytest.fixture
 def mock_evaluator():
     return MagicMock(spec=ugp.classes.evaluator.EvaluatorABC)
 
+
 @pytest.fixture
 def mock_individual():
     return MagicMock(spec=ugp.classes.individual.Individual)
+
 
 @pytest.fixture
 def population(mock_frame, mock_evaluator):
     return ugp.classes.Population(top_frame=mock_frame, evaluator=mock_evaluator)
 
+
 def test_mu_setter(population):
     population.mu = 10
     assert population.mu == 10
+
 
 def test_lambda_setter(population):
     population.lambda_ = 10
     assert population.lambda_ == 10
 
+
 def test_individuals_property(population):
     assert isinstance(population.individuals, list)
 
+
 def test_parameters_property(population):
     assert isinstance(population.parameters, dict)
+
 
 def test_evaluate(population, mock_individual):
     population._individuals = [mock_individual]

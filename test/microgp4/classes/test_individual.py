@@ -24,37 +24,37 @@
 
 # # def test_individual_creation():
 # #     G = nx.MultiDiGraph()
- 
+
 # #     G.add_node(1)
 # #     G.add_node(2)
 # #     G.add_node(3)
- 
+
 # #     G.add_edge(1, 2)
 # #     G.add_edge(2, 3)
 # #     G.add_edge(3, 1)
- 
+
 # #     ind1 = Individual(top_frame=G)
 # #     ind2 = Individual(top_frame=G)
- 
+
 # #     assert ind1.fitness == None
 # #     assert ind2.fitness == None
 # #     ind1.fitness = 42
 # #     ind2.fitness = 43
 # #     assert ind1.fitness == 42
 # #     assert ind2.fitness == 43
-# #     ind2.fitness = 42   
+# #     ind2.fitness = 42
 # #     assert ind1.fitness == ind2.fitness
 # #     assert ind1.genome != ind2.genome
 # #     my_dict = {}
- 
+
 # #     G = nx.MultiDiGraph()
 # #     G.add_nodes_from(range(100, 110))
 # #     ind1 = Individual(top_frame=G)
 # #     ind2 = Individual(top_frame=G)
- 
+
 # #     assert ind1.fitness == None
 # #     assert ind2.fitness == None
- 
+
 # #     my_dict = {}
 
 # import pytest
@@ -78,7 +78,7 @@
 #     G = nx.MultiDiGraph()
 #     G.add_nodes_from(range(100, 110))
 #     ind1 = Individual(top_frame=G)
-    
+
 # def unit_test():
 #     macro1a = ugp.f.macro('1')
 #     macro1b = ugp.f.macro('call {m1}', m1=ugp.f.global_reference('frame1'))
@@ -99,8 +99,6 @@
 
 #     unroll(individual, frame2)
 
-    
-
 #     assert individual.grammar_tree == nx.DiGraph()
 #     assert individual.genome == nx.MultiDiGraph(node_count=1, top_frame=frame1)
 #     assert individual.G == individual.genome
@@ -109,7 +107,7 @@
 # def test_individual_fitness_setter():
 #     top_frame = MockFrame()
 #     individual = Individual(top_frame)
-    
+
 #     mock_fitness = MockFitness(100)
 #     individual.fitness = mock_fitness
 
@@ -118,7 +116,7 @@
 # def test_individual_equality():
 #     top_frame1 = MockFrame()
 #     individual1 = Individual(top_frame1)
-    
+
 #     top_frame2 = MockFrame()
 #     individual2 = Individual(top_frame2)
 
@@ -130,7 +128,7 @@
 
 #     top_frame2 = MockFrame()
 #     individual2 = Individual(top_frame2)
-    
+
 #     mock_fitness = MockFitness(100)
 #     individual2.fitness = mock_fitness
 

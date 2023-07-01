@@ -15,7 +15,9 @@
 import pytest
 import microgp4 as ugp
 
+
 class ExampleFitness(ugp.classes.fitness.FitnessABC):
+
     def __init__(self, value: float):
         self.value = value
 
@@ -31,17 +33,20 @@ class ExampleFitness(ugp.classes.fitness.FitnessABC):
     def _decorate(self) -> str:
         return str(self.value)
 
+
 def test_is_fitter():
     fitness1 = ExampleFitness(5.0)
     fitness2 = ExampleFitness(3.0)
     assert fitness1.is_fitter(fitness2)
     assert not fitness2.is_fitter(fitness1)
 
+
 def test_is_dominant():
     fitness1 = ExampleFitness(5.0)
     fitness2 = ExampleFitness(3.0)
     assert fitness1.is_dominant(fitness2)
     assert not fitness2.is_dominant(fitness1)
+
 
 def test_is_distinguishable():
     fitness1 = ExampleFitness(5.0)
@@ -50,16 +55,18 @@ def test_is_distinguishable():
     assert fitness1.is_distinguishable(fitness2)
     assert not fitness1.is_distinguishable(fitness3)
 
+
 def test_decorate():
     fitness = ExampleFitness(5.0)
     assert fitness._decorate() == "5.0"
+
 
 def test_reverse_fitness():
     reversed_fitness = ugp.classes.fitness.reverse_fitness(ExampleFitness)
     reversed_fitness1 = reversed_fitness(5.0)
     reversed_fitness2 = reversed_fitness(3.0)
-    
-    assert reversed_fitness2.is_fitter(reversed_fitness1) 
+
+    assert reversed_fitness2.is_fitter(reversed_fitness1)
     assert not reversed_fitness1.is_fitter(reversed_fitness2)
 
     assert reversed_fitness1 != reversed_fitness2

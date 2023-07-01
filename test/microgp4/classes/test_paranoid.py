@@ -14,10 +14,13 @@
 
 import microgp4 as ugp
 
+
 class MyParanoid(ugp.classes.Paranoid):
     pass
 
+
 class TestParanoid:
+
     def test_run_paranoia_checks(self):
         paranoid = MyParanoid()
         assert paranoid.run_paranoia_checks() == True

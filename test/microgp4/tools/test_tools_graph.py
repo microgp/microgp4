@@ -12,26 +12,30 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-
 import networkx as nx
 import microgp4 as ugp
 
 FRAMEWORK = 'framework'
 NODE_ZERO = 0
 
+
 class Frame1:
     pass
+
 
 class Frame2:
     pass
 
+
 class Frame3:
     pass
+
 
 def test_check_genome():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
     assert ugp.tools.graph._check_genome(G) == True
+
 
 def test_get_grammar_tree():
     G = nx.MultiDiGraph()
@@ -40,12 +44,14 @@ def test_get_grammar_tree():
     assert isinstance(tree, nx.DiGraph)
     assert list(tree.edges) == [(1, 2)]
 
+
 def test_get_successors():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
     ref = ugp.classes.NodeReference(G, 1)
     assert ugp.tools.graph.get_successors(ref) == [2, 3]
+
 
 def test_get_predecessor():
     G = nx.MultiDiGraph()
@@ -54,12 +60,14 @@ def test_get_predecessor():
     ref = ugp.classes.NodeReference(G, 2)
     assert ugp.tools.graph.get_predecessor(ref) == 1
 
+
 def test_get_siblings():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind='framework')
     G.add_edge(1, 3, kind='framework')
     ref = ugp.classes.NodeReference(G, 2)
     assert ugp.tools.graph.get_siblings(ref) == [2, 3]
+
 
 def test_set_successors_order():
     G = nx.MultiDiGraph()
@@ -103,6 +111,7 @@ def test_set_successors_order():
 
     assert ugp.tools.graph.get_successors(node_ref) == new_order
 
+
 def test_is_equal():
     G1 = nx.MultiDiGraph()
     G1.add_edge(1, 2, kind='framework')
@@ -117,6 +126,7 @@ def test_is_equal():
 
     assert ugp.tools.graph.is_equal(node_ref1, node_ref2)
 
+
 def test_get_node_color_dict():
     G = nx.MultiDiGraph()
     G.add_node(1, _frame=Frame1())
@@ -125,6 +135,7 @@ def test_get_node_color_dict():
     color_dict = ugp.tools.graph.get_node_color_dict(G)
     assert len(set(color_dict.values())) == len(G.nodes)
     assert color_dict == {1: 0, 2: 1, 3: 2}
+
 
 def test_get_macros():
     G = nx.MultiDiGraph()
@@ -139,6 +150,7 @@ def test_get_macros():
     macros = ugp.tools.graph.get_macros(G)
     assert macros == [1, 2, 3]
 
+
 def test_get_frames():
     G = nx.MultiDiGraph()
     G.add_node(NODE_ZERO, _frame='frame')
@@ -152,9 +164,12 @@ def test_get_frames():
     frames = ugp.tools.graph.get_frames(G)
     assert frames == [NODE_ZERO, 1, 2, 3]
 
+
 class Parameter(ugp.classes.ParameterABC):
+
     def mutate(self):
         pass
+
 
 def test_get_parameters():
     G = nx.MultiDiGraph()
@@ -169,6 +184,8 @@ def test_get_parameters():
     parameters = ugp.tools.graph.get_parameters(G)
     assert len(parameters) == 4
     assert all(isinstance(param, Parameter) for param in parameters)
+
+
 def test_get_first_macro():
     G = nx.MultiDiGraph()
     T = nx.DiGraph()

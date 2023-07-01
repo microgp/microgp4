@@ -14,6 +14,7 @@
 
 import microgp4 as ugp
 
+
 def test_messaging():
     assert ugp.user_messages.deprecation("This feature is deprecated.") == True
 

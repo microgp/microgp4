@@ -14,14 +14,18 @@
 
 import microgp4 as ugp
 
+
 def test_add_check():
+
     def check_function():
         return True
 
     ugp.classes.Checkable.add_check(check_function)
     assert check_function in ugp.classes.Checkable._CLASS_CHECKS
 
+
 def test_add_instance_check():
+
     def check_function():
         return True
 
@@ -29,7 +33,9 @@ def test_add_instance_check():
     checkable.add_instance_check(check_function)
     assert check_function in checkable._Checkable__instance_checks
 
+
 def test_run_checks():
+
     def class_check_function():
         return True
 
@@ -43,18 +49,22 @@ def test_run_checks():
 
     assert checkable.run_checks() == True
 
+
 def test_failed_class_check():
+
     def class_check_function():
-        return False  
+        return False
 
     ugp.classes.Checkable.add_check(class_check_function)
 
     checkable = ugp.classes.Checkable()
-    assert checkable.run_checks() == False  
+    assert checkable.run_checks() == False
+
 
 def test_failed_instance_check():
+
     def instance_check_function():
-        return False  
+        return False
 
     checkable = ugp.classes.Checkable()
     checkable.add_instance_check(instance_check_function)

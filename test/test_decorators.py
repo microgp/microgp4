@@ -14,7 +14,9 @@
 
 import microgp4 as ugp
 
+
 class MyFitness(ugp.classes.FitnessABC):
+
     def __init__(self, value):
         self.value = value
 
@@ -25,7 +27,9 @@ class MyFitness(ugp.classes.FitnessABC):
     def is_fitter(cls, fitness1, fitness2):
         pass
 
+
 def test_fitness_function():
+
     @ugp.decorators.fitness_function(MyFitness)
     def my_fitness_function():
         return MyFitness(42)

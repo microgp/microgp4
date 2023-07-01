@@ -16,7 +16,6 @@ import pytest
 import microgp4 as ugp
 
 
-
 def test_valuebag_init():
     vb = ugp.classes.ValueBag()
     assert dict(vb) == {}

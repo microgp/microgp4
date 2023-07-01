@@ -13,10 +13,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import pytest
-import microgp4 as ugp 
+import microgp4 as ugp
+
 
 @pytest.fixture
 def macro():
+
     class TestMacro(ugp.classes.Macro):
         TEXT = 'test'
         PARAMETERS = {}
@@ -27,7 +29,9 @@ def macro():
 
 @pytest.fixture
 def parameter_abc():
+
     class TestParameterABC(ugp.classes.ParameterABC):
+
         def mutate(self, strength: float = 1., **kwargs) -> None:
             pass
 
@@ -36,7 +40,9 @@ def parameter_abc():
 
 @pytest.fixture
 def node_view():
+
     class TestNodeView(ugp.classes.NodeView):
+
         def __init__(self):
             pass
 
@@ -85,8 +91,9 @@ def test_macro_dump(macro):
 
 def test_macro_mutate(macro, parameter_abc):
     macro.parameters = {'test': parameter_abc}
-    macro.mutate(0.5)  
+    macro.mutate(0.5)
+
 
 def test_macro_is_name_valid():
-    assert ugp.classes.Macro.is_name_valid('test') 
+    assert ugp.classes.Macro.is_name_valid('test')
     assert not ugp.classes.Macro.is_name_valid(123)

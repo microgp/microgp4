@@ -16,7 +16,9 @@ import pytest
 from typing import Type
 import microgp4 as ugp
 
+
 class TestAlternative:
+
     class MockFrame(ugp.classes.FrameABC):
         pass
 
@@ -36,7 +38,6 @@ class TestAlternative:
         assert isinstance(result, Type)
         assert issubclass(result, ugp.classes.FrameABC)
         assert result.ALTERNATIVES == (mock_frame, mock_macro)
-
 
     def some_test(self):
         print(ugp.f.alternative(['smth here should be a class']))
