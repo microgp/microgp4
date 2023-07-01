@@ -24,8 +24,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# =[ HISTORY ]===============================================================
-# v1 / June 2023 / Squillero (GX)
+#############################################################################
+# HISTORY
+# v1 / July 2023 / Squillero (GX)
 
-from .vanilla import vanilla_ea
-from .selection import tournament_selection
+from microgp4.user_messages.checks import *
+from microgp4.classes.individual import Individual
+from microgp4.classes.population import Population
+from microgp4.randy import rrandom
+
+
+def tournament_selection(population: Population, tournament_size: float = 2) -> Individual:
+    assert check_value_range(tournament_size, min_=1)
+    candidates = [rrandom.choice(population.individuals) for _ in range(tournament_size)]
+    if rrandom.boolean(p_true=tournament_size % 1):
+        candidates.append(rrandom.choice(population.individuals))
+    return max(candidates, key=lambda i: i.fitness)

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['FrameABC']
+__all__ = ['FrameABC', 'FrameAlternative', 'FrameSequence', 'FrameMacroBunch']
 
 from types import NoneType
 from abc import abstractmethod
@@ -45,11 +45,11 @@ class FrameABC(SElement, Paranoid):
 
     _registered_names = set()
 
-    def __init__(self, parameters: dict | None = None) -> None:
-        assert check_valid_types(parameters, dict, NoneType)
+    def __init__(self, extra_parameters: dict | None = None) -> None:
+        assert check_valid_types(extra_parameters, dict, NoneType)
         super().__init__()
         self._checks = list()
-        self._parameters = parameters if parameters is not None else dict()
+        self._extra_parameters = extra_parameters if extra_parameters is not None else dict()
         #self._values = list()
 
     def __eq__(self, other: 'FrameABC') -> bool:
@@ -64,8 +64,8 @@ class FrameABC(SElement, Paranoid):
         return True
 
     @property
-    def parameters(self):
-        return copy(self._parameters)
+    def extra_parameters(self):
+        return copy(self._extra_parameters)
 
     @property
     @abstractmethod
@@ -90,3 +90,14 @@ class FrameABC(SElement, Paranoid):
             f"ValueError: Frame name {name!r} already exists (paranoia check)"
         FrameABC._registered_names.add(name)
         return True
+
+
+class FrameSequence:
+    pass
+
+class FrameAlternative:
+    pass
+
+class FrameMacroBunch:
+    pass
+

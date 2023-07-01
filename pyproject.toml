@@ -106,21 +106,24 @@ license = "Apache-2.0"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
-tqdm = "^4.65.0"
-numpy = "^1.25.0"
+matplotlib = { version = "^3.7.1", optional = true }
 networkx = "^3.1"
+numpy = "^1.25.0"
+python = ">=3.11,<3.13"
 scipy = "^1.11.1"
+tqdm = "^4.65.0"
 
 [tool.poetry.group.dev.dependencies]
-yapf = "^0.40.1"
 black = {extras = ["jupyter"], version = "^23.3.0"}
-ipykernel = "^6.23.3"
-pytest = "^7.4.0"
 coverage = "^7.2.7"
+ipykernel = "^6.23.3"
 mypy = "^1.4.1"
 pylint = "^2.17.4"
-matplotlib = "^3.7.1"
+pytest = "^7.4.0"
+yapf = "^0.40.1"
+
+[tool.poetry.extras]
+plot = ["matplotlib"]
 
 [build-system]
 requires = ["poetry-core"]

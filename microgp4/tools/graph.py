@@ -32,7 +32,7 @@ import networkx as nx
 
 __all__ = [
     'get_predecessor', 'get_siblings', 'get_successors', 'set_successors_order', 'get_structure_tree',
-    'get_node_color_dict', 'is_equal', '_get_first_macro', 'get_all_macros', 'get_all_frames', 'get_all_parameters'
+    'get_node_color_dict', '_get_first_macro', 'get_all_macros', 'get_all_frames', 'get_all_parameters'
 ]
 
 from itertools import chain
@@ -160,10 +160,6 @@ def _get_first_macro(root: int, G: nx.MultiDiGraph, T: nx.DiGraph) -> int:
     return next((n for n in nx.dfs_preorder_nodes(T, root) if G.nodes[n]['_type'] == MACRO_NODE), None)
 
 
-def is_equal(ref1: NodeReference, ref2: NodeReference) -> bool:
-    return ref1.graph.nodes[ref1.node] == ref2.graph.nodes[ref2.node]
-
-
 #=[PUBLIC FUNCTIONS]===================================================================================================
 
 
@@ -202,7 +198,7 @@ def get_all_macros(G: nx.classes.MultiDiGraph,
     elif not data and node_id:
         return node_lst
     else:
-        raise []
+        raise NotImplementedError
 
 
 def get_all_parameters(G: nx.classes.MultiDiGraph, root: int | None = None, *, node_id: bool = False) -> list:

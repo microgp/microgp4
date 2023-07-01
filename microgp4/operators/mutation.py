@@ -29,6 +29,7 @@
 # v1 / June 2023 / Squillero (GX)
 
 from microgp4.user_messages import *
+from microgp4.classes.frame import *
 from microgp4.classes import Population, Individual
 from microgp4.registry import *
 from microgp4.functions import *
@@ -40,4 +41,13 @@ def single_parameter_mutation(parent: Individual, strength=1.0) -> list['Individ
     offspring = parent.clone
     param = rrandom.choice(offspring.parameters)
     mutate(param, strength=strength)
+    return [offspring]
+
+
+@genetic_operator(num_parents=1)
+def add_macro_to_bunch(parent: Individual, strength=1.0) -> list['Individual']:
+    offspring = parent.clone
+    candidates = [f for f in offspring.frames if isinstance(f, FrameMacroBunch)]
+    if not candidates:
+        raise GeneticOperatorAbort
     return [offspring]

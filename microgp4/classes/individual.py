@@ -35,6 +35,7 @@ from typing import Any, Callable
 from itertools import chain, zip_longest
 from copy import deepcopy
 from dataclasses import dataclass
+import operator
 
 import networkx as nx
 
@@ -54,12 +55,13 @@ from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
 from microgp4.classes.frame import FrameABC
+from microgp4.classes.parameter import ParameterABC
 from microgp4.classes.readymade_macros import MacroZero
 
 
 @dataclass(frozen=True)
 class Birth:
-    operator: Callable
+    operator: Callable | None
     parents: tuple
 
     def __str__(self):
@@ -96,6 +98,7 @@ class Individual(Paranoid):
 
     _genome: nx.classes.MultiDiGraph
     _fitness: FitnessABC | None
+    _birth: Birth | None
     _str: str
 
     # A rainbow color mapping using matplotlib's tableau colors
@@ -123,34 +126,15 @@ class Individual(Paranoid):
         self._structure_tree = None
         self._birth = None
 
-    @property
-    def clone(self) -> 'Individual':
-        scratch = self._fitness, self._birth
-        self._fitness, self._birth = None, None
-        I = deepcopy(self)
-        Individual.__COUNTER += 1
-        I._id = Individual.__COUNTER
-        self._fitness, self._birth = scratch
-        return I
-
-    @property
-    def nodes(self):
-        """Generate nodes in a depth-first-search pre-ordering visit of individual."""
-        return nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO)
-
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
 
     def __str__(self):
         return f'𝕚{self._id}'
 
-    def __eq__(self, other: 'Individual') -> bool:
-        if type(self) != type(other):
-            return False
-        else:
-            return all(
-                is_equal(NodeReference(self.G, n1), NodeReference(other.G, n2))
-                for n1, n2 in zip_longest(self.nodes, other.nodes))
+    def __eq__(self, other) -> bool:
+        return type(self) == type(other) and self._fitness == other._fitness and nx.isomorphism(
+            self._genome, other._genome, node_match=operator.eq, edge_match=operator.eq)
 
     def __hash__(self):
         return hash(self._id)
@@ -165,11 +149,41 @@ class Individual(Paranoid):
     def is_finalized(self):
         return self._fitness is not None
 
-    # PEDANTIC
     @property
     def valid(self) -> bool:
         return all(self.genome.nodes[n]['_selement'].is_valid(NodeView(NodeReference(self.genome, n)))
-                   for n in nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO))
+                   for n in nx.dfs_preorder_nodes(self.genome))
+
+    @property
+    def clone(self) -> 'Individual':
+        scratch = self._fitness, self._birth
+        self._fitness, self._birth = None, None
+        I = deepcopy(self)
+        Individual.__COUNTER += 1
+        I._id = Individual.__COUNTER
+        self._fitness, self._birth = scratch
+        I._birth = Birth(None, (self,))
+        return I
+
+    @property
+    def nodes(self):
+        """Return all node indexes in unreliable order."""
+        return list(nx.dfs_preorder_nodes(self.genome))
+
+    @property
+    def macros(self):
+        """Return all macro instances in unreliable order."""
+        return [self._genome.nodes[n]['_selement'] for n in self.nodes if self._genome.nodes[n]['_type'] == MACRO_NODE]
+
+    @property
+    def frames(self):
+        """Return all frame instances in unreliable order."""
+        return [self._genome.nodes[n]['_selement'] for n in self.nodes if self._genome.nodes[n]['_type'] == FRAME_NODE]
+
+    @property
+    def parameters(self):
+        """Return all parameter instances in unreliable order."""
+        return [p for n in self.nodes for p in self._genome.nodes[n].values() if isinstance(p, ParameterABC)]
 
     @property
     def OLDISH_valid(self) -> bool:
@@ -217,6 +231,8 @@ class Individual(Paranoid):
     @property
     def fitness(self):
         """The fitness of the individual."""
+        assert self.is_finalized, \
+            f"ValueError: Individual not marked as final, fitness value not set (paranoia check)"
         return self._fitness
 
     def _check_fitness(self, value):
@@ -236,14 +252,6 @@ class Individual(Paranoid):
         elif any(value << i.fitness for i in self.birth.parents) and \
                 any(value << i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents):
             self._birth.operator.stats.failures += 1
-
-    @property
-    def macros(self):
-        return [self._genome.nodes[n]['_macro'] for n in get_all_macros(self._genome)]
-
-    @property
-    def parameters(self):
-        return get_all_parameters(self._genome)
 
     # PUBLIC METHODS
 

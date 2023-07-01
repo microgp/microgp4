@@ -35,7 +35,7 @@ from microgp4.global_symbols import FRAMEWORK, FRAMEWORK_DIRECTORY
 from microgp4.user_messages import *
 from microgp4.tools.names import canonize_name, _patch_class_info
 from microgp4.classes.selement import SElement
-from microgp4.classes.frame import FrameABC
+from microgp4.classes.frame import *
 from microgp4.classes.macro import Macro
 from microgp4.framework.macro import macro
 from microgp4.framework.utilities import cook_sequence
@@ -98,7 +98,7 @@ def alternative(alternatives: abc.Collection[type[SElement]],
     assert all(check_valid_types(a, FrameABC, Macro, subclass=True) for a in alternatives)
     assert check_valid_length(alternatives, 1)
 
-    class T(FrameABC):
+    class T(FrameAlternative, FrameABC):
         ALTERNATIVES = tuple(alternatives)
 
         def __init__(self):
@@ -124,7 +124,7 @@ def sequence(seq: abc.Sequence[type[SElement] | str],
 
     cooked_seq = cook_sequence(seq)
 
-    class T(FrameABC):
+    class T(FrameSequence, FrameABC):
         SEQUENCE = tuple(cooked_seq)
 
         def __init__(self):
@@ -176,7 +176,7 @@ def bunch(pool: Macro | abc.Collection[type[Macro]],
     assert 0 < size[0] <= size[1] - 1, \
         f"ValueError: min size is {size[0]} and max size is {size[1]-1} (paranoia check)"
 
-    class T(FrameABC):
+    class T(FrameMacroBunch, FrameABC):
         SIZE = size
         POOL = tuple(pool)
 

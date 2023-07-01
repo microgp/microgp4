@@ -79,7 +79,7 @@ def _global_reference(*,
                 suitable_frames_ = suitable_frames
             else:
                 suitable_frames_ = [
-                    n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO)
+                    n for n in nx.dfs_preorder_nodes(G)
                     if G.nodes[n]['_type'] == FRAME_NODE and isinstance(G.nodes[n]['_selement'], self._target_frame)
                 ]
             if first_macro:

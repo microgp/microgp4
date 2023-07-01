@@ -29,9 +29,8 @@
 
 __all__ = ['vanilla_ea']
 
-# noinspection PyUnresolvedReferences
+from microgp4.user_messages import *
 from microgp4.operators import *
-# noinspection PyUnresolvedReferences
 from microgp4.fitness import *
 from microgp4.sys import *
 from microgp4.classes.population import Population
@@ -39,10 +38,29 @@ from microgp4.classes.frame import FrameABC
 from microgp4.classes.evaluator import EvaluatorABC
 from microgp4.randy import rrandom
 
-from microgp4.registry import *
+from .selection import *
 
 
-def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20):
+def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20) -> Population:
+    r"""A simple evolutionary algorith
+
+    Parameters
+    ----------
+    top_frame
+        The top_frame of individuals
+    evaluator
+        The evaluator used to evaluate individuals
+    mu
+        The size of the population
+    lambda_
+        The size the offspring
+
+    Returns
+    -------
+    Population
+        The last population
+
+    """
     population = Population(top_frame)
 
     # Initialize population
@@ -65,7 +83,7 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         new_individuals = list()
         for step in range(lambda_):
             op = rrandom.choice(ops)
-            parent = rrandom.choice(population.individuals)
+            parent = tournament_selection(population, 1)
             new_individuals += op(parent, strength=.05)
         population += new_individuals
         evaluator(population)
@@ -79,6 +97,4 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
             best = population[0]
             microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
 
-    for i in population:
-        print(i.describe(include_structure=False, max_recursion=99))
-    pass
+    return population
