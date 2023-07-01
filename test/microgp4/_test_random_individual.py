@@ -13,7 +13,7 @@
 # SPDX-License-Identifier: Apache-2.0
 import logging
 
-import microgp4 as ugp
+import _microgp4 as ugp
 
 
 def test_random_individual():

@@ -12,7 +12,7 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-import microgp4 as ugp
+import _microgp4 as ugp
 
 
 class MyFitness(ugp.classes.FitnessABC):

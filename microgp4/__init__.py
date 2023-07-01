@@ -40,7 +40,7 @@ from microgp4.global_symbols import *
 from microgp4 import user_messages
 # noinspection PyUnresolvedReferences
 from microgp4 import user_messages
-##from microgp4.user_messages.exception import *
+##from _microgp4.user_messages.exception import *
 ### noinspection PyUnresolvedReferences
 
 # noinspection PyUnresolvedReferences
