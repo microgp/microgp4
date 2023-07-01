@@ -93,11 +93,29 @@ class FrameABC(SElement, Paranoid):
 
 
 class FrameSequence:
+    r"""Empty class to mark frames of type "Sequence"
+
+    See Also
+    --------
+    `sequence` factory function
+    """
     pass
 
 class FrameAlternative:
+    r"""Empty class to mark frames of type "Alternative"
+
+    See Also
+    --------
+    `altrnative` factory function
+    """
     pass
 
 class FrameMacroBunch:
+    r"""Empty class to mark frames of type "MacroBunch"
+
+    See Also
+    --------
+    `bunch` factory function
+    """
     pass
 
