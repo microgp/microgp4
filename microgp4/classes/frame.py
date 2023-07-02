@@ -101,6 +101,7 @@ class FrameSequence:
     """
     pass
 
+
 class FrameAlternative:
     r"""Empty class to mark frames of type "Alternative"
 
@@ -110,6 +111,7 @@ class FrameAlternative:
     """
     pass
 
+
 class FrameMacroBunch:
     r"""Empty class to mark frames of type "MacroBunch"
 
@@ -118,4 +120,3 @@ class FrameMacroBunch:
     `bunch` factory function
     """
     pass
-

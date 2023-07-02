@@ -23,14 +23,24 @@ def fitness(genotype: str):
     return sum(b == '1' for b in genotype)
 
 
-def main():
-    ugp.microgp_logger.setLevel(logging.DEBUG)
-
+def single_array_parameter():
     macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 100))
     frame = ugp.f.sequence([macro])
+    return frame
 
+
+def multiple_distinct_bits():
+    macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
+    frame = ugp.f.bunch([macro], size=(10, 20))
+    return frame
+
+
+def main():
+    ugp.microgp_logger.setLevel(logging.INFO)
+
+    top_frame = multiple_distinct_bits()
     evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
-    population = ugp.ea.vanilla_ea(frame, evaluator)
+    population = ugp.ea.vanilla_ea(top_frame, evaluator)
 
     for i in population:
         print(i.describe(include_structure=False, max_recursion=99))

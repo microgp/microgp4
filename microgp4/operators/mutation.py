@@ -47,7 +47,13 @@ def single_parameter_mutation(parent: Individual, strength=1.0) -> list['Individ
 @genetic_operator(num_parents=1)
 def add_macro_to_bunch(parent: Individual, strength=1.0) -> list['Individual']:
     offspring = parent.clone
-    candidates = [f for f in offspring.frames if isinstance(f, FrameMacroBunch)]
+    G = offspring.genome
+    candidates = [n for n in offspring.nodes if isinstance(G.nodes[n]['_selement'], FrameMacroBunch) and G.out_degree[n] < G.nodes[n]['_selement'].SIZE[1]]
     if not candidates:
         raise GeneticOperatorAbort
+    node = rrandom.choice(candidates)
+    new_macro_type = rrandom.choice(G.nodes[node]['_selement'].POOL)
+    new_macro_type
+
+    raise GeneticOperatorAbort
     return [offspring]

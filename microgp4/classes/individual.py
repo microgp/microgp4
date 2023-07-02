@@ -206,11 +206,13 @@ class Individual(Paranoid):
     @property
     def G(self):
         """Individual's underlying NetworkX MultiDiGraph."""
+        #TODO DeprecationWarning?
         return self._genome
 
     @property
     def genome(self):
         """Individual's genome (ie. the underlying NetworkX MultiDiGraph)."""
+        # TODO: Add paranoia check?
         return self._genome
 
     @property

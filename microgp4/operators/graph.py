@@ -38,6 +38,7 @@ from microgp4.classes import monitor
 from microgp4.classes.parameter import ParameterABC
 from microgp4.classes.individual import Individual
 from microgp4.classes.node_view import NodeView, NodeReference
+from microgp4.classes.selement import SElement
 from microgp4.classes.frame import FrameABC
 from microgp4.classes.macro import Macro
 from microgp4.classes.parameter import ParameterStructuralABC
@@ -70,7 +71,7 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
     parameters = get_all_parameters(G, new_node, node_id=True)
     for p, n in parameters:
         if isinstance(p, ParameterStructuralABC):
-            p.mutate(1, NodeReference(G, n))
+            p.mutate(1, node_reference=NodeReference(G, n))
         else:
             p.mutate(1)
 
@@ -86,7 +87,7 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
 # NOTE[GX]: I'd love being reasonably generic and efficient in a recursive
 # function, but I can't use `singledispatch` from `functools` because I'm
 # choosing the implementation using the *value* of `top` -- it's a *type*,
-def recursive_unroll(top: type[Macro | FrameABC], G: nx.classes.MultiDiGraph) -> int:
+def recursive_unroll(top: type[SElement], G: nx.classes.MultiDiGraph) -> int:
     """Unrolls a frame/macro over the graph."""
 
     if issubclass(top, FrameABC):

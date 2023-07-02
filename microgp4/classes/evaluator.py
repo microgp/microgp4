@@ -32,6 +32,7 @@ __all__ = ['EvaluatorABC', 'PythonFunction']
 from typing import Callable, Sequence
 from abc import ABC, abstractmethod
 
+from microgp4.user_messages import *
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.population import Population
 from microgp4.tools.dump import _strip_genome
@@ -49,7 +50,7 @@ class EvaluatorABC(ABC):
         raise NotImplementedError
 
     def __call__(self, population: Population) -> None:
-        self.evaluate_population((population))
+        self.evaluate_population(population)
 
 
 class PythonFunction(EvaluatorABC):
@@ -72,6 +73,8 @@ class PythonFunction(EvaluatorABC):
             genotype = self._cook(population.dump_individual(i))
             fitness = self._function(genotype)
             ind.fitness = fitness
+            microgp_logger.debug(
+                f"eval: {ind.describe(include_fitness=True, include_birth=True, include_structure=True)}")
 
 
 class Script(EvaluatorABC):
