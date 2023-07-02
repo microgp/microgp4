@@ -41,6 +41,11 @@ from microgp4.randy import rrandom
 from .selection import *
 
 
+def _new_best(population: Population):
+    microgp_logger.info(
+        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}")
+
+
 def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20) -> Population:
     r"""A simple evolutionary algorith
 
@@ -71,7 +76,7 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
     evaluator(population)
     population.sort()
     best = population[0]
-    microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
+    _new_best(population)
 
     pass
 
@@ -84,7 +89,7 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         for step in range(lambda_):
             op = rrandom.choice(ops)
             parent = tournament_selection(population, 1)
-            new_individuals += op(parent, strength=.05)
+            new_individuals += op(parent, strength=1)
         population += new_individuals
         evaluator(population)
         population.sort()
@@ -95,6 +100,6 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
 
         if best.fitness << population[0].fitness:
             best = population[0]
-            microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
+            _new_best(population)
 
     return population
