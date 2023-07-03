@@ -38,7 +38,7 @@ from microgp4.randy import rrandom
 from microgp4.global_symbols import *
 
 from microgp4.classes.parameter import ParameterStructuralABC
-from microgp4.operators.graph import _recursive_unroll, get_all_parameters
+from microgp4.operators.unroll import *
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.frame import FrameABC
 

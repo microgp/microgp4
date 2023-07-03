@@ -24,14 +24,14 @@ def fitness(genotype: str):
 
 
 def single_array_parameter():
-    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 100))
+    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 20 + 1))
     frame = ugp.f.sequence([macro])
     return frame
 
 
 def multiple_distinct_bits():
     macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
-    frame = ugp.f.bunch([macro], size=(10, 20))
+    frame = ugp.f.bunch([macro], size=(1, 20 + 1))
     return frame
 
 
@@ -43,7 +43,7 @@ def main():
     population = ugp.ea.vanilla_ea(top_frame, evaluator)
 
     for i in population:
-        print(i.describe(include_structure=False, max_recursion=99))
+        print(i.describe(max_recursion=99))
 
 
 if __name__ == '__main__':

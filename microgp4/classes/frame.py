@@ -69,7 +69,7 @@ class FrameABC(SElement, Paranoid):
 
     @property
     @abstractmethod
-    def successors(self) -> list[type['FrameABC'] | type[Macro]]:
+    def successors(self) -> list[type['SElement']]:
         pass
 
     def dump(self, extra_parameters: ValueBag) -> str:

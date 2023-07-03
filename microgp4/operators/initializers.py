@@ -30,9 +30,9 @@
 __all__ = ['random_individual']
 
 from microgp4.user_messages import *
-from microgp4.classes import Population, Individual
 from microgp4.registry import *
 from microgp4.classes.individual import *
+from microgp4.operators.unroll import *
 
 
 @genetic_operator(num_parents=None)

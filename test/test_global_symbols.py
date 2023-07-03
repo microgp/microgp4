@@ -14,10 +14,18 @@
 
 import microgp4.global_symbols as symbols
 
-def test_framework(): assert 'framework' == symbols.FRAMEWORK
 
-def test_link(): assert 'link' == symbols.LINK
+def test_framework():
+    assert 'framework' == symbols.FRAMEWORK
 
-def test_node(): assert 0 == symbols.NODE_ZERO
 
-def test_tag(): 'µGP⁴' == symbols.UGP4_TAG
+def test_link():
+    assert 'link' == symbols.LINK
+
+
+def test_node():
+    assert 0 == symbols.NODE_ZERO
+
+
+def test_tag():
+    'µGP⁴' == symbols.UGP4_TAG

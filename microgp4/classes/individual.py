@@ -29,7 +29,7 @@
 
 # NOTE[GX]: This file contains code that some programmer may find upsetting
 
-__all__ = ['Individual', 'unroll_individual']
+__all__ = ['Individual']
 
 from typing import Any, Callable
 from itertools import chain, zip_longest
@@ -574,34 +574,3 @@ class Individual(Paranoid):
             ax=ax)
 
         return fig
-
-
-@monitor.failure_rate
-def unroll_individual(individual: Individual, top: type[FrameABC]) -> int | None:
-    """
-    Recursively unroll a Frame as a subtree inside the Individual's graph.
-
-    Args:
-        individual: The individual to unroll the frame into
-        top: Frame type to unroll
-
-    Returns:
-        The root of the new subtree (an int)
-    """
-
-    assert check_valid_types(individual, Individual)
-    assert check_valid_types(top, FrameABC, Macro, subclass=True)
-    assert not individual.is_finalized, \
-        f"ValueError: individual is finalized (paranoia check)"
-
-    G = individual.genome
-    new_node = unroll_selement(top, G)
-    if not new_node:
-        return None
-    G.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
-
-    if individual.valid:
-        return new_node
-    else:
-        return None
-

@@ -29,13 +29,12 @@
 
 __all__ = ['vanilla_ea']
 
-from microgp4.user_messages import *
 from microgp4.operators import *
-from microgp4.fitness import *
 from microgp4.sys import *
-from microgp4.classes.population import Population
-from microgp4.classes.frame import FrameABC
-from microgp4.classes.evaluator import EvaluatorABC
+from microgp4.classes.selement import *
+from microgp4.classes.population import *
+from microgp4.classes.frame import *
+from microgp4.classes.evaluator import *
 from microgp4.randy import rrandom
 
 from .selection import *
@@ -66,6 +65,7 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         The last population
 
     """
+    SElement.is_valid = SElement._is_valid_debug
     population = Population(top_frame)
 
     # Initialize population
@@ -94,7 +94,7 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         evaluator(population)
         population.sort()
 
-        #all_individuals |= set(population)
+        all_individuals |= set(population)
 
         population.individuals[mu:] = []
 
@@ -102,4 +102,5 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
             best = population[0]
             _new_best(population)
 
+    #population._zap = all_individuals
     return population
