@@ -66,6 +66,7 @@ class Population:
             extra_parameters = dict()
         self._extra_parameters = Population.DEFAULT_EXTRA_PARAMETERS | extra_parameters
         self._individuals = list()
+        self._generation = 0
 
     #def get_new_node(self) -> int:
     #    self._node_count += 1
@@ -82,6 +83,14 @@ class Population:
     @property
     def parameters(self) -> dict:
         return copy(self._extra_parameters)
+
+    @property
+    def generation(self):
+        return self._generation
+
+    @generation.setter
+    def generation(self, value):
+        self._generation = value
 
     def __getitem__(self, item):
         return self._individuals[item]

@@ -11,10 +11,11 @@
 #############################################################################
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
-import logging
 
+import logging
 import microgp4 as ugp
 
+NUM_BITS = 100
 
 # explicit: @ugp.fitness_function(type_=ugp.fitness.Integer)
 @ugp.fitness_function
@@ -24,14 +25,14 @@ def fitness(genotype: str):
 
 
 def single_array_parameter():
-    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 20 + 1))
+    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", NUM_BITS+1))
     frame = ugp.f.sequence([macro])
     return frame
 
 
 def multiple_distinct_bits():
     macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
-    frame = ugp.f.bunch([macro], size=(1, 20 + 1))
+    frame = ugp.f.bunch([macro], size=(1, NUM_BITS+1))
     return frame
 
 
@@ -40,7 +41,7 @@ def main():
 
     top_frame = multiple_distinct_bits()
     evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
-    population = ugp.ea.vanilla_ea(top_frame, evaluator)
+    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=10_000, max_fitness=fitness('1' * NUM_BITS))
 
     for i in population:
         print(i.describe(max_recursion=99))

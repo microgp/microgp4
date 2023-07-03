@@ -42,10 +42,11 @@ from .selection import *
 
 def _new_best(population: Population):
     microgp_logger.info(
-        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}")
+        f"VanillaEA: 🍀 Generation {population.generation:,}: {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}")
 
 
-def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20) -> Population:
+def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20,
+               max_generation: int = 100, max_fitness: FitnessABC | None = None) -> Population:
     r"""A simple evolutionary algorith
 
     Parameters
@@ -82,8 +83,14 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
 
     all_individuals = set()
 
+    stopping_conditions = list()
+    stopping_conditions.append(lambda: population.generation >= max_generation)
+    if max_fitness:
+        stopping_conditions.append(lambda: best.fitness == max_fitness or best.fitness >> max_fitness)
+
     # Let's roll
-    for _ in range(50):
+    while not any(s() for s in stopping_conditions):
+        population.generation += 1
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
         for step in range(lambda_):
