@@ -70,11 +70,6 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
     def is_dominant(self, other: 'FitnessABC') -> bool:
         """Check whether dominates the other (result is certain)."""
         return self.is_fitter(other)
-    def is_comparable(self, other: 'FitnessABC'):
-        assert str(self.__class__) == str(other.__class__), \
-            f"ValueError: Can't compare different type of Fitness values: {self} and {other} (paranoia check)"
-        return True
-
 
     def is_distinguishable(self, other: 'FitnessABC') -> bool:
         """Check whether some differences from the other Fitness may be perceived."""

@@ -50,7 +50,7 @@ class Float(FitnessABC, float):
         return 'ℝ' + str(float(self))
 
 
-class Integer(fitness.FitnessABC, int):
+class Integer(FitnessABC, int):
     """A single numeric value -- Larger is better."""
 
     def __new__(cls, *args, **kw):
