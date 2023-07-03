@@ -34,15 +34,15 @@ from typing import Any
 
 from microgp4.user_messages import *
 
-from microgp4.classes.checkable import Checkable
-from microgp4.classes.evolvable import EvolvableABC
+from microgp4.classes.selement import SElement
+from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import USER_PARAMETER
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_view import NodeView
 from microgp4.classes.parameter import ParameterABC
 
 
-class Macro(EvolvableABC, Checkable):
+class Macro(SElement, Paranoid):
     """Base class for all the different Macros."""
 
     TEXT: str
@@ -50,19 +50,23 @@ class Macro(EvolvableABC, Checkable):
     EXTRA_PARAMETERS: dict[str, Any]
 
     def __init__(self):
-        self.parameters = dict()
+        self._dont_use_this_parameters = dict()
 
     def __eq__(self, other: 'Macro') -> bool:
         if type(self) != type(other):
             return False
-        elif self.text != other.text or self.parameters != other.parameters:
+        elif self.text != other.text or self.parameter_types != other.parameter_types:
             return False
+        #elif self.text != other.text or self.parameters != other.parameters:
+        #    return False
         return True
 
-    def is_valid(self, nv: Any) -> bool:
+    # PEDANTIC
+    def is_correct(self, nv: Any) -> bool:
         """Checks a NodeView against a macro."""
-        assert check_valid_type(nv, NodeView)
-        return all(nv.attributes[n].is_valid(nv.attributes[n].value) for n, p in self.PARAMETERS.items())
+        return True
+        #assert check_valid_type(nv, NodeView)
+        #return all(nv.attributes[n].is_correct(nv.attributes[n].value) for n, p in self.PARAMETERS.items())
 
     @property
     def text(self) -> str:
@@ -89,10 +93,6 @@ class Macro(EvolvableABC, Checkable):
     def dump(self, extra_parameters: ValueBag) -> str:
         check_valid_type(extra_parameters, ValueBag)
         return self.text.format(**extra_parameters)
-
-    def mutate(self, strength: float) -> None:
-        for p in self.parameters.values():
-            p.mutate(strength)
 
     @staticmethod
     def is_name_valid(name: str) -> bool:

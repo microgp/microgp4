@@ -28,10 +28,12 @@
 # v1 / April 2023 / Squillero (GX)
 
 __all__ = [
-    'version_info', '__version__', '__author__', '__copyright__', 'FRAMEWORK', 'LINK', 'NODE_ZERO',
-    'FRAMEWORK_DIRECTORY'
+    'version_info', '__version__', '__author__', '__copyright__', 'FRAMEWORK_DIRECTORY', 'FRAMEWORK', 'LINK',
+    'FRAME_NODE', 'MACRO_NODE', 'NODE_ZERO', 'UGP4_TAG', 'GENETIC_OPERATOR', 'FITNESS_FUNCTION', 'test_mode',
+    'notebook_mode', 'debug_mode'
 ]
 
+import sys
 from collections import namedtuple
 from abc import ABCMeta
 
@@ -52,15 +54,39 @@ MicroGP v1: Internal (not released)
 '''
 
 #####################################################################################################################
+# Auto-detected "modes"
+
+test_mode = 'pytest' in sys.modules
+
+notebook_mode = False
+try:
+    if 'zmqshell' in str(type(get_ipython())):
+        notebook_mode = True
+except NameError:
+    pass
+
+debug_mode = __debug__
+
+#####################################################################################################################
 # "Global" constants
 
 FRAMEWORK = 'framework'
 LINK = 'link'
+FRAME_NODE = 'frame'
+MACRO_NODE = 'macro'
+SEQUENCE_FRAME = 'sequence'
+ALTERNATIVE_FRAME = 'alternative'
+MACRO_BUNCH_FRAME = 'bunch'
+BNF_FRAME = 'bunch'
 NODE_ZERO = 0
 UGP4_TAG = 'µGP⁴'
+GENETIC_OPERATOR = 'genetic_operator'
+FITNESS_FUNCTION = 'fitness_function'
+
+#####################################################################################################################
 
 assert 'FRAMEWORK_DIRECTORY' not in globals(), \
     f"SystemError: FRAMEWORK_DIRECTORY already initialized (paranoia check)"
-FRAMEWORK_DIRECTORY = dict()
+FRAMEWORK_DIRECTORY: dict[str, 'FrameABC'] = dict()
 assert 'FRAMEWORK_DIRECTORY' in globals(), \
     f"SystemError: FRAMEWORK_DIRECTORY not initialized (paranoia check)"

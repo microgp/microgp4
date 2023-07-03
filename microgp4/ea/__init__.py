@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -24,30 +24,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#############################################################################
 # =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+# v1 / June 2023 / Squillero (GX)
 
-__all__ = ['PedanticABC']
-
-from abc import ABC, abstractmethod
-from typing import Any
-
-
-class PedanticABC(ABC):
-    """Abstract class: Pedantic classes do implement the `is_valid(x)` method."""
-
-    @abstractmethod
-    def is_valid(self, obj: Any) -> bool:
-        """Checks an object against the specifications.
-
-        The function checks the validity of an object against a Pedantic class, for example the current value of a
-        parameter against the parameter definition (eg. type, range), or a node against a Frame definition.
-
-        Args:
-            obj: Any object
-
-        Returns:
-            True if the object is valid, False otherwise
-        """
-        return True
+from .vanilla import vanilla_ea
+from .selection import tournament_selection

@@ -30,7 +30,7 @@
 __all__ = ['macro']
 
 from functools import cache
-from typing import Type, Any
+from typing import Any
 
 from microgp4.global_symbols import FRAMEWORK, FRAMEWORK_DIRECTORY
 from microgp4.user_messages import *
@@ -40,8 +40,8 @@ from microgp4.classes.parameter import ParameterABC
 
 
 @cache
-def _macro(text: str, macro_parameters: tuple[tuple[str, Type[ParameterABC]]],
-           macro_extra_parameters: tuple[tuple[str, Any]]) -> Type[Macro]:
+def _macro(text: str, macro_parameters: tuple[tuple[str, type[ParameterABC]]],
+           macro_extra_parameters: tuple[tuple[str, Any]]) -> type[Macro]:
 
     class M(Macro):
         TEXT = text
@@ -59,7 +59,7 @@ def _macro(text: str, macro_parameters: tuple[tuple[str, Type[ParameterABC]]],
     return M
 
 
-def macro(text: str, **parameters: Type[ParameterABC] | str) -> Type[Macro]:
+def macro(text: str, **parameters: type[ParameterABC] | str) -> type[Macro]:
     """Class factory: Returns the class for a specific macro.
 
     A macro is a fragment of text with variable elements, the `parameters`, appearing

@@ -35,12 +35,15 @@ body = ugp.f.bunch([inst, inst, inst, call], size=10)
 
 program = ugp.f.sequence([body])
 
-population = ugp.classes.population.Population(top_frame=program, evaluator=None)
-population.add_random_individual()
+#population = ugp.classes.population.Population(top_frame=program, evaluator=None)
+#ind = ugp.operators.random_individual(top_frame=program)
+#population += ind
 
-print(population.dump_individual(0, {'$dump_node_info': True}))
-I = population.individuals[0]
-I.as_forest(filename='grammar-tree.png', figsize=(25, 15), bbox_inches='tight')
-I.as_lgp(filename='code.png', figsize=(25, 15), bbox_inches='tight')
+#print(population.dump_individual(0, {'$dump_node_info': True}))
+#I = population.individuals[0]
+#I.as_forest(filename='structure-tree.png', figsize=(25, 15), bbox_inches='tight')
+#I.as_lgp(filename='code.png', figsize=(25, 15), bbox_inches='tight')
 
 pass
+
+ugp.ea.vanilla_ea(program, None)

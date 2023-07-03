@@ -32,7 +32,7 @@ __all__ = ['integer_parameter', 'float_parameter', 'choice_parameter', 'array_pa
 from collections.abc import Collection
 from functools import cache
 from numbers import Number
-from typing import Any, Hashable, Type, SupportsInt
+from typing import Any, Hashable, SupportsInt
 
 from microgp4.user_messages import *
 from microgp4.tools.names import _patch_class_info
@@ -56,21 +56,21 @@ def _numeric(*, type_, min_, max_):
             self._value = min_
 
         def run_paranoia_checks(self) -> bool:
-            assert self.is_valid(self.value), \
+            assert self.is_correct(self.value), \
                 f"TypeError: not a {type_} in range {min_}-{max_}"
             return super().run_paranoia_checks()
 
-        def is_valid(self, obj: Any) -> bool:
+        def is_correct(self, obj: Any) -> bool:
             return isinstance(obj, type_) and min_ <= obj < max_
 
         if type_ == int:
 
-            def mutate(self, strength: float) -> None:
+            def mutate(self, strength: float = 1., **kwargs) -> None:
                 self.value = rrandom.sigma_randint(min_, max_, loc=self._value, strength=strength)
 
         elif type_ == float:
 
-            def mutate(self, strength: float) -> None:
+            def mutate(self, strength: float = 1., **kwargs) -> None:
                 self.value = rrandom.sigma_random(min_, max_, loc=self._value, strength=strength)
 
     if type_ == int and min_ == 0 and any(max_ == 2**n for n in range(4, 128 + 1)):
@@ -83,7 +83,7 @@ def _numeric(*, type_, min_, max_):
     return T
 
 
-def integer_parameter(min_: int, max_: int) -> Type[ParameterABC]:
+def integer_parameter(min_: int, max_: int) -> type[ParameterABC]:
     """An Int parameter: an integer number in the half-open range [min_, max_)."""
 
     def check_range():
@@ -114,7 +114,7 @@ def integer_parameter(min_: int, max_: int) -> Type[ParameterABC]:
     return _numeric(type_=int, min_=int(min_), max_=int(max_))
 
 
-def float_parameter(min_: float, max_: float) -> Type[ParameterABC]:
+def float_parameter(min_: float, max_: float) -> type[ParameterABC]:
     """A Float parameter: a floating point number in the half-open range [min_, max_)."""
     assert check_valid_type(min_, Number)
     assert check_valid_type(max_, Number)
@@ -122,7 +122,7 @@ def float_parameter(min_: float, max_: float) -> Type[ParameterABC]:
 
 
 @cache
-def _choice_parameter(alternatives: tuple[Hashable]) -> Type[ParameterABC]:
+def _choice_parameter(alternatives: tuple[Hashable]) -> type[ParameterABC]:
 
     class T(ParameterABC):
 
@@ -134,15 +134,15 @@ def _choice_parameter(alternatives: tuple[Hashable]) -> Type[ParameterABC]:
             super().__init__()
             self._value = alternatives[0]
 
-        def is_valid(self, obj: Any) -> bool:
+        def is_correct(self, obj: Any) -> bool:
             return obj in alternatives
 
         def run_paranoia_checks(self) -> bool:
-            assert self.is_valid(self.value), \
+            assert self.is_correct(self.value), \
                 f"ValueError: {self.value} not in alternative list: {alternatives}"
             return super().run_paranoia_checks()
 
-        def mutate(self, strength: float) -> None:
+        def mutate(self, strength: float = 1., **kwargs) -> None:
             self.value = rrandom.sigma_choice(alternatives, loc=alternatives.index(self._value), strength=strength)
 
     # NOTE[GX]: alternative symbol: – (not a minus!)
@@ -150,7 +150,7 @@ def _choice_parameter(alternatives: tuple[Hashable]) -> Type[ParameterABC]:
     return T
 
 
-def choice_parameter(alternatives: Collection[Hashable]) -> Type[ParameterABC]:
+def choice_parameter(alternatives: Collection[Hashable]) -> type[ParameterABC]:
     """A Choice parameter: an element from a fixed list of alternatives."""
 
     def check_size():
@@ -177,7 +177,7 @@ def choice_parameter(alternatives: Collection[Hashable]) -> Type[ParameterABC]:
 
 
 @cache
-def _array_parameter(symbols: tuple[str], length: int) -> Type[ParameterABC]:
+def _array_parameter(symbols: tuple[str], length: int) -> type[ParameterABC]:
 
     class T(ParameterABC):
 
@@ -190,30 +190,29 @@ def _array_parameter(symbols: tuple[str], length: int) -> Type[ParameterABC]:
             super().__init__()
             self._value = ''.join(symbols[0] for _ in range(length))
 
-        def is_valid(self, obj: Any) -> bool:
+        def is_correct(self, obj: Any) -> bool:
             if len(obj) != length:
                 return False
             return all(e in set(symbols) for e in obj)
 
         def run_paranoia_checks(self) -> bool:
             # TODO: improve message
-            assert self.is_valid(self.value), \
+            assert self.is_correct(self.value), \
                 f"ValueError: {self.value} not a valid array"
             return super().run_paranoia_checks()
 
-        def mutate(self, strength: float) -> None:
+        def mutate(self, strength: float = 1., **kwargs) -> None:
             if strength == 1:
                 new_value = [rrandom.choice(symbols) for _ in range(length)]
             else:
-                # TODO: small change
-                raise NotImplementedError
+                new_value = [rrandom.choice(symbols) if rrandom.boolean(strength) else old for old in self._value]
             self.value = ''.join(new_value)
 
     _patch_class_info(T, 'Array[' + ''.join(str(a) for a in symbols) + f'ｘ{length}]', tag='parameter')
     return T
 
 
-def array_parameter(symbols: Collection[str], length: SupportsInt) -> Type[ParameterABC]:
+def array_parameter(symbols: Collection[str], length: SupportsInt) -> type[ParameterABC]:
     """An Array parameter: a fixed-length array of symbols."""
 
     assert check_valid_type(symbols, Collection)

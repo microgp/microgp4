@@ -86,11 +86,11 @@ def uncanonize_name(name: str, keep_number: bool = False, user: bool = False) ->
     return stripped
 
 
-def _patch_class_info(obj: ABCMeta, name: str | None, tag: str = None) -> str:
+def _patch_class_info(obj: type, name: str | None, tag: str | None = None) -> None:
     if name:
         obj.__name__ = name
     obj.__qualname__ = obj.__name__
-    obj.__module__ = 'microgp4'
+    obj.__module__ = '_microgp4'
 
     if tag is not None:
         obj.__module__ += f'.{tag}'

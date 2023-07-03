@@ -25,38 +25,7 @@
 # limitations under the License.
 
 # =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+# v1 / May 2023 / Squillero (GX)
 
-from typing import Callable
-
-from microgp4.user_messages import microgp_logger
-
-
-class Checkable:
-    """Checkable classes allow to `add_check` and `run_checks`."""
-
-    @classmethod
-    def add_check(cls, function: Callable) -> None:
-        try:
-            cls._CLASS_CHECKS.append(function)
-        except AttributeError:
-            cls._CLASS_CHECKS = list()
-            cls._CLASS_CHECKS.append(function)
-
-    def add_instance_check(self, function: Callable) -> None:
-        try:
-            self.__instance_checks.append(function)
-        except AttributeError:
-            self.__instance_checks = list()
-            self.__instance_checks.append(function)
-
-    def run_checks(self, *args, **kwargs) -> bool:
-        if '_CLASS_CHECKS' in self.__class__.__dict__ and not all(
-                f(*args, **kwargs) for f in self.__class__._CLASS_CHECKS):
-            microgp_logger.debug(f"CheckFail: CLASS: {self.__class__._CLASS_CHECKS}")
-            return False
-        if '_Checkable__instance_checks' in self.__dict__ and not all(
-                f(*args, **kwargs) for f in self.__instance_checks):
-            microgp_logger.debug(f"CheckFail: INSTANCE: {self.__class__.__instance_checks}")
-            return False
-        return True
+from .reverse import *
+from .basic import *

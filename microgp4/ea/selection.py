@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -24,19 +24,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+#############################################################################
+# HISTORY
+# v1 / July 2023 / Squillero (GX)
 
-__all__ = ['EvolvableABC']
-
-from abc import ABC, abstractmethod
-
-from microgp4.classes.paranoid import Paranoid
-from microgp4.classes.pedantic import PedanticABC
+from microgp4.user_messages.checks import *
+from microgp4.classes.individual import Individual
+from microgp4.classes.population import Population
+from microgp4.randy import rrandom
 
 
-class EvolvableABC(Paranoid, PedanticABC, ABC):
-
-    @abstractmethod
-    def mutate(self, strength: float = 1., **kwargs) -> None:
-        pass
+def tournament_selection(population: Population, tournament_size: float = 2) -> Individual:
+    assert check_value_range(tournament_size, min_=1)
+    candidates = [rrandom.choice(population.individuals) for _ in range(tournament_size)]
+    if rrandom.boolean(p_true=tournament_size % 1):
+        candidates.append(rrandom.choice(population.individuals))
+    return max(candidates, key=lambda i: i.fitness)

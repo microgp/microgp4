@@ -30,22 +30,22 @@
 __all__ = ['sequence', 'alternative', 'bunch']
 
 from collections import abc
-from typing import Type
 
 from microgp4.global_symbols import FRAMEWORK, FRAMEWORK_DIRECTORY
 from microgp4.user_messages import *
 from microgp4.tools.names import canonize_name, _patch_class_info
-from microgp4.classes.frame import FrameABC
+from microgp4.classes.selement import SElement
+from microgp4.classes.frame import *
 from microgp4.classes.macro import Macro
 from microgp4.framework.macro import macro
 from microgp4.framework.utilities import cook_sequence
 from microgp4.randy import rrandom
 
 
-def alternative(alternatives: abc.Collection[Type[FrameABC] | Type[Macro]],
+def alternative(alternatives: abc.Collection[type[SElement]],
                 *,
                 name: str | None = None,
-                extra_parameters: dict = None) -> Type[FrameABC]:
+                extra_parameters: dict = None) -> type[FrameABC]:
     r"""Creates the class for a frame that can have alternative forms.
 
     An ``alternative`` is a frame that can take different forms,
@@ -98,7 +98,7 @@ def alternative(alternatives: abc.Collection[Type[FrameABC] | Type[Macro]],
     assert all(check_valid_types(a, FrameABC, Macro, subclass=True) for a in alternatives)
     assert check_valid_length(alternatives, 1)
 
-    class T(FrameABC):
+    class T(FrameAlternative, FrameABC):
         ALTERNATIVES = tuple(alternatives)
 
         def __init__(self):
@@ -107,10 +107,6 @@ def alternative(alternatives: abc.Collection[Type[FrameABC] | Type[Macro]],
         @property
         def successors(self):
             return [rrandom.choice(T.ALTERNATIVES)]
-
-        def mutate(self, strength: float) -> None:
-            # TODO: implement
-            pass
 
     if name:
         _patch_class_info(T, canonize_name(name, 'Frame', user=True), tag=FRAMEWORK)
@@ -121,14 +117,14 @@ def alternative(alternatives: abc.Collection[Type[FrameABC] | Type[Macro]],
     return T
 
 
-def sequence(seq: abc.Sequence[Type[FrameABC] | Type[Macro] | str],
+def sequence(seq: abc.Sequence[type[SElement] | str],
              *,
              name: str | None = None,
-             extra_parameters: dict = None) -> Type[FrameABC]:
+             extra_parameters: dict = None) -> type[FrameABC]:
 
     cooked_seq = cook_sequence(seq)
 
-    class T(FrameABC):
+    class T(FrameSequence, FrameABC):
         SEQUENCE = tuple(cooked_seq)
 
         def __init__(self):
@@ -137,10 +133,6 @@ def sequence(seq: abc.Sequence[Type[FrameABC] | Type[Macro] | str],
         @property
         def successors(self):
             return T.SEQUENCE
-
-        def mutate(self, strength: float) -> None:
-            # TODO: implement
-            pass
 
     if name:
         _patch_class_info(T, canonize_name(name, 'Frame', user=True), tag=FRAMEWORK)
@@ -151,20 +143,16 @@ def sequence(seq: abc.Sequence[Type[FrameABC] | Type[Macro] | str],
     return T
 
 
-def bunch(pool: Macro | abc.Collection[Type[Macro]],
+def bunch(pool: Macro | abc.Collection[type[Macro]],
           size: tuple[int, int] | int = 1,
           *,
           name: str | None = None,
-          extra_parameters: dict = None) -> Type[FrameABC]:
+          extra_parameters: dict = None) -> type[FrameABC]:
 
     def _debug_hints(size):
         if not isinstance(size, int) and size[0] + 1 == size[1]:
             syntax_warning_hint(
                 f"Ranges are half open: the size of this macro bunch is always {size[0]} — did you mean 'size=({size[0]}, {size[1]+1})'?",
-                stacklevel_offset=1)
-        if name and name.startswith('Frame[') and name.endswith(']'):
-            syntax_warning_hint(
-                f"Resulting name will be '{FrameABC.canonize_name(name, make_unique=False, register=False)}' — did you really mean it?",
                 stacklevel_offset=1)
         return True
 
@@ -188,7 +176,7 @@ def bunch(pool: Macro | abc.Collection[Type[Macro]],
     assert 0 < size[0] <= size[1] - 1, \
         f"ValueError: min size is {size[0]} and max size is {size[1]-1} (paranoia check)"
 
-    class T(FrameABC):
+    class T(FrameMacroBunch, FrameABC):
         SIZE = size
         POOL = tuple(pool)
 
@@ -201,10 +189,6 @@ def bunch(pool: Macro | abc.Collection[Type[Macro]],
         def successors(self):
             n_macros = rrandom.randint(T.SIZE[0], T.SIZE[1] - 1)
             return [rrandom.choice(T.POOL) for _ in range(n_macros)]
-
-        def mutate(self, strength: float) -> None:
-            # TODO: implement
-            pass
 
     # White parentheses: ⦅ ⦆  (U+2985, U+2986)
     if name:

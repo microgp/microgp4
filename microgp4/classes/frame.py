@@ -27,9 +27,8 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['FrameABC']
+__all__ = ['FrameABC', 'FrameAlternative', 'FrameSequence', 'FrameMacroBunch']
 
-from typing import Union, Type
 from types import NoneType
 from abc import abstractmethod
 from copy import copy
@@ -37,20 +36,20 @@ from copy import copy
 from microgp4.user_messages.checks import *
 
 from microgp4.classes.macro import Macro
-from microgp4.classes.evolvable import EvolvableABC
+from microgp4.classes.selement import SElement
+from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import ValueBag
-from microgp4.classes.checkable import Checkable
 
 
-class FrameABC(EvolvableABC, Checkable):
+class FrameABC(SElement, Paranoid):
 
     _registered_names = set()
 
-    def __init__(self, parameters: dict | None = None) -> None:
-        assert check_valid_types(parameters, dict, NoneType)
+    def __init__(self, extra_parameters: dict | None = None) -> None:
+        assert check_valid_types(extra_parameters, dict, NoneType)
         super().__init__()
         self._checks = list()
-        self._parameters = parameters if parameters is not None else dict()
+        self._extra_parameters = extra_parameters if extra_parameters is not None else dict()
         #self._values = list()
 
     def __eq__(self, other: 'FrameABC') -> bool:
@@ -60,21 +59,22 @@ class FrameABC(EvolvableABC, Checkable):
             return self.name == other.name
 
     @property
-    def parameters(self):
-        return copy(self._parameters)
+    def valid(self) -> bool:
+        # TODO!
+        return True
+
+    @property
+    def extra_parameters(self):
+        return copy(self._extra_parameters)
 
     @property
     @abstractmethod
-    def successors(self) -> list[Type['FrameABC'] | Type[Macro]]:
+    def successors(self) -> list[type['FrameABC'] | type[Macro]]:
         pass
 
     def dump(self, extra_parameters: ValueBag) -> str:
         check_valid_type(extra_parameters, ValueBag)
         return ''
-
-    def is_valid(self, obj) -> bool:
-        # TODO: Tupla Grafo/Nodo
-        return True
 
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()
@@ -85,13 +85,19 @@ class FrameABC(EvolvableABC, Checkable):
         return (cls.__name__)
 
     @staticmethod
-    def generate_unique_name(tag: str = 'Unknown') -> str:
-        FrameABC._name_counter[tag] += 1
-        return f'{tag}#{FrameABC._name_counter[tag]}'
-
-    @staticmethod
     def register_name(name: str) -> bool:
         assert name not in FrameABC._registered_names, \
             f"ValueError: Frame name {name!r} already exists (paranoia check)"
         FrameABC._registered_names.add(name)
         return True
+
+
+class FrameSequence:
+    pass
+
+class FrameAlternative:
+    pass
+
+class FrameMacroBunch:
+    pass
+

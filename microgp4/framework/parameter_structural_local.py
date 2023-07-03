@@ -29,7 +29,6 @@
 
 from itertools import chain
 from functools import cache
-from typing import Type
 
 from microgp4.user_messages import *
 from microgp4.global_symbols import *
@@ -47,7 +46,7 @@ __all__ = ['local_reference']
 @cache
 def _local_reference(backward: bool = True,
                      self_loop: bool = True,
-                     foreward: bool = True) -> Type[ParameterStructuralABC]:
+                     foreward: bool = True) -> type[ParameterStructuralABC]:
     """
 
     Args:
@@ -85,11 +84,11 @@ def _local_reference(backward: bool = True,
                 self._fasten(node_reference)
             pt = self.potential_targets
             if not pt:
-                raise MicroGPInvalidIndividual
+                raise InvalidIndividual
 
             self.drop_link()
             n = rrandom.sigma_choice(pt, self.value, strength)
-            self._node_reference.graph.add_edge(self._node_reference.node, n, key=self.key, kind=LINK)
+            self._node_reference.graph.add_edge(self._node_reference.node, n, key=self.key, _type=LINK)
 
     _patch_class_info(
         T,
@@ -98,6 +97,6 @@ def _local_reference(backward: bool = True,
     return T
 
 
-def local_reference(backward: bool = True, loop: bool = True, forward: bool = True) -> Type[ParameterStructuralABC]:
+def local_reference(backward: bool = True, loop: bool = True, forward: bool = True) -> type[ParameterStructuralABC]:
     # TODO: Add checks
     return _local_reference(bool(backward), bool(loop), bool(forward))

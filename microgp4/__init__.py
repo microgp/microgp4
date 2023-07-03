@@ -29,27 +29,57 @@
 
 import logging
 
-from microgp4.global_symbols import *
-from microgp4 import user_messages
-from microgp4.user_messages.modes import *
+# noinspection PyUnresolvedReferences
+from microgp4 import sys
 
+# noinspection PyUnresolvedReferences
+from microgp4.functions import *
+# noinspection PyUnresolvedReferences
+from microgp4.global_symbols import *
+# noinspection PyUnresolvedReferences
+from microgp4 import user_messages
+# noinspection PyUnresolvedReferences
+from microgp4 import user_messages
+##from _microgp4.user_messages.exception import *
+### noinspection PyUnresolvedReferences
+
+# noinspection PyUnresolvedReferences
 from microgp4 import classes
+# noinspection PyUnresolvedReferences
 from microgp4 import classes as C
 
+# noinspection PyUnresolvedReferences
 from microgp4 import framework
+# noinspection PyUnresolvedReferences
 from microgp4 import framework as f
 
-from microgp4 import fitness_ as fitness
-from microgp4 import fitness_ as fit
+# noinspection PyUnresolvedReferences
+from microgp4 import ea
+# noinspection PyUnresolvedReferences
+from microgp4 import operators
+# noinspection PyUnresolvedReferences
+from microgp4 import operators as op
 
+# noinspection PyUnresolvedReferences
+from microgp4 import fitness as fitness
+# noinspection PyUnresolvedReferences
+from microgp4 import fitness as fit
+
+# noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as evaluator
-from microgp4 import evaluator_ as eval
 
-# Globals
-
+# noinspection PyUnresolvedReferences
 from microgp4.randy.randy import rrandom
+# noinspection PyUnresolvedReferences
 from microgp4.user_messages.messaging import microgp_logger
-from microgp4.decorators import fitness_function
+# noinspection PyUnresolvedReferences
+from microgp4.user_messages.messaging import microgp_logger as logger
+# noinspection PyUnresolvedReferences
+from microgp4.registry import *
+# noinspection PyUnresolvedReferences
+from microgp4.fitness_log import *
+# noinspection PyUnresolvedReferences
+from microgp4.sys import SYSINFO as sysinfo
 
 #############################################################################
 # Patch names to ease debugging and visualization
@@ -60,7 +90,7 @@ for name in sorted(dir()):
     if isinstance(item, type) and item.__name__.endswith('ABC'):
         _patch_class_info(item, item.__name__, tag='abc')
     elif isinstance(item, type):
-        _patch_class_info(item, item.__name__, tag=None)
+        _patch_class_info(item, item.__name__)
 del _patch_class_info
 
 #############################################################################
@@ -84,9 +114,10 @@ def welcome(level=logging.DEBUG):
     from sys import stderr
     stderr.flush()
     for m in __welcome__.split('\n'):
-        user_messages.microgp_logger.log(level, f"*: {m}")
+        # stars: ⚝ ⭐
+        user_messages.microgp_logger.log(level, f"⭐: {m}")
     return True
 
 
 if not notebook_mode:
-    assert welcome(logging.INFO)
+    welcome(logging.INFO)

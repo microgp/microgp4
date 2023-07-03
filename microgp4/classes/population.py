@@ -29,27 +29,22 @@
 
 __all__ = ['Population']
 
-import logging
-from typing import Callable, Any, Type
+from collections.abc import Sequence
+from typing import Callable, Any
 from copy import copy
 
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.individual import Individual
 from microgp4.classes.frame import FrameABC
-from microgp4.classes.evaluator import EvaluatorABC
 from microgp4.user_messages import *
-from microgp4.ea.graph import unroll
-
-##from _classes import FrameABC
 
 
 class Population:
-    _top_frame: Type[FrameABC]
+    _top_frame: type[FrameABC]
     _fitness_function: Callable[[Any], FitnessABC]
     _individuals: list[Individual]
     _mu: int
     _lambda: int
-    _node_count = 0
 
     DEFAULT_EXTRA_PARAMETERS = {
         '_comment': ';',
@@ -63,38 +58,22 @@ class Population:
         '_text_after_node': '',
     }
 
-    def __init__(self, top_frame: Type[FrameABC], evaluator: EvaluatorABC, extra_parameters: dict | None = None):
+    def __init__(self, top_frame: type[FrameABC], extra_parameters: dict | None = None):
+        assert check_valid_types(top_frame, FrameABC, subclass=True)
+        assert extra_parameters is None or check_valid_type(extra_parameters, dict)
         self._top_frame = top_frame
-        self._evaluator = evaluator
         if extra_parameters is None:
             extra_parameters = dict()
         self._extra_parameters = Population.DEFAULT_EXTRA_PARAMETERS | extra_parameters
-        self._mu = 0
-        self._lambda = 0
         self._individuals = list()
-        #self._node_count = 0
 
     #def get_new_node(self) -> int:
     #    self._node_count += 1
     #    return self._node_count
 
     @property
-    def mu(self):
-        return self._mu
-
-    @mu.setter
-    def mu(self, new_value):
-        check_value_range(new_value, min_=1)
-        self._mu = new_value
-
-    @property
-    def lambda_(self):
-        return self._lambda
-
-    @lambda_.setter
-    def lambda_(self, new_value):
-        check_value_range(new_value, min_=0)
-        self._lambda = new_value
+    def top_frame(self):
+        return self._top_frame
 
     @property
     def individuals(self) -> list[Individual]:
@@ -104,27 +83,40 @@ class Population:
     def parameters(self) -> dict:
         return copy(self._extra_parameters)
 
-    def add_random_individual(self) -> None:
-        """Add a valid random individual to the population."""
+    def __getitem__(self, item):
+        return self._individuals[item]
 
-        new_root = None
-        new_individual = None
-        while new_root is None:
-            new_individual = Individual(self._top_frame)
-            try:
-                new_root = unroll(new_individual, self._top_frame)
-            except MicroGPInvalidIndividual:
-                new_root = None
-        self._individuals.append(new_individual)
+    def __len__(self):
+        return len(self._individuals)
+
+    def __iadd__(self, individual):
+        if isinstance(individual, Sequence):
+            assert all(check_valid_types(i, Individual) for i in individual)
+            assert all(i.valid for i in individual), \
+                f"ValueError: invalid individual"
+            self._individuals.extend(individual)
+        else:
+            assert check_valid_types(individual, Individual)
+            assert individual.valid, \
+                f"ValueError: invalid individual"
+            self._individuals.append(individual)
+        return self
+
+    def __iter__(self):
+        return iter(self._individuals)
+
+    def __str__(self):
+        return f'{self.__class__.__name__} @ {hex(id(self))} (top frame: {self.top_frame.__name__})' + \
+            '\n• ' + \
+            '\n• '.join(str(i) for i in self._individuals)
 
     def dump_individual(self, ind: int | Individual, extra_parameters: dict | None = None) -> str:
         if isinstance(ind, int):
             ind = self.individuals[ind]
-        if extra_parameters is not None:
-            assert extra_parameters is None or check_valid_type(extra_parameters, dict)
-            return ind.dump(self.parameters | extra_parameters)
-        else:
-            return ind.dump(self.parameters)
+        if extra_parameters is None:
+            extra_parameters = dict()
+        assert extra_parameters is None or check_valid_type(extra_parameters, dict)
+        return ind.dump(self.parameters | extra_parameters)
 
     def evaluate(self):
         whole_pop = [self.dump_individual(i) for i in self.individuals]
@@ -134,3 +126,17 @@ class Population:
                 microgp_logger.debug(f"evaluate: Individual {i:2d}: {f}")
         for i, f in zip(self.individuals, result):
             i.fitness = f
+
+    def sort(self):
+        fronts = list()
+        sorted_ = list()
+        individuals = set(self._individuals)
+
+        while individuals:
+            pareto = set(i1 for i1 in individuals
+                         if all(i1.fitness == i2.fitness or i1.fitness >> i2.fitness for i2 in individuals))
+            fronts.append(pareto)
+            individuals -= pareto
+            sorted_ += sorted(pareto, key=lambda i: (i.fitness, -i.id))
+
+        self._individuals = sorted_

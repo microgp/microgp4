@@ -27,10 +27,15 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
+# NOTE[GX]: This file contains code that some programmer may find upsetting
+
 __all__ = ['Individual']
 
-from typing import Any
+from typing import Any, Callable
 from itertools import chain, zip_longest
+from copy import deepcopy
+from dataclasses import dataclass
+import operator
 
 import networkx as nx
 
@@ -41,20 +46,36 @@ except ModuleNotFoundError as e:
     plt = None
 
 from microgp4.user_messages import *
-from microgp4.global_symbols import FRAMEWORK, LINK
-from microgp4.global_symbols import NODE_ZERO
+from microgp4.global_symbols import *
 from microgp4.tools.graph import *
 
-from .fitness import FitnessABC
-from microgp4.classes.evolvable import EvolvableABC
+from microgp4.classes.fitness import FitnessABC
+from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
 from microgp4.classes.frame import FrameABC
+from microgp4.classes.parameter import ParameterABC
 from microgp4.classes.readymade_macros import MacroZero
 
 
-class Individual(EvolvableABC):
+@dataclass(frozen=True)
+class Birth:
+    operator: Callable | None
+    parents: tuple
+
+    def __str__(self):
+        parents = list()
+        for p in self.parents:
+            try:
+                parents.append(str(p))
+            except ReferenceError:
+                parents.append('✝')
+
+        return self.operator.__name__ + '(' + ', '.join(parents) + ')'
+
+
+class Individual(Paranoid):
     """
     MicroGP individual, that is, a genotype and its fitness
 
@@ -73,8 +94,11 @@ class Individual(EvolvableABC):
     Individuals are managed by a `Population` class.
     """
 
+    __COUNTER: int = 0
+
     _genome: nx.classes.MultiDiGraph
     _fitness: FitnessABC | None
+    _birth: Birth | None
     _str: str
 
     # A rainbow color mapping using matplotlib's tableau colors
@@ -93,37 +117,91 @@ class Individual(EvolvableABC):
     ]
 
     def __init__(self, top_frame: type[FrameABC]) -> None:
+        Individual.__COUNTER += 1
+        self._id = Individual.__COUNTER
         self._genome = nx.MultiDiGraph(node_count=1, top_frame=top_frame)
-        self._genome.add_node(NODE_ZERO, root=True, _macro=MacroZero())
+        self._genome.add_node(NODE_ZERO, root=True, _selement=MacroZero(), _type=MACRO_NODE)
         self._fitness = None
         self._str = ''
+        self._structure_tree = None
+        self._birth = None
 
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
 
     def __str__(self):
-        n_nodes = len(self.G)
-        n_macros = sum('_macro' in self.G.nodes[n] for n in self.G) - 1
-        n_frames = sum('_frame' in self.G.nodes[n] for n in self.G)
-        n_links = sum(True for _, _, k in self.G.edges(data='kind') if k != FRAMEWORK)
-        n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_macro'].parameters.items()
-                                                         for n in self.G
-                                                         if '_macro' in self.G.nodes[n]))
-        me = 'Individual with' + \
-             f''' {n_frames} frames and {n_macros} macros''' + \
-             f''' ({n_params:,} parameter{'s' if n_params != 1 else ''} total''' + \
-             f''', {n_links:,} structural)'''
-        return me
+        return f'𝕚{self._id}'
 
-    def __eq__(self, other: 'Individual') -> bool:
-        if type(self) != type(other):
-            return False
-        else:
-            return all(
-                is_equal(NodeReference(self.G, n1), NodeReference(other.G, n2)) for n1, n2 in zip_longest(
-                    nx.dfs_preorder_nodes(self.G, NODE_ZERO), nx.dfs_preorder_nodes(other.G, NODE_ZERO)))
+    def __eq__(self, other) -> bool:
+        return type(self) == type(other) and self._fitness == other._fitness and nx.isomorphism(
+            self._genome, other._genome, node_match=operator.eq, edge_match=operator.eq)
+
+    def __hash__(self):
+        return hash(self._id)
 
     # PROPERTIES
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def is_finalized(self):
+        return self._fitness is not None
+
+    @property
+    def valid(self) -> bool:
+        return all(self.genome.nodes[n]['_selement'].is_valid(NodeView(NodeReference(self.genome, n)))
+                   for n in nx.dfs_preorder_nodes(self.genome))
+
+    @property
+    def clone(self) -> 'Individual':
+        scratch = self._fitness, self._birth
+        self._fitness, self._birth = None, None
+        I = deepcopy(self)
+        Individual.__COUNTER += 1
+        I._id = Individual.__COUNTER
+        self._fitness, self._birth = scratch
+        I._birth = Birth(None, (self,))
+        return I
+
+    @property
+    def nodes(self):
+        """Return all node indexes in unreliable order."""
+        return list(nx.dfs_preorder_nodes(self.genome))
+
+    @property
+    def macros(self):
+        """Return all macro instances in unreliable order."""
+        return [self._genome.nodes[n]['_selement'] for n in self.nodes if self._genome.nodes[n]['_type'] == MACRO_NODE]
+
+    @property
+    def frames(self):
+        """Return all frame instances in unreliable order."""
+        return [self._genome.nodes[n]['_selement'] for n in self.nodes if self._genome.nodes[n]['_type'] == FRAME_NODE]
+
+    @property
+    def parameters(self):
+        """Return all parameter instances in unreliable order."""
+        return [p for n in self.nodes for p in self._genome.nodes[n].values() if isinstance(p, ParameterABC)]
+
+    @property
+    def OLDISH_valid(self) -> bool:
+        """Checks the syntax of the individual."""
+        for n in nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO):
+            if '_frame' in self._genome.nodes[n]:
+                if not self._genome.nodes[n]['_frame'].run_checks(NodeView(self._genome, n)):
+                    return False
+            elif '_macro' in self._genome.nodes[n]:
+                if not self._genome.nodes[n]['_macro'].run_checks(NodeView(self._genome, n)):
+                    return False
+                if not all(p.valid for p in self._genome.nodes[n]['_macro'].parameters.values()):
+                    return False
+            elif 'root' in self._genome.nodes[n] and self._genome.nodes[n]['root'] is True:
+                pass  # safe
+            else:
+                raise SyntaxWarning(f"Unknown node type: {self._genome.nodes[n]}")
+        return True
 
     @property
     def G(self):
@@ -136,38 +214,87 @@ class Individual(EvolvableABC):
         return self._genome
 
     @property
-    def grammar_tree(self) -> nx.classes.DiGraph:
-        """A tree with the grammar tree of the individual (ie. only edges of `kind=FRAMEWORK`)."""
-        # TODO: cache it?
-        return get_grammar_tree(self._genome)
+    def structure_tree(self) -> nx.classes.DiGraph:
+        """A tree with the structure tree of the individual (ie. only edges of `kind=FRAMEWORK`)."""
+
+        if self._structure_tree:
+            return self._structure_tree
+        gt = get_structure_tree(self._genome)
+        if self.is_finalized:
+            self._structure_tree = gt
+        return gt
+
+    @property
+    def birth(self):
+        return self._birth
 
     @property
     def fitness(self):
         """The fitness of the individual."""
+        assert self.is_finalized, \
+            f"ValueError: Individual not marked as final, fitness value not set (paranoia check)"
         return self._fitness
 
+    def _check_fitness(self, value):
+        check_valid_types(value, FitnessABC)
+        assert not self.is_finalized, \
+            f"ValueError: Individual marked as final, fitness value already set to {self._fitness} (paranoia check)"
+        return True
+
     @fitness.setter
-    def fitness(self, value):
-        """The fitness of the individual."""
+    def fitness(self, value: FitnessABC):
+        """Set the fitness of the individual and update operator stats"""
+        assert self._check_fitness(value)
         self._fitness = value
-
-    @property
-    def macros(self):
-        return [self._genome.nodes[n]['_macro'] for n in get_macros(self._genome)]
-
-    @property
-    def parameters(self):
-        return get_parameters(self._genome)
-
-    # REQUIRED ABSTRACT METHODS
-
-    def is_valid(self, obj: Any) -> bool:
-        # TODO: Add implementation
-        raise NotImplementedError
+        if any(value >> i.fitness for i in self._birth.parents) and \
+                any(value >> i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents):
+            self._birth.operator.stats.successes += 1
+        elif any(value << i.fitness for i in self.birth.parents) and \
+                any(value << i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents):
+            self._birth.operator.stats.failures += 1
 
     # PUBLIC METHODS
+
+    def describe(self,
+                 *,
+                 include_fitness: bool = True,
+                 include_structure: bool = True,
+                 include_birth: bool = True,
+                 max_recursion: int = 0,
+                 _indent_level: str = ''):
+        desc = str(self)
+        delem = list()
+        if include_fitness:
+            delem.append(f'fitness: {self.fitness}')
+        if include_structure:
+            node_types = list(t for n, t in self.G.nodes(data='_type'))
+            n_nodes = len(self.G)
+            n_macros = node_types.count(MACRO_NODE) - 1
+            n_frames = node_types.count(FRAME_NODE)
+            n_links = sum(True for _, _, k in self.G.edges(data='_type') if k != FRAMEWORK)
+            n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_selement'].parameter_types.items()
+                                                             for n in self.G
+                                                             if self.G.nodes[n]['_type'] == MACRO_NODE))
+            delem.append(f'''{n_frames} frame{'s' if n_frames != 1 else ''} and {n_macros} macro{'s' if n_frames != 1 else ''}''' + \
+                f''' ({n_params:,} parameter{'s' if n_params != 1 else ''} total''' + \
+                f''', {n_links:,} structural)''')
+        if include_birth:
+            delem.append(str(self.birth))
+        descr = f'''{_indent_level}{desc} ⇨ {' / '.join(delem)}'''
+        if max_recursion > 0:
+            for p in self.birth.parents:
+                try:
+                    descr += '\n' + p.describe(include_fitness=include_fitness,
+                                               include_structure=include_structure,
+                                               include_birth=include_birth,
+                                               max_recursion=max_recursion - 1,
+                                               _indent_level=_indent_level + '  ')
+                except ReferenceError:
+                    pass
+        return descr
+
     def as_forest(self, *, figsize: tuple = (12, 10), filename: str | None = None, **kwargs) -> None:
-        r"""Draw the grammar tree of the individual.
+        r"""Draw the structure tree of the individual.
 
         Generate a figure representing the individual using NetworkX's `multipartite_layout` [1]_
         with layers corresponding to the depth of nodes in the tree structure.
@@ -199,7 +326,7 @@ class Individual(EvolvableABC):
 
         """
 
-        if not plt:
+        if plt is None:
             user_warning(f"Rendering of individuals not available: {plt_errror}")
             return
 
@@ -256,79 +383,51 @@ class Individual(EvolvableABC):
         else:
             self._draw_multipartite(figsize)
 
-    def mutate(self, strength: float = 1., **kwargs: Any) -> None:
-        # TODO: Implement it!
-        raise NotImplementedError
-
     def discard_useless_components(self):
         G = nx.MultiDiGraph()
         G.add_edges_from(self.G.edges)
-        T = self.grammar_tree
+        T = self.structure_tree
         for v in list(T.successors(0))[1:]:
             G.remove_edge(0, v)
         ccomp = list(nx.weakly_connected_components(G))
         self.G.remove_nodes_from(chain.from_iterable(ccomp[1:]))
 
     def dump(self, extra_parameters: dict) -> str:
-        if '$omit_banner' in extra_parameters and extra_parameters['$omit_banner']:
-            deprecation('Removing the banner with $omit_banner is deprecated', stacklevel_offset=1)
-            m0_text = MacroZero.text
-            MacroZero.text = ''
         self._str = ''
-        self._dump(NodeReference(self.G, 0), extra_parameters)
-        if '$omit_banner' in extra_parameters and extra_parameters['$omit_banner']:
-            MacroZero.text = m0_text
+        for n in self.nodes:
+            self._str += Individual._dump_node(NodeReference(self.genome, n), extra_parameters)
         return self._str
 
-    def _dump(self, nr: NodeReference, parameters) -> None:
-
+    @staticmethod
+    def _dump_node(nr: NodeReference, parameters) -> str:
         local_parameters = parameters | nr.graph.nodes[nr.node] | {'_node': NodeView(nr)}
-        if '_macro' in nr.graph.nodes[nr.node]:
-            local_parameters |= nr.graph.nodes[nr.node]['_macro'].extra_parameters | \
-                                nr.graph.nodes[nr.node]['_macro'].parameters
-        if '_frame' in nr.graph.nodes[nr.node]:
-            local_parameters |= nr.graph.nodes[nr.node]['_frame'].parameters
+        #local_parameters |= nr.graph.nodes[nr.node]['_selement'].parameters
+        if hasattr(nr.graph.nodes[nr.node]['_selement'], 'extra_parameters'):
+            local_parameters |= nr.graph.nodes[nr.node]['_selement'].extra_parameters
         bag = ValueBag(local_parameters)
 
         # GENERAL NODE HEADER
-        self._str += '{_text_before_node}'.format(**bag)
+        str = '{_text_before_node}'.format(**bag)
 
         if nr.graph.in_degree(nr.node) > 1:
-            self._str += bag['_label'].format(**bag)
+            str += bag['_label'].format(**bag)
 
-        if '_macro' in nr.graph.nodes[nr.node]:
-            self._str += '{_text_before_macro}'.format(**bag)
-            self._str += nr.graph.nodes[nr.node]['_macro'].dump(bag)
+        if nr.graph.nodes[nr.node]['_type'] == MACRO_NODE:
+            str += '{_text_before_macro}'.format(**bag)
+            str += nr.graph.nodes[nr.node]['_selement'].dump(bag)
             if bag['$dump_node_info']:
-                self._str += '  {_comment}{_comment} {_node.pathname} ➜ {_node.name}'.format(**bag)
-            self._str += '{_text_after_macro}'.format(**bag)
-        elif '_frame' in nr.graph.nodes[nr.node]:
-            self._str += '{_text_before_frame}'.format(**bag)
+                str += '  {_comment}{_comment} {_node.pathname} ➜ {_node.name}'.format(**bag)
+            str += '{_text_after_macro}'.format(**bag)
+        elif nr.graph.nodes[nr.node]['_type'] == FRAME_NODE:
+            str += '{_text_before_frame}'.format(**bag)
             if bag['$dump_node_info']:
-                self._str += '{_comment}{_comment} {_node.pathname} ➜ {_node.name}{_text_after_macro}'.format(**bag)
-            self._str += '{_text_after_frame}'.format(**bag)
+                str += '{_comment}{_comment} {_node.pathname} ➜ {_node.name}{_text_after_macro}'.format(**bag)
+            str += '{_text_after_frame}'.format(**bag)
 
         # GENERAL NODE FOOTER
-        self._str += '{_text_after_node}'.format(**bag)
+        str += '{_text_after_node}'.format(**bag)
 
-        successors = list(get_successors(nr))
-        for n in successors:
-            self._dump(NodeReference(nr.graph, n), bag)
-
-    def check(self) -> bool:
-        """Checks the syntax of the individual."""
-        for n in nx.dfs_preorder_nodes(self.grammar_tree, source=NODE_ZERO):
-            if '_frame' in self._genome.nodes[n]:
-                if not self._genome.nodes[n]['_frame'].run_checks(NodeView(self._genome, n)):
-                    return False
-            elif '_macro' in self._genome.nodes[n]:
-                if not self._genome.nodes[n]['_macro'].run_checks(NodeView(self._genome, n)):
-                    return False
-            elif 'root' in self._genome.nodes[n] and self._genome.nodes[n]['root'] is True:
-                pass  # safe
-            else:
-                raise SyntaxWarning(f"Unknown node type: {self._genome.nodes[n]}")
-        return True
+        return str
 
     def _draw_forest(self, figsize) -> None:
         """Draw individual using multipartite_layout"""
@@ -339,7 +438,7 @@ class Individual(EvolvableABC):
         ##############################################################################
         # get T
         T = nx.DiGraph()
-        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='kind') if k == FRAMEWORK)
+        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == FRAMEWORK)
         for n in T:
             T.nodes[n]['depth'] = len(nx.shortest_path(T, 0, n))
         pos = nx.multipartite_layout(T, subset_key="depth", align="horizontal")
@@ -349,7 +448,7 @@ class Individual(EvolvableABC):
         # draw structure
         nx.draw_networkx_edges(T, pos, style=':', edge_color='lightgray', ax=ax)
         # draw macros
-        nodelist = [n for n in T if '_macro' in self.G.nodes[n]]
+        nodelist = [n for n in T if self.G.nodes[n]['_type'] == MACRO_NODE]
         nx.draw_networkx_nodes(T,
                                pos,
                                nodelist=nodelist,
@@ -357,7 +456,7 @@ class Individual(EvolvableABC):
                                cmap=plt.cm.tab20,
                                ax=ax)
         # draw frames
-        nodelist = [n for n in self.G if '_frame' in self.G.nodes[n]]
+        nodelist = [n for n in self.G if self.G.nodes[n]['_type'] == FRAME_NODE]
         nx.draw_networkx_nodes(T,
                                pos,
                                nodelist=nodelist,
@@ -370,8 +469,9 @@ class Individual(EvolvableABC):
         ##############################################################################
         # Draw links
         U = nx.DiGraph()
-        U.add_edges_from(
-            (u, v) for u, v, k in self.G.edges(data='kind') if k == LINK and T.nodes[u]['depth'] == T.nodes[v]['depth'])
+        U.add_edges_from((u, v)
+                         for u, v, k in self.G.edges(data='_type')
+                         if k == LINK and T.nodes[u]['depth'] == T.nodes[v]['depth'])
         nx.draw_networkx_edges(
             U,
             pos,
@@ -381,8 +481,9 @@ class Individual(EvolvableABC):
             connectionstyle='arc3,rad=-.3',
             ax=ax)
         U = nx.DiGraph()
-        U.add_edges_from(
-            (u, v) for u, v, k in self.G.edges(data='kind') if k == LINK and T.nodes[u]['depth'] != T.nodes[v]['depth'])
+        U.add_edges_from((u, v)
+                         for u, v, k in self.G.edges(data='_type')
+                         if k == LINK and T.nodes[u]['depth'] != T.nodes[v]['depth'])
         nx.draw_networkx_edges(
             U,
             pos,
@@ -402,7 +503,7 @@ class Individual(EvolvableABC):
         ##############################################################################
         # get T
         T = nx.DiGraph()
-        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='kind') if k == FRAMEWORK)
+        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == FRAMEWORK)
         prev = 0
         # get P
         P = nx.DiGraph()
@@ -411,13 +512,13 @@ class Individual(EvolvableABC):
                 prev = None
             if prev:
                 P.add_edge(prev, n)
-            if '_macro' in self.G.nodes[n]:
+            if self.G.nodes[n]['_type'] == MACRO_NODE:
                 prev = n
         for u, v in list(P.edges):
-            if '_frame' in self.G.nodes[v]:
+            if self.G.nodes[n]['_type'] == MACRO_NODE:
                 for succ in P.successors(v):
                     P.add_edge(u, succ)
-        P.remove_nodes_from([0] + [n for n in P.nodes if '_macro' not in self.G.nodes[n]])
+        P.remove_nodes_from([0] + [n for n in P.nodes if self.G.nodes[n]['_type'] != MACRO_NODE])
         # get components
         ccomp = list(nx.weakly_connected_components(P))
         ccomp_lat = {n: pi for pi, part in enumerate(ccomp) for n in part}
@@ -446,7 +547,7 @@ class Individual(EvolvableABC):
         ##############################################################################
         # Draw links
         U = nx.DiGraph()
-        U.add_edges_from((u, v) for u, v, k in self.G.edges(data='kind') if k == LINK and ccomp_lat[u] == ccomp_lat[v])
+        U.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == LINK and ccomp_lat[u] == ccomp_lat[v])
         nx.draw_networkx_edges(
             U,
             pos,
@@ -458,7 +559,7 @@ class Individual(EvolvableABC):
             connectionstyle='arc3,rad=-.4',
             ax=ax)
         U = nx.DiGraph()
-        U.add_edges_from((u, v) for u, v, k in self.G.edges(data='kind') if k == LINK and ccomp_lat[u] != ccomp_lat[v])
+        U.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == LINK and ccomp_lat[u] != ccomp_lat[v])
         nx.draw_networkx_edges(
             U,
             pos,

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['safe_dump']
+__all__ = ['safe_dump', 'cleanup_dump']
 
 from collections import Counter
 from microgp4.user_messages import microgp_logger
@@ -51,3 +51,7 @@ def safe_dump(obj, **extra_parameters):
             microgp_logger.error(f"dump: Can't safely dump {obj!r}")
             raise e
     return dumped
+
+
+def _strip_genome(raw_dump: str) -> str:
+    return '\n'.join(raw_dump.split('\n')[1:-1])

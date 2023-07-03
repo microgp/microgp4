@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -24,23 +24,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# =[ HISTORY ]===============================================================
-# v1 / May 2023 / Squillero (GX)
+#############################################################################
+# HISTORY
+# v1 / June 2023 / Squillero (GX)
 
-from functools import wraps
-
-from microgp4.classes.fitness import *
-
-
-def fitness_function(type_: type[FitnessABC]):
-
-    def decorator(func):
-
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            result = func(*args, **kwargs)
-            return type_(result)
-
-        return wrapper
-
-    return decorator
+from .initializers import *
+from .mutation import *

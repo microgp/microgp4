@@ -11,29 +11,29 @@
 #############################################################################
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
+import logging
 
 import microgp4 as ugp
 
 
-@ugp.fitness_function(ugp.fit.Scalar)
-def fitness(individual: str):
-    """xxx"""
-    string = individual.split('\n')[1]
-    return sum(b == '1' for b in string)
+# explicit: @ugp.fitness_function(type_=ugp.fitness.Integer)
+@ugp.fitness_function
+def fitness(genotype: str):
+    """Vanilla 1-max"""
+    return sum(b == '1' for b in genotype)
 
 
 def main():
-    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 16))
+    ugp.microgp_logger.setLevel(logging.DEBUG)
+
+    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 100))
     frame = ugp.f.sequence([macro])
 
-    evaluator = ugp.eval.PythonFunction(fitness)
-    population = ugp.C.Population(frame, evaluator)
+    evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
+    population = ugp.ea.vanilla_ea(frame, evaluator)
 
-    population.add_random_individual()
-    population.add_random_individual()
-    population.add_random_individual()
-    population.evaluate()
-    pass
+    for i in population:
+        print(i.describe(include_structure=False, max_recursion=99))
 
 
 if __name__ == '__main__':

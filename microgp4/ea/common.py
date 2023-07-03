@@ -27,12 +27,4 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['ZZZ_mutate']
-
-from classes.base.checks import *
-from ..classes import EvolvableABC
-
-
-def ZZZ_mutate(obj: EvolvableABC, strength: float = 1.0) -> None:
-    assert check_valid_type(obj, EvolvableABC)
-    obj.mutate(strength)
+__all__ = []

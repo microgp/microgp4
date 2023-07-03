@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['MicroGPException', 'MicroGPError', 'MicroGPInvalidIndividual']
+__all__ = ['MicroGPException', 'MicroGPError', 'InvalidIndividual', 'GeneticOperatorAbort']
 
 
 class MicroGPException(Exception):
@@ -39,5 +39,9 @@ class MicroGPError(MicroGPException):
     """Exception for a serious error in MicroGP4."""
 
 
-class MicroGPInvalidIndividual(MicroGPException):
+class InvalidIndividual(MicroGPException):
+    """Exception when an individual is invalid."""
+
+
+class GeneticOperatorAbort(MicroGPException):
     """Exception when an individual is invalid."""

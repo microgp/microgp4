@@ -25,20 +25,19 @@
 # limitations under the License.
 
 # =[ HISTORY ]===============================================================
-# v1 / April 2023 / Squillero (GX)
+# v1 / June 2023 / Squillero (GX)
 
-__all__ = ['FitnessABC', 'reverse_fitness']
+__all__ = ['FitnessABC']
 
 from abc import ABC, abstractmethod
 from functools import wraps, cache
 
-from microgp4.classes.pedantic import PedanticABC
 from microgp4.classes.paranoid import Paranoid
 from microgp4.user_messages import *
 from microgp4.tools.names import _patch_class_info
 
 
-class FitnessABC(PedanticABC, Paranoid, ABC):
+class FitnessABC(Paranoid, ABC):
     """Fitness of a phenotype, handle multiple formats (eg. scalar, tuple).
 
     The class also redefines the relational operator in order to handle different types of optimization
@@ -81,41 +80,34 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
             f"TypeError: different Fitness types: {self.__class__} and {other.__class__} (paranoia check)"
         return True
 
-    def is_valid(self, fitness: 'FitnessABC') -> bool:
-        try:
-            self.check_comparable(fitness)
-        except AssertionError:
-            return False
-        return True
-
     def _decorate(self) -> str:
         """Represent the individual fitness value with a nice string."""
         return f'{super().__str__()}'
 
     # FINAL/WARNINGS
 
-    def __eq__(self, other: 'FitnessABC') -> bool:
+    def __eq__(self, other) -> bool:
         return not self.is_distinguishable(other)
 
-    def __ne__(self, other: 'FitnessABC') -> bool:
+    def __ne__(self, other) -> bool:
         return self.is_distinguishable(other)
 
-    def __gt__(self, other: 'FitnessABC') -> bool:
+    def __gt__(self, other) -> bool:
         return self.is_fitter(other)
 
-    def __lt__(self, other: 'FitnessABC') -> bool:
+    def __lt__(self, other) -> bool:
         return other.is_fitter(self)
 
-    def __ge__(self, other: 'FitnessABC') -> bool:
+    def __ge__(self, other) -> bool:
         return not self.__lt__(other)
 
-    def __le__(self, other: 'FitnessABC') -> bool:
+    def __le__(self, other) -> bool:
         return not self.__gt__(other)
 
-    def __rshift__(self, other: 'FitnessABC') -> bool:
+    def __rshift__(self, other) -> bool:
         return self.is_dominant(other)
 
-    def __lshift__(self, other: 'FitnessABC') -> bool:
+    def __lshift__(self, other) -> bool:
         return other.is_dominant(self)
 
     def __str__(self):
@@ -135,29 +127,3 @@ class FitnessABC(PedanticABC, Paranoid, ABC):
 
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()
-
-
-@cache
-def reverse_fitness(fitness_class: type[FitnessABC]) -> type[FitnessABC]:
-    """Reverse fitness class turning a maximization problem into a minimization one."""
-    assert check_valid_type(fitness_class, FitnessABC, subclass=True)
-
-    class T(fitness_class):
-
-        def is_fitter(self, other: FitnessABC) -> bool:
-            assert self.__class__ == other.__class__, \
-                    f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
-            return super(T, other).is_fitter(self)
-
-        def is_dominant(self, other: FitnessABC) -> bool:
-            assert self.__class__ == other.__class__, \
-                    f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
-            return super(T, other).is_dominant(self)
-
-        def _decorate(self) -> str:
-            #return 'ᴙ⟦' + fitness_class._decorate(self) + '⟧'
-            return 'ᴙ' + fitness_class._decorate(self)
-
-    _patch_class_info(T, f'reverse[{fitness_class.__name__}]', tag='fitness')
-
-    return T

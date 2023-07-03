@@ -1,4 +1,4 @@
-# !/usr/bin/env python3
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #############################################################################
 #           __________                                                      #
@@ -12,30 +12,36 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-from random import shuffle
-import networkx as nx
-
 import microgp4 as ugp
 
+#@ugp.genetic_operator(num_parents=1)
+#def foo():
+#    pass
 
-# NOTE[GX]: Dictionaries are the underlying data structure used for NetworkX graphs, and as of Python 3.7+ they
-# maintain insertion order. We should obtain the same result each time you run Graph.edges()!
-def test_edge_order():
-    """Checks the order of the edges is reliable."""
-    G = nx.MultiDiGraph()
-    nodes = [n for n in range(1, 10_000)]
-    shuffle(nodes)
 
-    G.add_node(ugp.NODE_ZERO)
-    for n in nodes:
-        G.add_node(n)
-        G.add_edge(ugp.NODE_ZERO, n)
+@ugp.fitness_function
+def onemax1(x):
+    return x
 
-    assert list(nodes) == list(G.successors(ugp.NODE_ZERO))
 
-    for _ in range(100):
-        # remove a node
-        i = nodes[len(nodes) // 2]
-        G.remove_node(nodes[i])
-        nodes = nodes[:i] + nodes[i + 1:]
-        assert list(nodes) == list(G.successors(ugp.NODE_ZERO))
+print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
+print(foo.stats)
+x = foo('x')
+print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
+print(foo.stats)
+
+print(onemax1(1234.2))
+print(onemax1(1234.2))
+print(onemax1(1234.2))
+
+print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
+print(f"Fitness functions: {ugp.sysinfo.fitness_functions}")
+
+ugp.sysinfo.show(foo)
+ugp.sysinfo.show('foo')
+ugp.sysinfo.show(print)
+pass
+
+i = ugp.classes.Individual(None)
+i.fitness = ugp.fitness.Scalar(3)
+#i.fitness = ugp.fitness.Scalar(3)

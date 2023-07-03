@@ -12,6 +12,7 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 from copy import deepcopy
 
 try:
@@ -24,6 +25,7 @@ except ModuleNotFoundError as e:
 
 #ugp.set_logger_level(logging.INFO)
 
+ugp.microgp_logger.setLevel(logging.DEBUG)
 ugp.rrandom.seed(42)
 
 register = ugp.f.choice_parameter(['ah', 'bh', 'ch', 'dh', 'al', 'bl', 'cl', 'dl'])
@@ -65,8 +67,8 @@ program = ugp.f.sequence([prologue, test_call, mycode, test_call, epilogue], nam
 #code_down.add_check(
 #    lambda node: all(node.successors[i].macro.v > node.successors[i + 1].macro.v for i in range(node.out_degree - 1)))
 
-population = ugp.classes.population.Population(top_frame=program, evaluator=None)
-population.add_random_individual()
+population = ugp.classes.population.Population(top_frame=program)
+population += ugp.operators.random_individual(program)
 #population.individuals.clear()
 #opulation.add_random_individual()
 
@@ -74,7 +76,7 @@ population.individuals.append(deepcopy(population.individuals[0]))
 I0 = population.individuals[0]
 I1 = population.individuals[1]
 
-I0.as_forest(filename='grammar-tree', figsize=(25, 15), bbox_inches='tight')
+I0.as_forest(filename='structure-tree', figsize=(25, 15), bbox_inches='tight')
 I0.as_lgp(filename='code.png', figsize=(25, 15), bbox_inches='tight')
 
 ugp.rrandom.seed()

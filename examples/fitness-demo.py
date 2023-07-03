@@ -23,9 +23,9 @@ FITNESS_TYPES = [
     ugp.fit.Float,
 ]
 
-MAGIC_NUMBERS = [('42.1 vs. 42.2', 42.1, 42.2),
-                 ('2 vs. sqrt(2)**2', 2, sqrt(2)**2),
-                 ('3 vs. .1+.1+.1', .3, .1+.1+.1)]
+MAGIC_NUMBERS = [('42.1 vs. 42.2', 42.1, 42.2), ('2 vs. sqrt(2)**2', 2, sqrt(2)**2),
+                 ('3 vs. .1+.1+.1', .3, .1 + .1 + .1)]
+
 
 def test(type_, n1, n2):
     f1 = type_(n1)

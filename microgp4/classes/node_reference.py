@@ -32,7 +32,11 @@ __all__ = ['NodeReference']
 from typing import NamedTuple
 from networkx.classes import MultiDiGraph
 
-NodeReference = NamedTuple('NodeReference', graph=MultiDiGraph, node=int)
+
+class NodeReference(NamedTuple):
+    graph: MultiDiGraph
+    node: int
+
 
 # NOTE[GX]: Untyped alternative...
 #from collections import namedtuple

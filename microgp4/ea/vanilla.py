@@ -27,8 +27,74 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-from classes import Individual
+__all__ = ['vanilla_ea']
+
+from microgp4.user_messages import *
+from microgp4.operators import *
+from microgp4.fitness import *
+from microgp4.sys import *
+from microgp4.classes.population import Population
+from microgp4.classes.frame import FrameABC
+from microgp4.classes.evaluator import EvaluatorABC
+from microgp4.randy import rrandom
+
+from .selection import *
 
 
-def make_individual():
-    individual = Individual()
+def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20) -> Population:
+    r"""A simple evolutionary algorith
+
+    Parameters
+    ----------
+    top_frame
+        The top_frame of individuals
+    evaluator
+        The evaluator used to evaluate individuals
+    mu
+        The size of the population
+    lambda_
+        The size the offspring
+
+    Returns
+    -------
+    Population
+        The last population
+
+    """
+    population = Population(top_frame)
+
+    # Initialize population
+    ops0 = [op for op in get_operators() if op.num_parents is None]
+    while len(population) < mu:
+        o = rrandom.choice(ops0)
+        population += o(top_frame=top_frame)
+    evaluator(population)
+    population.sort()
+    best = population[0]
+    microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
+
+    pass
+
+    all_individuals = set()
+
+    # Let's roll
+    for _ in range(50):
+        ops = [op for op in get_operators() if op.num_parents is not None]
+        new_individuals = list()
+        for step in range(lambda_):
+            op = rrandom.choice(ops)
+            parent = tournament_selection(population, 1)
+            new_individuals += op(parent, strength=.05)
+        population += new_individuals
+        evaluator(population)
+        population.sort()
+
+        #all_individuals |= set(population)
+
+        population.individuals[mu:] = []
+
+        if best.fitness << population[0].fitness:
+            best = population[0]
+            microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
+
+    return population

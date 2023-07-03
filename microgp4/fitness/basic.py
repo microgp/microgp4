@@ -27,14 +27,14 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'UniformVector']
+__all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'Lexicographic', 'make_fitness']
 
-from typing import Sequence, Any, Type
+from typing import Sequence, Any
 
 from functools import partialmethod
 from math import isclose
 
-from .fitness import FitnessABC
+from microgp4.classes.fitness import FitnessABC
 from microgp4.tools.names import _patch_class_info
 from microgp4.user_messages import *
 
@@ -43,7 +43,9 @@ class Float(FitnessABC, float):
     """A single numeric value -- Larger is better."""
 
     def __new__(cls, *args, **kw):
-        syntax_warning_hint("'Float' fitness values suffer from FP arithmetic's issues and limitations (eg. .1 + .1 + .1 != .3). Consider using 'Scalar'")
+        syntax_warning_hint(
+            "'Float' fitness values suffer from Floating Point Arithmetic issues and limitations (eg. .1+.1+.1 != .3). Consider using 'Scalar'"
+        )
         return float.__new__(cls, *args, **kw)
 
     def _decorate(self):
@@ -83,7 +85,7 @@ class Scalar(FitnessABC, float):
         assert self.check_comparable(other)
         return self != other and float(self) > float(other)
 
-    def check_comparable(self, other: 'Approximate'):
+    def check_comparable(self, other: 'Scalar'):
         assert super().check_comparable(other)
         assert self._abs_tol == other._abs_tol, \
             f"ValueError: different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol} (paranoia check)"
@@ -116,9 +118,9 @@ class Vector(FitnessABC):
         self.check_comparable(other)
         return list(self) > list(other)
 
-    def is_dominant(self, other: 'Vector') -> bool:
-        self.check_comparable(other)
-        return all(v1 >> v2 for v1, v2 in zip(self, other))
+    #def is_dominant(self, other: 'Vector') -> bool:
+    #    self.check_comparable(other)
+    #    return all(v1 >> v2 for v1, v2 in zip(self, other))
 
     def _decorate(self) -> str:
         return '(' + ', '.join(e._decorate() for e in self) + ')'
@@ -130,31 +132,41 @@ class Vector(FitnessABC):
         return hash(self._values)
 
 
-class UniformVector(Vector):
+class Lexicographic(Vector):
     """A generic vector of Fitness values.
 
     fitness_type is the subtype, **kwargs are passed to fitness init
 
     Examples:
-        f1 = sgx.fitness.Vector([23, 10], fitness_type=Approximate, abs_tol=.1)
-        f2 = sgx.fitness.Vector([23, 10], fitness_type=Approximate, abs_tol=.001)
+        f1 = sgx.fitness.Vector([23, 10], fitness_type=Scalar, abs_tol=.1)
+        f2 = sgx.fitness.Vector([23, 10], fitness_type=Scalar, abs_tol=.001)
 
-        f1 > sgx.fitness.Vector([23, 9.99], fitness_type=Approximate, abs_tol=.1) is False
-        f2 > sgx.fitness.Vector([23, 9.99], fitness_type=Approximate, abs_tol=.001) is True
+        f1 > sgx.fitness.Vector([23, 9.99], fitness_type=Scalar, abs_tol=.1) is False
+        f2 > sgx.fitness.Vector([23, 9.99], fitness_type=Scalar, abs_tol=.001) is True
 
     """
 
-    def __init__(self, values: Sequence, type_: type[FitnessABC]):
+    def __init__(self, values: Sequence, type_: type[FitnessABC] = Scalar):
         fitness_values = [type_(v) for v in values]
         super().__init__(fitness_values)
 
 
+def make_fitness(data: Any):
+    if isinstance(data, Sequence):
+        return Lexicographic(data)
+    elif isinstance(data, int):
+        return Integer(data)
+    else:
+        return Scalar(data)
+
+
+##############################################################################
 # Patch names
 _patch_class_info(Scalar, 'Scalar', tag='fitness')
 _patch_class_info(Integer, 'Integer', tag='fitness')
 _patch_class_info(Float, 'Float', tag='fitness')
 _patch_class_info(Vector, 'Vector', tag='fitness')
-_patch_class_info(UniformVector, 'Vector', tag='fitness')
+_patch_class_info(Lexicographic, 'Vector', tag='fitness')
 #_patch_class_info(ApproximateVector, 'VectorApproximate', tag='fitness')
 #_patch_class_info(IntegerVector, 'VectorInteger', tag='fitness')
 #_patch_class_info(ScalarVector, 'VectorScalar', tag='fitness')

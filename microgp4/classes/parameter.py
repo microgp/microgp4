@@ -35,12 +35,12 @@ from typing import Any
 from networkx.classes import MultiDiGraph
 
 from microgp4.user_messages import *
-from microgp4.classes.pedantic import PedanticABC
-from microgp4.classes.evolvable import EvolvableABC
+from microgp4.classes.selement import SElement
+from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.node_reference import NodeReference
 
 
-class ParameterABC(EvolvableABC, PedanticABC, ABC):
+class ParameterABC(SElement, Paranoid, ABC):
     """Generic class for storing a Macro parameter"""
 
     __slots__ = ['target_variable']  # Preventing the automatic creation of __dict__
@@ -50,10 +50,6 @@ class ParameterABC(EvolvableABC, PedanticABC, ABC):
     def __init__(self):
         ParameterStructuralABC.COUNTER += 1
         self._key = ParameterStructuralABC.COUNTER
-
-    @property
-    def key(self):
-        return self._key
 
     def __eq__(self, other: 'ParameterABC') -> bool:
         if type(self) != type(other):
@@ -68,21 +64,22 @@ class ParameterABC(EvolvableABC, PedanticABC, ABC):
         return format(self.value, format_spec)
 
     @property
+    def key(self):
+        return self._key
+
+    @property
     def value(self):
         return self._value
 
     @value.setter
     def value(self, new_value):
-        assert self.is_valid(new_value), \
-            "ValueError: invalid value: {} (paranoia check)".format(new_value)
+        assert self.is_correct(new_value), \
+            f"ValueError: invalid value: {new_value} (paranoia check)"
         self._value = new_value
 
-    def is_valid(self, obj: Any) -> bool:
-        if not super().is_valid(obj):
-            return False
-        if obj is None:
-            return False
-        return True
+    @abstractmethod
+    def mutate(self, strength: float = 1., **kwargs) -> None:
+        pass
 
 
 class ParameterStructuralABC(ParameterABC, ABC):
@@ -128,9 +125,9 @@ class ParameterStructuralABC(ParameterABC, ABC):
     def __format__(self, format_spec):
         return 'n' + format(self.value, format_spec)
 
-    def is_valid(self, obj: Any) -> bool:
+    def is_correct(self, obj: Any) -> bool:
         assert check_valid_type(obj, int)
-        if not super().is_valid(obj):
+        if not super().is_correct(obj):
             return False
         if not self.is_fastened:
             return False
