@@ -42,7 +42,7 @@ from .selection import *
 
 
 def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20) -> Population:
-    r"""A simple evolutionary algorith
+    r"""A simple evolutionary algorithm
 
     Parameters
     ----------
@@ -83,8 +83,10 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         new_individuals = list()
         for step in range(lambda_):
             op = rrandom.choice(ops)
-            parent = tournament_selection(population, 1)
-            new_individuals += op(parent, strength=.05)
+            parents = list()
+            for _ in range(op.num_parents):
+                parents.append(tournament_selection(population, 1))
+            new_individuals += op(*parents, strength=.05)
         population += new_individuals
         evaluator(population)
         population.sort()
