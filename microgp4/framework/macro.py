@@ -92,7 +92,7 @@ def macro(text: str, **parameters: type[ParameterABC] | str) -> type[Macro]:
     ----------
     .. [1] https://docs.python.org/3/library/string.html#formatspec
     """
-
+    assert check_valid_type(text, str)
     macro_parameters = list()
     macro_extra_parameters = list()
     for n, p in parameters.items():
