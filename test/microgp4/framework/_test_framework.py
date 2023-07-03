@@ -64,35 +64,6 @@ class TestAlternative:
 
 # MARCO TEST ON FRAMEWORK
 
-def test_alternative():
-    p1 = ugp.f.integer_parameter(0,4)
-    m1 = ugp.f.macro("test number {p1}", p1=p1)
-    m2 = ugp.f.macro("test number {p2}", p2=p1)
-    m3 = ugp.f.macro("test number {p3}", p3=p1)
-    a1 = ugp.f.alternative([m1,m2,m3])
-    a2 = ugp.f.alternative([m1,m2])
-    a3 = ugp.f.alternative([m1,m3])
-
-    a = a1()
-    b = a1()
-    c = a2()
-    d = a3()
-
-    assert a != None
-    assert a == b
-    assert a.successors[0] in [m1,m2,m3]
-
-    assert a != c
-    assert a != d
-    assert c != d
-
-    with pytest.raises(ugp.user_messages.MicroGPError):
-        ugp.f.alternative(12)
-    with pytest.raises(ugp.user_messages.MicroGPError):
-        ugp.f.alternative('abc')
-    with pytest.raises(ugp.user_messages.MicroGPError):
-        ugp.f.alternative(p1)
-
 def test_sequence():
     t1 = 'abc'
     p1 = ugp.f.integer_parameter(0,4)
