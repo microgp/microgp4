@@ -50,22 +50,17 @@ class ValueBag(dict):
     * Safe keys can be accessed as attributes (`value_bag.foo`).
     * The default value for missing keys is None
     """
-    # if false: MicroGPException
+    
     FLAG_KEY = re.compile(r'\$[a-z_0-9]*', re.IGNORECASE)
     SAFE_KEY = re.compile(r'[a-z_][a-z_0-9]*', re.IGNORECASE)
     VALID_KEY = re.compile(r'[a-z_$][a-z_0-9]*', re.IGNORECASE)
-    SAFE_PARAM = re.compile(r'[a-z_A-Z]', re.IGNORECASE)
-    FLAG_PARAM = [True, False]
 
-    def __init__(self, init=None, **items):     
+    def __init__(self, init=None, **items):
         if init and isinstance(init, ValueBag):
             super().__init__(init._items(), **items)
         elif init:
-            assert self._is_valid(init)
-            assert self._is_valid(items)
             super().__init__(init, **items)
         else:
-            assert self._is_valid(items)
             super().__init__(**items)
 
     def __str__(self):
@@ -154,14 +149,3 @@ class ValueBag(dict):
     def _items(self):
         """Same as dict.items()."""
         return super().items()
-    
-    def _is_valid(self, items):
-        """check if keys and values respect the guidelines"""
-        for i in items:
-            if not ValueBag.VALID_KEY.fullmatch(i):
-                raise MicroGPException(f"{i!r} is an invalid Key name")
-            if ValueBag.FLAG_KEY.fullmatch(i):
-                assert items[i] in ValueBag.FLAG_PARAM
-            elif ValueBag.SAFE_KEY.fullmatch(i) and not i.startswith('_'): # no checks for reserved variables (eg: _foo)
-                assert ValueBag.SAFE_PARAM.fullmatch(items[i])
-        return True

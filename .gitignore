@@ -120,4 +120,4 @@ venv.bak/
 .DS_Store
 
 # vscode
-.vscode/
+.vscode
