@@ -32,7 +32,7 @@ __all__ = ['random_individual']
 from microgp4.user_messages import *
 from microgp4.classes import Population, Individual
 from microgp4.registry import *
-from microgp4.operators.graph import *
+from microgp4.classes.individual import *
 
 
 @genetic_operator(num_parents=None)
@@ -44,7 +44,7 @@ def random_individual(top_frame) -> list[Individual]:
     while new_root is None:
         new_individual = Individual(top_frame)
         try:
-            new_root = unroll(new_individual, top_frame)
+            new_root = unroll_individual(new_individual, top_frame)
         except InvalidIndividual:
             new_root = None
     return new_individual
