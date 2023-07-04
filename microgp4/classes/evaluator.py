@@ -45,9 +45,15 @@ class EvaluatorABC(ABC):
     """Hey
     """
 
+    _fitness_calls: int = 0
+
     @abstractmethod
     def evaluate_population(self, population: Population) -> None:
         raise NotImplementedError
+
+    @property
+    def fitness_calls(self) -> int:
+        return self._fitness_calls
 
     def __call__(self, population: Population) -> None:
         self.evaluate_population(population)
@@ -72,6 +78,7 @@ class PythonFunction(EvaluatorABC):
         for i, ind in [_ for _ in enumerate(population) if _[1].is_finalized is False]:
             genotype = self._cook(population.dump_individual(i))
             fitness = self._function(genotype)
+            self._fitness_calls += 1
             ind.fitness = fitness
             microgp_logger.debug(
                 f"eval: {ind.describe(include_fitness=True, include_birth=True, include_structure=True)}")

@@ -47,12 +47,13 @@ def single_parameter_mutation(parent: Individual, strength=1.0) -> list['Individ
 
 
 @genetic_operator(num_parents=1)
-def add_macro_to_bunch(parent: Individual, strength=1.0) -> list['Individual']:
+def add_macro_to_bunch_mutation(parent: Individual, strength=1.0) -> list['Individual']:
     offspring = parent.clone
     G = offspring.genome
     candidates = [
         n for n in offspring.nodes
-        if isinstance(G.nodes[n]['_selement'], FrameMacroBunch) and G.out_degree[n] < G.nodes[n]['_selement'].SIZE[1]-1
+        if isinstance(G.nodes[n]['_selement'], FrameMacroBunch) and G.out_degree[n] < G.nodes[n]['_selement'].SIZE[1] -
+        1
     ]
     if not candidates:
         raise GeneticOperatorAbort
@@ -62,6 +63,5 @@ def add_macro_to_bunch(parent: Individual, strength=1.0) -> list['Individual']:
     new_macro = unroll_selement(new_macro_type, G)
     G.add_edge(node, new_macro, _type=FRAMEWORK)
     i = rrandom.randint(0, len(successors))
-    successors = successors[:i] + [new_macro] + successors[i:]
-    set_successors_order(NodeReference(G, node), successors)
+    set_successors_order(NodeReference(G, node), successors[:i] + [new_macro] + successors[i:])
     return [offspring]

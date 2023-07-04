@@ -36,17 +36,23 @@ from microgp4.classes.population import *
 from microgp4.classes.frame import *
 from microgp4.classes.evaluator import *
 from microgp4.randy import rrandom
+from microgp4.user_messages import *
 
 from .selection import *
 
 
-def _new_best(population: Population):
+def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
-        f"VanillaEA: 🍀 Generation {population.generation:,}: {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}")
+        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}" +
+        f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]")
 
 
-def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20,
-               max_generation: int = 100, max_fitness: FitnessABC | None = None) -> Population:
+def vanilla_ea(top_frame: type[FrameABC],
+               evaluator: EvaluatorABC,
+               mu: int = 10,
+               lambda_: int = 20,
+               max_generation: int = 100,
+               max_fitness: FitnessABC | None = None) -> Population:
     r"""A simple evolutionary algorith
 
     Parameters
@@ -71,13 +77,15 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
 
     # Initialize population
     ops0 = [op for op in get_operators() if op.num_parents is None]
-    while len(population) < mu:
+    gen0 = list()
+    while len(gen0) < mu:
         o = rrandom.choice(ops0)
-        population += o(top_frame=top_frame)
+        gen0 += o(top_frame=top_frame)
+    population += gen0
     evaluator(population)
     population.sort()
     best = population[0]
-    _new_best(population)
+    _new_best(population, evaluator)
 
     pass
 
@@ -90,7 +98,6 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
 
     # Let's roll
     while not any(s() for s in stopping_conditions):
-        population.generation += 1
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
         for step in range(lambda_):
@@ -107,7 +114,10 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
 
         if best.fitness << population[0].fitness:
             best = population[0]
-            _new_best(population)
+            _new_best(population, evaluator)
 
     #population._zap = all_individuals
+    microgp_logger.info("VanillaEA: Genetic operators statistics:")
+    for op in get_operators():
+        microgp_logger.info(f"VanillaEA: * {op.__qualname__}: {op.stats}")
     return population

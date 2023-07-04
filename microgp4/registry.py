@@ -79,6 +79,20 @@ class Statistics:
     failures: int = 0
     successes: int = 0
 
+    @staticmethod
+    def nice(number, tag):
+        if number == 0:
+            return f'no {tag}s'
+        elif number == 1:
+            return f'1 {tag}'
+        else:
+            return f'{number:,} {tag}s'
+
+    def __str__(self):
+        return Statistics.nice(self.calls, 'call') + '; ' + Statistics.nice(self.aborts, 'abort') + \
+            '; ' + Statistics.nice(self.offspring, 'new individual') + \
+            ( f' ({self.successes:,}👍 {self.failures:,}👎)' if self.successes or self.failures else '' )
+
 
 def fitness_function(func: Callable[..., FitnessABC] | None = None,
                      /,
@@ -158,7 +172,10 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
             offspring = [i for i in offspring if i.valid]
             for i in offspring:
                 i._birth = Birth(wrapper, tuple(weakref.proxy(a) for a in args))
-            wrapper.stats.offspring += len(offspring)
+            if offspring:
+                wrapper.stats.offspring += len(offspring)
+            else:
+                wrapper.stats.aborts += 1
             return offspring
 
         wrapper.microgp = UGP4_TAG
