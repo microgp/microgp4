@@ -66,6 +66,7 @@ class Population:
             extra_parameters = dict()
         self._extra_parameters = Population.DEFAULT_EXTRA_PARAMETERS | extra_parameters
         self._individuals = list()
+        self._generation = -1
 
     #def get_new_node(self) -> int:
     #    self._node_count += 1
@@ -83,6 +84,14 @@ class Population:
     def parameters(self) -> dict:
         return copy(self._extra_parameters)
 
+    @property
+    def generation(self):
+        return self._generation
+
+    @generation.setter
+    def generation(self, value):
+        self._generation = value
+
     def __getitem__(self, item):
         return self._individuals[item]
 
@@ -90,16 +99,12 @@ class Population:
         return len(self._individuals)
 
     def __iadd__(self, individual):
-        if isinstance(individual, Sequence):
-            assert all(check_valid_types(i, Individual) for i in individual)
-            assert all(i.valid for i in individual), \
-                f"ValueError: invalid individual"
-            self._individuals.extend(individual)
-        else:
-            assert check_valid_types(individual, Individual)
-            assert individual.valid, \
-                f"ValueError: invalid individual"
-            self._individuals.append(individual)
+        assert check_valid_types(individual, Sequence)
+        assert all(check_valid_types(i, Individual) for i in individual)
+        assert all(i.valid for i in individual), \
+            f"ValueError: invalid individual"
+        self._generation += 1
+        self._individuals.extend(individual)
         return self
 
     def __iter__(self):

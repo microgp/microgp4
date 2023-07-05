@@ -57,6 +57,7 @@ from microgp4.classes.node_view import NodeView
 from microgp4.classes.frame import FrameABC
 from microgp4.classes.parameter import ParameterABC
 from microgp4.classes.readymade_macros import MacroZero
+from microgp4.classes import monitor
 
 
 @dataclass(frozen=True)
@@ -206,11 +207,13 @@ class Individual(Paranoid):
     @property
     def G(self):
         """Individual's underlying NetworkX MultiDiGraph."""
+        #TODO DeprecationWarning?
         return self._genome
 
     @property
     def genome(self):
         """Individual's genome (ie. the underlying NetworkX MultiDiGraph)."""
+        # TODO: Add paranoia check?
         return self._genome
 
     @property
