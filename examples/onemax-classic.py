@@ -33,16 +33,29 @@ def single_array_parameter():
 
 def multiple_distinct_bits():
     macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
-    frame = ugp.f.bunch([macro], size=(NUM_BITS, NUM_BITS + 1))
+    frame = ugp.f.bunch([macro], size=(NUM_BITS // 10, NUM_BITS + 1))
+    return frame
+
+
+def multiple_frames():
+    macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
+    link = ugp.f.macro("[{_node}]=>[{l}]",
+                       l=ugp.f.global_reference(target_frame='blues', first_macro=True, creative_zeal=1))
+    frame = ugp.f.bunch([macro, link], size=(NUM_BITS // 10 // 10, NUM_BITS // 10 + 1), name='blues')
     return frame
 
 
 def main():
     ugp.microgp_logger.setLevel(logging.INFO)
 
-    top_frame = multiple_distinct_bits()
+    top_frame = multiple_frames()
     evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
-    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=10, max_fitness=fitness('1' * NUM_BITS))
+    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=1000, max_fitness=fitness('1' * NUM_BITS))
+
+    population[0].as_forest(filename='forest.svg')
+    population[0].as_lgp(filename='lgp.svg', zoom=1.0)
+    with open('ind0.txt', 'w') as out:
+        out.write(population.dump_individual(0, {'$dump_node_info': True}))
 
     for i in population:
         print(i.describe(max_recursion=99))

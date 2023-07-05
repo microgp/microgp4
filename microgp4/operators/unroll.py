@@ -34,6 +34,7 @@ import networkx as nx
 from microgp4.global_symbols import *
 
 from microgp4.classes import monitor
+from microgp4.classes.node_reference import *
 from microgp4.classes.individual import Individual
 from microgp4.classes.selement import SElement
 from microgp4.classes.macro import Macro
