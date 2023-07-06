@@ -91,7 +91,7 @@ class Statistics:
     def __str__(self):
         return Statistics.nice(self.calls, 'call') + '; ' + Statistics.nice(self.aborts, 'abort') + \
             '; ' + Statistics.nice(self.offspring, 'new individual') + \
-            ( f' ({self.successes:,}👍 {self.failures:,}👎)' if self.successes or self.failures else '' )
+            ( f' (👍{self.successes:,} 👎{self.failures:,})' if self.successes or self.failures else '' )
 
 
 def fitness_function(func: Callable[..., FitnessABC] | None = None,

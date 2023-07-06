@@ -58,6 +58,7 @@ def _check_genome(G: nx.MultiDiGraph) -> bool:
 
 def get_structure_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
     tree = nx.DiGraph()
+    tree.add_nodes_from(G.nodes)
     tree.add_edges_from((u, v) for u, v, k in G.edges(data='_type') if k == FRAMEWORK)
     assert nx.is_branching(tree) and nx.is_weakly_connected(tree), \
         f"ValueError: Structure of {G!r} is not a valid tree (paranoia check)"

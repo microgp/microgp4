@@ -114,7 +114,7 @@ def _global_reference(*,
             # first try
             target = rrandom.sigma_choice(self.get_potential_targets(), self.value, strength)
             if target is None:
-                new_node = _recursive_unroll(self._target_frame, self._node_reference.graph)
+                new_node = unroll_selement(self._target_frame, self._node_reference.graph)
                 self._node_reference.graph.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
 
                 parameters = get_all_parameters(self._node_reference.graph, new_node, node_id=True)

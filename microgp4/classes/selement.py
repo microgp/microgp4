@@ -54,12 +54,8 @@ class SElement:
 
     def is_valid(self, node: Optional['NodeReference'] = None) -> bool:
         r"""Checks the validity of a `NodeReference` and internal attributes"""
-        self.__last_check_result = False
-        if not all(f(node) for f in self.__class__.NODE_CHECKS):
-            assert self._is_valid_debug(node)
-            return False
-        self.__last_check_result = True
-        return True
+        self.__last_check_result = all(f(node) for f in self.__class__.NODE_CHECKS)
+        return self.__last_check_result
 
     def _is_valid_debug(self, node: 'NodeReference') -> None:
         self.__last_check_result = True
