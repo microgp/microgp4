@@ -440,29 +440,28 @@ class Individual(Paranoid):
     def _draw_forest(self, zoom) -> None:
         """Draw individual using multipartite_layout"""
 
-
-        T = nx.DiGraph()
-        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == FRAMEWORK)
+        T = self.structure_tree.copy()
         for n in T:
             T.nodes[n]['depth'] = len(nx.shortest_path(T, 0, n))
         height = max(T.nodes[n]['depth'] for n in T.nodes)
         width = sum(1 for n in T if self.G.nodes[n]['_type'] == MACRO_NODE)
+        fig = plt.figure(figsize=(zoom * width * .8, zoom * height + width / 2))
+        ax = fig.add_subplot()
 
         T.remove_node(0)
         pos = nx.multipartite_layout(T, subset_key='depth', align='horizontal')
         pos = {node: (-x, -y) for (node, (x, y)) in pos.items()}
         colors = get_node_color_dict(self.G)
 
-        fig = plt.figure(figsize=(zoom * width*.5, zoom * (height+2)))
-        ax = fig.add_subplot()
         # draw structure
-        nx.draw_networkx_edges(T, pos, style=':', edge_color='lightgray', ax=ax)
+        nx.draw_networkx_edges(T, pos, style=':', edge_color='lightgray', arrowstyle='-|>,head_length=.6,head_width=0.2', ax=ax)
         # draw macros
         nodelist = [n for n in T if self.G.nodes[n]['_type'] == MACRO_NODE]
         nx.draw_networkx_nodes(T,
                                pos,
                                nodelist=nodelist,
                                node_color=[colors[n] for n in nodelist],
+                               node_size=800,
                                cmap=plt.cm.tab20,
                                ax=ax)
         # draw frames
@@ -471,6 +470,7 @@ class Individual(Paranoid):
                                pos,
                                nodelist=nodelist,
                                node_shape='s',
+                               node_size=800,
                                node_color=[colors[n] for n in nodelist],
                                cmap=plt.cm.Pastel1,
                                ax=ax)
@@ -478,28 +478,42 @@ class Individual(Paranoid):
 
         ##############################################################################
         # Draw links
-        U = nx.DiGraph()
-        U.add_edges_from((u, v)
+        T.remove_edges_from(list(T.edges))
+        T.add_edges_from((u, v)
                          for u, v, k in self.G.edges(data='_type')
-                         if k == LINK and T.nodes[u]['depth'] == T.nodes[v]['depth'])
+                         if u != v and k == LINK and T.nodes[u]['depth'] == T.nodes[v]['depth'])
         nx.draw_networkx_edges(
-            U,
+            T,
             pos,
             edge_color=[
-                Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(U.number_of_edges())
+                Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(T.number_of_edges())
             ],
             connectionstyle='arc3,rad=-.3',
+            arrowstyle='-|>,head_length=1,head_width=0.6',
             ax=ax)
-        U = nx.DiGraph()
-        U.add_edges_from((u, v)
+        T.add_edges_from((u, v)
+                         for u, v, k in self.G.edges(data='_type')
+                         if u == v and k == LINK)
+        nx.draw_networkx_edges(
+            T,
+            pos,
+            edge_color=[
+                Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(T.number_of_edges())
+            ],
+            arrowstyle='-',
+            ax=ax)
+
+        T.remove_edges_from(list(T.edges))
+        T.add_edges_from((u, v)
                          for u, v, k in self.G.edges(data='_type')
                          if k == LINK and T.nodes[u]['depth'] != T.nodes[v]['depth'])
         nx.draw_networkx_edges(
-            U,
+            T,
             pos,
             edge_color=[
-                Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(U.number_of_edges())
+                Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(T.number_of_edges())
             ],
+            arrowstyle='-|>,head_length=1,head_width=0.6',
             ax=ax)
 
         return fig
@@ -524,7 +538,7 @@ class Individual(Paranoid):
         nodelist = list(G.nodes)
 
         # figsize
-        fig = plt.figure(figsize=(zoom * len(sub_graphs) * 2.0, zoom *  max(len(s) for s in sub_graphs) * 1.2))
+        fig = plt.figure(figsize=(5 * zoom + zoom * len(sub_graphs) * 2.0, zoom * max(len(s) for s in sub_graphs) * 1.2))
         ax = fig.add_subplot()
 
         # draw heads
