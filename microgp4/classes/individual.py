@@ -152,7 +152,8 @@ class Individual(Paranoid):
 
     @property
     def valid(self) -> bool:
-
+        assert check_genome(self._genome), \
+            "ValueError: Invalid genome structure (paranoia check)"
         return all(self.genome.nodes[n]['_selement'].is_valid(NodeView(NodeReference(self.genome, n)))
                    for n in nx.dfs_preorder_nodes(self.genome))
 
