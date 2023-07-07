@@ -14,7 +14,6 @@
 
 import microgp4.global_symbols as symbols
 
-
 def test_framework():
     assert 'framework' == symbols.FRAMEWORK
 

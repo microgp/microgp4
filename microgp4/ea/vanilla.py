@@ -102,8 +102,11 @@ def vanilla_ea(top_frame: type[FrameABC],
         new_individuals = list()
         for step in range(lambda_):
             op = rrandom.choice(ops)
-            parent = tournament_selection(population, 1)
-            new_individuals += op(parent, strength=1)
+            parents = list()
+            for _ in range(op.num_parents):
+                parents.append(tournament_selection(population, 1))
+            new_individuals += op(*parents, strength=.05)
+
         population += new_individuals
         evaluator(population)
         population.sort()

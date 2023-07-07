@@ -50,7 +50,7 @@ class ValueBag(dict):
     * Safe keys can be accessed as attributes (`value_bag.foo`).
     * The default value for missing keys is None
     """
-
+    
     FLAG_KEY = re.compile(r'\$[a-z_0-9]*', re.IGNORECASE)
     SAFE_KEY = re.compile(r'[a-z_][a-z_0-9]*', re.IGNORECASE)
     VALID_KEY = re.compile(r'[a-z_$][a-z_0-9]*', re.IGNORECASE)
