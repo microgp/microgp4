@@ -15,14 +15,13 @@
 from networkx.classes import MultiDiGraph
 from microgp4.classes.node_reference import NodeReference
 
-
 def test_node_reference():
     G = MultiDiGraph()
-    p1 = NodeReference(G,1)
-    p2 = NodeReference(G,2)
+    p1 = NodeReference(G, 1)
+    p2 = NodeReference(G, 2)
     assert p1 is not None
     assert type(p1.graph) == type(G)
-    assert p1.node == 1 
+    assert p1.node == 1
     assert p1 != p2
     assert p2.node != 3
     assert p1.graph == p2.graph

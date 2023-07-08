@@ -27,21 +27,18 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-from collections.abc import Sequence
-import networkx as nx
-
 __all__ = [
     'get_predecessor', 'get_siblings', 'get_successors', 'set_successors_order', 'get_structure_tree',
     'get_node_color_dict', '_get_first_macro', 'get_all_macros', 'get_all_frames', 'get_all_parameters'
 ]
 
-from itertools import chain
+from collections.abc import Sequence
+import networkx as nx
 
-from microgp4.user_messages.checks import *
 from microgp4.global_symbols import *
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.parameter import ParameterABC
-from microgp4.tools.names import *
+from microgp4.classes.selement import *
 
 
 def _check_genome(G: nx.MultiDiGraph) -> bool:
@@ -56,8 +53,12 @@ def _check_genome(G: nx.MultiDiGraph) -> bool:
     return True
 
 
+#=[PUBLIC FUNCTIONS]===================================================================================================
+
+
 def get_structure_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
     tree = nx.DiGraph()
+    tree.add_nodes_from(G.nodes)
     tree.add_edges_from((u, v) for u, v, k in G.edges(data='_type') if k == FRAMEWORK)
     assert nx.is_branching(tree) and nx.is_weakly_connected(tree), \
         f"ValueError: Structure of {G!r} is not a valid tree (paranoia check)"
@@ -103,46 +104,6 @@ def set_successors_order(ref: NodeReference, new_order: Sequence[int]) -> None:
         G.add_edge(ref.node, v, _type=FRAMEWORK)
 
 
-#TODO: Remove
-###def get_frames(G: nx.MultiDiGraph, name: str | None = None):
-###    """
-###    Returns all nodes containing a frame instances with a given name through a DF visit
-###
-###    Args:
-###        G: The individual's structure
-###        name: [Optional] returns only frames with a given name
-###
-###    Returns:
-###        A list of node indexes
-###    """
-###
-###    assert check_valid_types(G, nx.MultiDiGraph)
-###    assert name is None or check_valid_types(name, str)
-###
-###    return [
-###        n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=NODE_ZERO)
-###        if G.nodes[n]['_type'] == FRAME_NODE and
-###        (name is None or uncanonize_name(G.nodes[n]['_frame'].__class__.__name__, user=True) == name)
-###    ]
-
-#TODO: Remove
-###def get_macros(G: nx.MultiDiGraph, root: int | None = None):
-###    """
-###    Returns all nodes containing a macro instances through a DF visit
-###
-###    Args:
-###        G: The individual's structure
-###
-###    Returns:
-###        A list of node indexes
-###    """
-###    if root is None:
-###        root = NODE_ZERO
-###    assert G.nodes[root]['_type'] == FRAME_NODE, \
-###        f"ValueError: {root} is not a frame node"
-###    return [n for n in nx.dfs_preorder_nodes(get_structure_tree(G), source=root) if G.nodes[n]['_type'] == MACRO_NODE]
-
-
 def get_node_color_dict(G: nx.MultiDiGraph) -> dict[int, int]:
     """Assign an index to each node based on the name of the underlying macro."""
     known_labels = dict()
@@ -153,14 +114,6 @@ def get_node_color_dict(G: nx.MultiDiGraph) -> dict[int, int]:
             known_labels[name] = len(known_labels)
         colors[n] = known_labels[name]
     return colors
-
-
-def _get_first_macro(root: int, G: nx.MultiDiGraph, T: nx.DiGraph) -> int:
-    """Quick n' dirty."""
-    return next((n for n in nx.dfs_preorder_nodes(T, root) if G.nodes[n]['_type'] == MACRO_NODE), None)
-
-
-#=[PUBLIC FUNCTIONS]===================================================================================================
 
 
 def get_all_frames(G: nx.classes.MultiDiGraph,
@@ -236,11 +189,17 @@ def get_all_parameters(G: nx.classes.MultiDiGraph, root: int | None = None, *, n
 #=[PRIVATE FUNCTIONS]==================================================================================================
 
 
+def _get_first_macro(root: int, G: nx.MultiDiGraph, T: nx.DiGraph) -> int:
+    """Quick n' dirty."""
+    return next((n for n in nx.dfs_preorder_nodes(T, root) if G.nodes[n]['_type'] == MACRO_NODE), None)
+
+
 def _get_node_list(G: nx.classes.MultiDiGraph, *, root: int, type_: str | None) -> list[int]:
     """Get all nodes, or some nodes through dfs"""
     if root is None:
         return list(n for n in G.nodes if type_ is None or G.nodes[n]['_type'] == type_)
     else:
         tree = nx.classes.DiGraph()
+        tree.add_nodes_from(G.nodes)
         tree.add_edges_from((u, v) for u, v, k in G.edges(data='_type') if k == FRAMEWORK)
         return list(n for n in nx.dfs_preorder_nodes(tree, root) if type_ is None or G.nodes[n]['_type'] == type_)

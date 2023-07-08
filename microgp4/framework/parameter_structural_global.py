@@ -38,7 +38,7 @@ from microgp4.randy import rrandom
 from microgp4.global_symbols import *
 
 from microgp4.classes.parameter import ParameterStructuralABC
-from microgp4.operators.graph import recursive_unroll, get_all_parameters
+from microgp4.operators.unroll import *
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.frame import FrameABC
 
@@ -114,7 +114,7 @@ def _global_reference(*,
             # first try
             target = rrandom.sigma_choice(self.get_potential_targets(), self.value, strength)
             if target is None:
-                new_node = recursive_unroll(self._target_frame, self._node_reference.graph)
+                new_node = unroll_selement(self._target_frame, self._node_reference.graph)
                 self._node_reference.graph.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
 
                 parameters = get_all_parameters(self._node_reference.graph, new_node, node_id=True)

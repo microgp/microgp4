@@ -103,10 +103,8 @@ class NodeView:
             # Index of a node id among the successors
             return lambda n: self._successor_ids.index(n)
         elif item == 'name':
-            # TODO!!!!!!!!!!!!!!!!!
-            raise NotImplementedError
-            name = G.nodes[id]['_selement'].__class__.__name__
-            self.__dict__[item] = name
+            # Name of the SElement inside a node
+            self.__dict__[item] = G.nodes[id]['_selement'].__class__.__name__
         elif item == 'path':
             # Tuple of the path from top-frame to node
             path = list()

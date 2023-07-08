@@ -39,7 +39,6 @@ from copy import copy
 
 from microgp4.global_symbols import *
 from microgp4.operators import *
-from microgp4.fitness import *
 
 
 class View:

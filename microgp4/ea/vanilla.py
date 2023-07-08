@@ -29,20 +29,31 @@
 
 __all__ = ['vanilla_ea']
 
-from microgp4.user_messages import *
 from microgp4.operators import *
-from microgp4.fitness import *
 from microgp4.sys import *
-from microgp4.classes.population import Population
-from microgp4.classes.frame import FrameABC
-from microgp4.classes.evaluator import EvaluatorABC
+from microgp4.classes.selement import *
+from microgp4.classes.population import *
+from microgp4.classes.frame import *
+from microgp4.classes.evaluator import *
 from microgp4.randy import rrandom
+from microgp4.user_messages import *
 
 from .selection import *
 
 
-def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10, lambda_: int = 20) -> Population:
-    r"""A simple evolutionary algorithm
+def _new_best(population: Population, evaluator: EvaluatorABC):
+    microgp_logger.info(
+        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}" +
+        f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]")
+
+
+def vanilla_ea(top_frame: type[FrameABC],
+               evaluator: EvaluatorABC,
+               mu: int = 10,
+               lambda_: int = 20,
+               max_generation: int = 100,
+               max_fitness: FitnessABC | None = None) -> Population:
+    r"""A simple evolutionary algorith
 
     Parameters
     ----------
@@ -61,24 +72,32 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
         The last population
 
     """
+    #SElement.is_valid = SElement._is_valid_debug
     population = Population(top_frame)
 
     # Initialize population
     ops0 = [op for op in get_operators() if op.num_parents is None]
-    while len(population) < mu:
+    gen0 = list()
+    while len(gen0) < mu:
         o = rrandom.choice(ops0)
-        population += o(top_frame=top_frame)
+        gen0 += o(top_frame=top_frame)
+    population += gen0
     evaluator(population)
     population.sort()
     best = population[0]
-    microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
+    _new_best(population, evaluator)
 
     pass
 
     all_individuals = set()
 
+    stopping_conditions = list()
+    stopping_conditions.append(lambda: population.generation >= max_generation)
+    if max_fitness:
+        stopping_conditions.append(lambda: best.fitness == max_fitness or best.fitness >> max_fitness)
+
     # Let's roll
-    for _ in range(50):
+    while not any(s() for s in stopping_conditions):
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
         for step in range(lambda_):
@@ -87,16 +106,21 @@ def vanilla_ea(top_frame: type[FrameABC], evaluator: EvaluatorABC, mu: int = 10,
             for _ in range(op.num_parents):
                 parents.append(tournament_selection(population, 1))
             new_individuals += op(*parents, strength=.05)
+
         population += new_individuals
         evaluator(population)
         population.sort()
 
-        #all_individuals |= set(population)
+        all_individuals |= set(population)
 
         population.individuals[mu:] = []
 
         if best.fitness << population[0].fitness:
             best = population[0]
-            microgp_logger.info(f"VanillaGA: 🍀 {best} fitness is {best.fitness}")
+            _new_best(population, evaluator)
 
+    #population._zap = all_individuals
+    microgp_logger.info("VanillaEA: Genetic operators statistics:")
+    for op in get_operators():
+        microgp_logger.info(f"VanillaEA: * {op.__qualname__}: {op.stats}")
     return population

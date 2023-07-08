@@ -190,6 +190,11 @@ def bunch(pool: Macro | abc.Collection[type[Macro]],
             n_macros = rrandom.randint(T.SIZE[0], T.SIZE[1] - 1)
             return [rrandom.choice(T.POOL) for _ in range(n_macros)]
 
+    def check_out_degree(n):
+        return n.framework_out_degree >= size[0] and n.framework_out_degree < size[1]
+
+    T.add_node_check(check_out_degree)
+
     # White parentheses: ⦅ ⦆  (U+2985, U+2986)
     if name:
         canonic_name = canonize_name(name, 'Frame', user=True)

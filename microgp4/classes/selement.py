@@ -36,11 +36,8 @@ class SElement:
     r"""Syntactic Element (SElement)
 
     SElement classe is the building block of the syntax of the individual, the common ancestor of both `macros` and
-    `frames`. SElements can check the validity of nodes references and of their own attributes.
-
-    * Attribute checks can be added dynamically to a `Pedantic` class via the @classmethod `add_attributes_check`.
-
-    * Node checks can be added dynamically to a `Pedantic` class via the @classmethod `add_node_check`.
+    `frames`. SElements can check the validity of nodes references. Node checks can be added dynamically to a
+    `Pedantic` class via the @classmethod `add_node_check`.
 
     All checks, both value- and node- ones, can be later called from an instance with
     `object.is_valid(node_reference)`. If the class does not implement node checks, the parameter
@@ -48,39 +45,23 @@ class SElement:
     """
 
     __last_check_result: bool
-    NODE_CHECKS: list[Callable] = list()
-    ATTRIBUTE_CHECKS: list[Callable] = list()
+    # these are immutable to avoid any problem with aliasing
+    NODE_CHECKS: tuple[Callable] = tuple()
 
     @classmethod
     def add_node_check(cls, function: Callable) -> None:
-        try:
-            cls.NODE_CHECKS.append(function)
-        except AttributeError:
-            cls.NODE_CHECKS = [function]
-
-    @classmethod
-    def add_attributes_check(cls, function: Callable) -> None:
-        try:
-            cls.ATTRIBUTE_CHECKS.append(function)
-        except AttributeError:
-            cls.ATTRIBUTE_CHECKS = [function]
+        cls.NODE_CHECKS = tuple([*cls.NODE_CHECKS, function])
 
     def is_valid(self, node: Optional['NodeReference'] = None) -> bool:
         r"""Checks the validity of a `NodeReference` and internal attributes"""
-        self.__last_check_result = False
-        if hasattr(self.__class__, 'NODE_CHECKS') and not all(f(node) for f in self.__class__.NODE_CHECKS):
-            assert self._is_valid_debug(node)
-            return False
-        if hasattr(self.__class__, 'ATTRIBUTE_CHECKS') and not all(f(self) for f in self.__class__.ATTRIBUTE_CHECKS):
-            assert self._is_valid_debug(node)
-            return False
-        self.__last_check_result = True
-        return True
+        self.__last_check_result = all(f(node) for f in self.__class__.NODE_CHECKS)
+        return self.__last_check_result
 
     def _is_valid_debug(self, node: 'NodeReference') -> None:
-        if hasattr(self.__class__, 'NODE_CHECKS'):
-            for f in self.__class__.NODE_CHECKS:
-                microgp_logger.debug(f"NodeChecks: {f.__name__}({node}): {f(node)}")
-        if hasattr(self.__class__, 'ATTRIBUTE_CHECKS'):
-            for f in self.__class__.ATTRIBUTE_CHECKS:
-                microgp_logger.debug(f"ValueChecks: {f.__name__}({self!r}): {f(self)}")
+        self.__last_check_result = True
+        for f in self.__class__.NODE_CHECKS:
+            if not f(node):
+                microgp_logger.info(
+                    f"NodeChecks: Failed check on genome 0x{id(node.genome):x}: {f.__qualname__}({node})")
+                self.__last_check_result = False
+        return self.__last_check_result

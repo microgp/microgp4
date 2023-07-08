@@ -69,7 +69,7 @@ class FrameABC(SElement, Paranoid):
 
     @property
     @abstractmethod
-    def successors(self) -> list[type['FrameABC'] | type[Macro]]:
+    def successors(self) -> list[type['SElement']]:
         pass
 
     def dump(self, extra_parameters: ValueBag) -> str:
@@ -93,11 +93,30 @@ class FrameABC(SElement, Paranoid):
 
 
 class FrameSequence:
+    r"""Empty class to mark frames of type "Sequence"
+
+    See Also
+    --------
+    `sequence` factory function
+    """
     pass
+
 
 class FrameAlternative:
+    r"""Empty class to mark frames of type "Alternative"
+
+    See Also
+    --------
+    `altrnative` factory function
+    """
     pass
+
 
 class FrameMacroBunch:
-    pass
+    r"""Empty class to mark frames of type "MacroBunch"
 
+    See Also
+    --------
+    `bunch` factory function
+    """
+    pass

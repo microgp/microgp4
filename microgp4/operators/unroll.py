@@ -27,24 +27,26 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['unroll']
+__all__ = ['unroll_individual', 'unroll_selement']
 
 import networkx as nx
 
-from microgp4.user_messages import *
 from microgp4.global_symbols import *
-from microgp4.tools.graph import *
+
 from microgp4.classes import monitor
-from microgp4.classes.parameter import ParameterABC
+from microgp4.classes.node_reference import *
 from microgp4.classes.individual import Individual
-from microgp4.classes.node_view import NodeView, NodeReference
-from microgp4.classes.frame import FrameABC
+from microgp4.classes.selement import SElement
 from microgp4.classes.macro import Macro
-from microgp4.classes.parameter import ParameterStructuralABC
+from microgp4.classes.parameter import *
+
+from microgp4.user_messages.checks import *
+from microgp4.classes.frame import FrameABC
+from microgp4.tools.graph import *
 
 
 @monitor.failure_rate
-def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
+def unroll_individual(individual: Individual, top: type[FrameABC]) -> int | None:
     """
     Recursively unroll a Frame as a subtree inside the Individual's graph.
 
@@ -62,20 +64,10 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
         f"ValueError: individual is finalized (paranoia check)"
 
     G = individual.genome
-    new_node = recursive_unroll(top, G)
+    new_node = unroll_selement(top, G)
     if not new_node:
         return None
     G.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
-
-    parameters = get_all_parameters(G, new_node, node_id=True)
-    for p, n in parameters:
-        if isinstance(p, ParameterStructuralABC):
-            p.mutate(1, NodeReference(G, n))
-        else:
-            p.mutate(1)
-
-    # Initialize structural parameters
-    # TODO???
 
     if individual.valid:
         return new_node
@@ -83,10 +75,30 @@ def unroll(individual: Individual, top: type[FrameABC]) -> int | None:
         return None
 
 
+@monitor.failure_rate
+def unroll_selement(top: type[SElement], G: nx.classes.MultiDiGraph) -> int:
+    new_node = _recursive_unroll(top, G)
+
+    if not new_node:
+        return None
+
+    parameters = get_all_parameters(G, new_node, node_id=True)
+    for p, n in parameters:
+        if isinstance(p, ParameterStructuralABC):
+            p.mutate(1, node_reference=NodeReference(G, n))
+        else:
+            p.mutate(1)
+
+    return new_node
+
+
+#=[PRIVATE FUNCTIONS]==================================================================================================
+
+
 # NOTE[GX]: I'd love being reasonably generic and efficient in a recursive
 # function, but I can't use `singledispatch` from `functools` because I'm
 # choosing the implementation using the *value* of `top` -- it's a *type*,
-def recursive_unroll(top: type[Macro | FrameABC], G: nx.classes.MultiDiGraph) -> int:
+def _recursive_unroll(top: type[SElement], G: nx.classes.MultiDiGraph) -> int:
     """Unrolls a frame/macro over the graph."""
 
     if issubclass(top, FrameABC):
@@ -108,7 +120,7 @@ def _unroll_frame(frame_class: type[FrameABC], G: nx.classes.MultiDiGraph) -> in
     G.nodes[node_id]['_type'] = FRAME_NODE
     G.nodes[node_id]['_selement'] = frame_instance
     for f in frame_instance.successors:
-        new_node_id = recursive_unroll(f, G)
+        new_node_id = _recursive_unroll(f, G)
         G.add_edge(node_id, new_node_id, _type=FRAMEWORK)  # Checkout test/paranoia/networkx
 
     return node_id

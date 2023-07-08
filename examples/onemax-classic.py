@@ -11,9 +11,11 @@
 #############################################################################
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
-import logging
 
+import logging
 import microgp4 as ugp
+
+NUM_BITS = 100
 
 
 # explicit: @ugp.fitness_function(type_=ugp.fitness.Integer)
@@ -23,17 +25,41 @@ def fitness(genotype: str):
     return sum(b == '1' for b in genotype)
 
 
-def main():
-    ugp.microgp_logger.setLevel(logging.DEBUG)
-
-    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 100))
+def single_array_parameter():
+    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", NUM_BITS + 1))
     frame = ugp.f.sequence([macro])
+    return frame
 
+
+def multiple_distinct_bits():
+    macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
+    frame = ugp.f.bunch([macro], size=(NUM_BITS // 10, NUM_BITS + 1))
+    frame.add_node_check(lambda n: n.framework_out_degree % 2 == 0)
+    return frame
+
+
+def multiple_frames():
+    macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
+    link = ugp.f.macro("[{_node}]=>[{l}]",
+                       l=ugp.f.global_reference(target_frame='blues', first_macro=True, creative_zeal=.01))
+    frame = ugp.f.bunch([macro, link], size=(NUM_BITS // 10 // 10, NUM_BITS // 10 + 1), name='blues')
+    return frame
+
+
+def main():
+    ugp.microgp_logger.setLevel(logging.INFO)
+
+    top_frame = multiple_distinct_bits()
     evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
-    population = ugp.ea.vanilla_ea(frame, evaluator)
+    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=1000, max_fitness=fitness('1' * NUM_BITS))
+
+    population[0].as_forest(filename='forest.svg')
+    population[0].as_lgp(filename='lgp.svg', zoom=1.0)
+    with open('ind0.lst', 'w') as out:
+        out.write(population.dump_individual(0, {'$dump_node_info': True}))
 
     for i in population:
-        print(i.describe(include_structure=False, max_recursion=99))
+        print(i.describe(max_recursion=99))
 
 
 if __name__ == '__main__':
