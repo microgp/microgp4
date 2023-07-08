@@ -71,6 +71,8 @@ def add_macro_to_bunch_mutation(parent: Individual, strength=1.0) -> list['Indiv
 @genetic_operator(num_parents=2)
 def bunch_random_crossover(p1: Individual, p2: Individual, strength=1.0) -> list['Individual']:
     offspring = p1.clone
+
+    # TODO: Cercare FRAME il cui tipo esiste in p2
     candidates = [f for f in p2.frames if (isinstance(f, FrameMacroBunch) and f in offspring.frames)]
     if not candidates:
         raise GeneticOperatorAbort
@@ -89,11 +91,15 @@ def bunch_random_crossover(p1: Individual, p2: Individual, strength=1.0) -> list
     offspring._genome = nx.disjoint_union(offspring.genome, sub_genome)
     # find the new position of the to be removed node
     new_locus = [ n for n in offspring.genome.nodes if offspring.genome._node[n] == old_node][0]
+    # SUGGERIMENTO: **AGGIUNGI** UN ATTRIBUTO AL NODO E POI CANCELLALO
+    # ALTERNATIVA: new_locus = next(n for n in offspring.genome.nodes if offspring.genome._node[n] == old_node)
     # save in going edges of aforementioned node
     attached_nodes = [e[0] for e in offspring.genome.edges if e[1] == new_locus]
     # deleting node with his children
     offspring.genome.remove_nodes_from(list(nx.dfs_preorder_nodes(offspring.genome,new_locus)))
     # recreating edges to the added nodes
     offspring.genome.add_edges_from([(l,first_locus) for l in attached_nodes])
+
+    # TODO: Aggiungere _type negli archi
 
     return [offspring]
