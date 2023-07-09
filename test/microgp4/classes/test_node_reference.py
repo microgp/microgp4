@@ -15,6 +15,7 @@
 from networkx.classes import MultiDiGraph
 from microgp4.classes.node_reference import NodeReference
 
+
 def test_node_reference():
     G = MultiDiGraph()
     p1 = NodeReference(G, 1)
