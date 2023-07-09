@@ -105,7 +105,7 @@ def vanilla_ea(top_frame: type[FrameABC],
             parents = list()
             for _ in range(op.num_parents):
                 parents.append(tournament_selection(population, 1))
-            new_individuals += op(*parents, strength=.05)
+            new_individuals += op(*parents)
 
         population += new_individuals
         evaluator(population)

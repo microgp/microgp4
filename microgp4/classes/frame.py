@@ -52,13 +52,6 @@ class FrameABC(SElement, Paranoid):
         self._extra_parameters = extra_parameters if extra_parameters is not None else dict()
         #self._values = list()
 
-    # TODO: Controllare dove viene usata == fra Frame
-    #def __eq__(self, other: 'FrameABC') -> bool:
-    #    if type(self) != type(other):
-    #        return False
-    #    else:
-    #        return self.name == other.name
-
     @property
     def valid(self) -> bool:
         # TODO!

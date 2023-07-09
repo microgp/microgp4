@@ -455,7 +455,12 @@ class Individual(Paranoid):
         colors = get_node_color_dict(self.G)
 
         # draw structure
-        nx.draw_networkx_edges(T, pos, style=':', edge_color='lightgray', arrowstyle='-|>,head_length=.6,head_width=0.2', ax=ax)
+        nx.draw_networkx_edges(T,
+                               pos,
+                               style=':',
+                               edge_color='lightgray',
+                               arrowstyle='-|>,head_length=.6,head_width=0.2',
+                               ax=ax)
         # draw macros
         nodelist = [n for n in T if self.G.nodes[n]['_type'] == MACRO_NODE]
         nx.draw_networkx_nodes(T,
@@ -492,9 +497,7 @@ class Individual(Paranoid):
             connectionstyle='arc3,rad=-.3',
             arrowstyle='-|>,head_length=1,head_width=0.6',
             ax=ax)
-        T.add_edges_from((u, v)
-                         for u, v, k in self.G.edges(data='_type')
-                         if u == v and k == LINK)
+        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if u == v and k == LINK)
         nx.draw_networkx_edges(
             T,
             pos,
@@ -539,7 +542,8 @@ class Individual(Paranoid):
         nodelist = list(G.nodes)
 
         # figsize
-        fig = plt.figure(figsize=(5 * zoom + zoom * len(sub_graphs) * 2.0, zoom * max(len(s) for s in sub_graphs) * 1.2))
+        fig = plt.figure(figsize=(5 * zoom + zoom * len(sub_graphs) * 2.0,
+                                  zoom * max(len(s) for s in sub_graphs) * 1.2))
         ax = fig.add_subplot()
 
         # draw heads

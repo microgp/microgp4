@@ -35,8 +35,8 @@ This section contains notes for programmers interested in modifying μGP⁴.
 
 #### TL;DR
 
-* Write as few lines of code as possible
-* Use builtins
+* Write as few lines of code and as much line of comments as possible
+* Use builtins whenever possible
 * Exploit generators and list comprehension
 * Follow this Python [style guide](https://github.com/squillero/style/blob/master/python.md).
 * Use [pytest](https://docs.pytest.org/) and [Coverage.py](https://coverage.readthedocs.io/) for unit testing (i.e., `coverage run -m pytest`).
