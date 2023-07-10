@@ -28,8 +28,9 @@
 # v1 / April 2023 / Squillero (GX)
 
 __all__ = [
-    'check_genome', 'get_predecessor', 'get_siblings', 'get_successors', 'set_successors_order', 'get_structure_tree',
-    'get_node_color_dict', '_get_first_macro', 'get_all_macros', 'get_all_frames', 'get_all_parameters'
+    'add_node', 'check_genome', 'get_predecessor', 'get_siblings', 'get_successors', 'set_successors_order',
+    'get_structure_tree', 'get_node_color_dict', '_get_first_macro', 'get_all_macros', 'get_all_frames',
+    'get_all_parameters'
 ]
 
 from collections.abc import Sequence
@@ -41,6 +42,13 @@ from microgp4.classes.parameter import ParameterABC
 from microgp4.classes.selement import *
 
 #=[PUBLIC FUNCTIONS]===================================================================================================
+
+
+def add_node(G: nx.MultiDiGraph) -> int:
+    node_id = G.graph['node_count']
+    G.graph['node_count'] += 1
+    G.add_node(node_id)
+    return node_id
 
 
 def check_genome(G: nx.MultiDiGraph) -> bool:

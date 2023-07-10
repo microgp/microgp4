@@ -112,9 +112,7 @@ def _recursive_unroll(top: type[SElement], G: nx.classes.MultiDiGraph) -> int:
 
 
 def _unroll_frame(frame_class: type[FrameABC], G: nx.classes.MultiDiGraph) -> int:
-    node_id = G.graph['node_count']
-    G.graph['node_count'] += 1
-    G.add_node(node_id)
+    node_id = add_node(G)
 
     frame_instance = frame_class()
     G.nodes[node_id]['_type'] = FRAME_NODE
@@ -127,9 +125,7 @@ def _unroll_frame(frame_class: type[FrameABC], G: nx.classes.MultiDiGraph) -> in
 
 
 def _unroll_macro(macro_class: type[Macro], G: nx.classes.MultiDiGraph) -> int:
-    node_id = max(G.nodes)+1
-    G.graph['node_count'] += 1
-    G.add_node(node_id)
+    node_id = add_node(G)
 
     macro_instance = macro_class()
     G.nodes[node_id]['_type'] = MACRO_NODE
