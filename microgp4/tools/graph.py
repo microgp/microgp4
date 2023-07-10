@@ -28,7 +28,7 @@
 # v1 / April 2023 / Squillero (GX)
 
 __all__ = [
-    'get_predecessor', 'get_siblings', 'get_successors', 'set_successors_order', 'get_structure_tree',
+    'check_genome', 'get_predecessor', 'get_siblings', 'get_successors', 'set_successors_order', 'get_structure_tree',
     'get_node_color_dict', '_get_first_macro', 'get_all_macros', 'get_all_frames', 'get_all_parameters'
 ]
 
@@ -40,8 +40,10 @@ from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.parameter import ParameterABC
 from microgp4.classes.selement import *
 
+#=[PUBLIC FUNCTIONS]===================================================================================================
 
-def _check_genome(G: nx.MultiDiGraph) -> bool:
+
+def check_genome(G: nx.MultiDiGraph) -> bool:
     all_edges = G.edges(keys=True, data=True)
     assert all('_type' in d for u, v, k, d in all_edges), \
         "ValueError: missing '_type' attribute (paranoia check)"
@@ -51,9 +53,6 @@ def _check_genome(G: nx.MultiDiGraph) -> bool:
     assert all(d['_type'] != FRAMEWORK or len(d) == 1 for u, v, k, d in all_edges), \
         "ValueError: unknown attribute in tree edge (paranoia check)"
     return True
-
-
-#=[PUBLIC FUNCTIONS]===================================================================================================
 
 
 def get_structure_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
@@ -93,7 +92,7 @@ def get_siblings(ref: NodeReference) -> list[int]:
 def set_successors_order(ref: NodeReference, new_order: Sequence[int]) -> None:
     assert check_valid_type(new_order, Sequence)
     G = ref.graph
-    assert _check_genome(G)
+    assert check_genome(G)
     current = list((u, v, k) for u, v, k, d in G.out_edges(ref.node, keys=True, data='_type') if d == FRAMEWORK)
     assert {v for u, v, k in current} == set(new_order), \
         f"ValueError: mismatching new order: {[v for u, v, k in current]} vs. {new_order} (paranoia check)"
