@@ -58,4 +58,4 @@ def mutate(parameter: ParameterABC, /, strength: float) -> None:
 
     assert parameter.value != old_value or counter < 100 or strength < .01 or \
            performance(f"Failed to mutate {parameter.__class__.__name__} with strength {strength} after {counter:,} attempts",
-        stacklevel_offset=1)
+        stacklevel_offset=2)

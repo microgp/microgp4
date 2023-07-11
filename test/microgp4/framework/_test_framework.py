@@ -63,7 +63,6 @@ class TestAlternative:
         assert result.ALTERNATIVES == (mock_macro,)
 
 
-
 # MARCO TEST ON FRAMEWORK
 
 
