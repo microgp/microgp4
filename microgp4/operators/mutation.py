@@ -80,10 +80,9 @@ def remove_macro_from_bunch_mutation(parent: Individual, strength=1.0) -> list['
     if not frame_candidates:
         raise GeneticOperatorAbort
     frame_node = rrandom.choice(frame_candidates)
-    candidates = [ n for n in dfs_preorder_nodes(G, frame_node) if isinstance(G.nodes[n]['_selement'], Macro)]
+    candidates = [n for n in dfs_preorder_nodes(G, frame_node) if isinstance(G.nodes[n]['_selement'], Macro)]
     if not candidates:
         raise GeneticOperatorAbort
     node = rrandom.choice(candidates)
     G.remove_node(node)
     return [offspring]
-
