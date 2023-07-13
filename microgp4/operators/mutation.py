@@ -37,6 +37,8 @@ from microgp4.functions import *
 from microgp4.randy import rrandom
 from microgp4.tools.graph import *
 
+from networkx import dfs_preorder_nodes
+
 
 @genetic_operator(num_parents=1)
 def single_parameter_mutation(parent: Individual, strength=1.0) -> list['Individual']:
@@ -64,4 +66,23 @@ def add_macro_to_bunch_mutation(parent: Individual, strength=1.0) -> list['Indiv
     G.add_edge(node, new_macro, _type=FRAMEWORK)
     i = rrandom.randint(0, len(successors))
     set_successors_order(NodeReference(G, node), successors[:i] + [new_macro] + successors[i:])
+    return [offspring]
+
+
+@genetic_operator(num_parents=1)
+def remove_macro_from_bunch_mutation(parent: Individual, strength=1.0) -> list['Individual']:
+    offspring = parent.clone
+    G = offspring.genome
+    frame_candidates = [
+        n for n in offspring.nodes
+        if isinstance(G.nodes[n]['_selement'], FrameMacroBunch) and G.out_degree[n] > G.nodes[n]['_selement'].SIZE[0]
+    ]
+    if not frame_candidates:
+        raise GeneticOperatorAbort
+    frame_node = rrandom.choice(frame_candidates)
+    candidates = [n for n in dfs_preorder_nodes(G, frame_node) if isinstance(G.nodes[n]['_selement'], Macro)]
+    if not candidates:
+        raise GeneticOperatorAbort
+    node = rrandom.choice(candidates)
+    G.remove_node(node)
     return [offspring]
