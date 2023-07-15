@@ -32,12 +32,13 @@ __all__ = ['FitnessABC']
 from abc import ABC, abstractmethod
 from functools import wraps, cache
 
-from microgp4.classes.paranoid import Paranoid
+#from microgp4.classes.paranoid import Paranoid
 from microgp4.user_messages import *
 from microgp4.tools.names import _patch_class_info
 
 
-class FitnessABC(Paranoid, ABC):
+#class FitnessABC(Paranoid, ABC):
+class FitnessABC(ABC):
     """Fitness of a phenotype, handle multiple formats (eg. scalar, tuple).
 
     The class also redefines the relational operator in order to handle different types of optimization

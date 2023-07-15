@@ -29,7 +29,7 @@
 
 __all__ = [
     'microgp_logger', 'performance', 'deprecation', 'runtime_warning', 'user_warning', 'syntax_warning',
-    'syntax_warning_hint'
+    'deprecation_warning', 'syntax_warning_hint'
 ]
 
 import logging
@@ -63,6 +63,11 @@ def user_warning(message: str, stacklevel_offset: int = 0) -> bool:
 
 def syntax_warning(message: str, stacklevel_offset: int = 0) -> bool:
     warnings.warn(f"\n  {message}", SyntaxWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
+    return True
+
+
+def deprecation_warning(message: str, stacklevel_offset: int = 0) -> bool:
+    warnings.warn(f"\n  {message}", DeprecationWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
     return True
 
 

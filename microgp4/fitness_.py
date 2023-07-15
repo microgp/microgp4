@@ -9,7 +9,7 @@
 #                                                                           #
 #############################################################################
 
-# Copyright 2022-2023 Giovanni Squillero and Alberto Tonda
+# Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use this file except in compliance with the License.
@@ -25,26 +25,8 @@
 # limitations under the License.
 
 # =[ HISTORY ]===============================================================
-# v1 / June 2023 / Squillero (GX)
+# v1 / May 2023 / Squillero (GX)
 
-__all__ = ['random_individual']
+from microgp4.classes.fitness import FitnessABC
+from microgp4.fitness import *
 
-from microgp4.user_messages import *
-from microgp4.registry import *
-from microgp4.classes.individual import *
-from microgp4.operators.unroll import *
-
-
-@genetic_operator(num_parents=None)
-def random_individual(top_frame) -> list[Individual]:
-    """Generate a valid random individual to the population."""
-
-    new_root = None
-    new_individual = None
-    while new_root is None:
-        new_individual = Individual(top_frame)
-        try:
-            new_root = unroll_individual(new_individual, top_frame)
-        except InvalidIndividual:
-            new_root = None
-    return [new_individual]

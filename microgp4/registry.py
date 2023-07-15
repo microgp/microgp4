@@ -120,7 +120,7 @@ def fitness_function(func: Callable[..., FitnessABC] | None = None,
         return wrapper
 
 
-def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
+def genetic_operator(*, num_parents: int = 1):
     r"""Register a function as a "genetic operator" in MicroGP
 
     A genetic operator creates individual. A genetic operators is given `num_parents` individual and produces a list
@@ -129,7 +129,7 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
 
     Genetic operators gets any number of parents as arguments and the `strength` as mandatory keyword argument. That is:
 
-    >>> def genetic_operator(*, strength=1.0) -> list[Individual] | None:
+    >>> def custom_operator(*, strength=1.0) -> list[Individual] | None:
 
     Historically, genetic operators are classified either as *mutation operators*, when `num_parents == 1`,
     or *recombination operators*, when `num_parents >= 2`. MicroGP4 handles a third class: the *initializers*,
@@ -165,6 +165,9 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
             if offspring is None:
                 offspring = []
             elif isinstance(offspring, Individual):
+                deprecation_warning(
+                    f"Genetic operators should return list[Individual]: found {func.__qualname__} -> Individual",
+                    stacklevel_offset=0)
                 offspring = [offspring]
 
             assert all(isinstance(i, Individual) for i in offspring), \

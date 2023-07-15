@@ -27,10 +27,12 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero
 
-__all__ = ['EvaluatorABC', 'PythonFunction']
+__all__ = ['EvaluatorABC', 'PythonFunction', 'ParallelPythonFunction']
 
+import logging
 from typing import Callable, Sequence
 from abc import ABC, abstractmethod
+from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
 
 from microgp4.user_messages import *
 from microgp4.classes.fitness import FitnessABC
@@ -65,19 +67,16 @@ class PythonFunction(EvaluatorABC):
         assert get_microgp4_type(function) == FITNESS_FUNCTION, \
                 f"TypeError: {function} has not be registered as a MicgroGP fitness function"
         if strip_genome:
-            self._cook = lambda g: _strip_genome(g)
+            self._function = lambda g: function(_strip_genome(g))
         else:
-            self._cook = lambda g: g
-
-        self._function = function
+            self._function = function
 
     def __str__(self):
         return f"PurePythonEvaluator❬{self._function.__module__}.{self._function.__name__}❭"
 
     def evaluate_population(self, population: Population) -> None:
         for i, ind in [_ for _ in enumerate(population) if _[1].is_finalized is False]:
-            genotype = self._cook(population.dump_individual(i))
-            fitness = self._function(genotype)
+            fitness = self._function(population.dump_individual(i))
             self._fitness_calls += 1
             ind.fitness = fitness
             microgp_logger.debug(
@@ -88,3 +87,38 @@ class Script(EvaluatorABC):
 
     def __init__(self) -> None:
         raise NotImplementedError
+
+
+class ParallelPythonFunction(EvaluatorABC):
+
+    def __init__(self, function: Callable[[str], FitnessABC], strip_genome: bool = False) -> None:
+        assert get_microgp4_type(function) == FITNESS_FUNCTION, \
+                f"TypeError: {function} has not be registered as a MicgroGP fitness function"
+        if strip_genome:
+            self._cook = lambda g: _strip_genome(g)
+        else:
+            self._cook = lambda g: g
+        self._function = function
+
+    def __str__(self):
+        return f"PurePythonEvaluator_parallel❬{self._function.__module__}.{self._function.__name__}❭"
+
+    def evaluate_population(self, population: Population) -> None:
+        indexes = list()
+        genomes = list()
+        for i, g in enumerate(population):
+            if not g.is_finalized:
+                indexes.append(i)
+                genomes.append(self._cook(population.dump_individual(i)))
+
+        with ProcessPoolExecutor() as pool:
+            for i, f in zip(indexes, pool.map(self._function, genomes)):
+                self._fitness_calls += 1
+                population[i].fitness = f
+                microgp_logger.debug(
+                    f"eval: {population[i].describe(include_fitness=True, include_birth=True, include_structure=True)}")
+
+
+def shutup_logger():
+    print(f"{microgp_logger.name} @ {id(microgp_logger):x} -> {microgp_logger.parent}")
+    #microgp_logger.setLevel(logging.WARNING)
