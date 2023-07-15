@@ -61,12 +61,11 @@ from microgp4 import operators
 from microgp4 import operators as op
 
 # noinspection PyUnresolvedReferences
-from microgp4 import fitness as fitness
-# noinspection PyUnresolvedReferences
-from microgp4 import fitness as fit
-
-# noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as evaluator
+# noinspection PyUnresolvedReferences
+from microgp4 import fitness_ as fitness
+# noinspection PyUnresolvedReferences
+from microgp4 import fitness_ as fit
 
 # noinspection PyUnresolvedReferences
 from microgp4.randy.randy import rrandom
@@ -100,7 +99,7 @@ if notebook_mode and logging.getLogger().level <= logging.WARNING:
     user_messages.performance(
         "Paranoia checks are always enabled in notebooks: performances can be significantly impaired")
 elif not notebook_mode:
-    assert test_mode or user_messages.performance(
+    assert test_mode or not main_process or user_messages.performance(
         "Paranoia checks are enabled: performances can be significantly impaired — consider using '-O'")
 
 #############################################################################
@@ -119,5 +118,5 @@ def welcome(level=logging.DEBUG):
     return True
 
 
-if not notebook_mode:
+if main_process and not notebook_mode:
     welcome(logging.INFO)

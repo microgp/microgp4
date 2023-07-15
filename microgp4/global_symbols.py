@@ -30,12 +30,12 @@
 __all__ = [
     'version_info', '__version__', '__author__', '__copyright__', 'FRAMEWORK_DIRECTORY', 'FRAMEWORK', 'LINK',
     'FRAME_NODE', 'MACRO_NODE', 'NODE_ZERO', 'UGP4_TAG', 'GENETIC_OPERATOR', 'FITNESS_FUNCTION', 'test_mode',
-    'notebook_mode', 'debug_mode'
+    'notebook_mode', 'debug_mode', 'main_process'
 ]
 
 import sys
 from collections import namedtuple
-from abc import ABCMeta
+import multiprocessing
 
 VersionInfo = namedtuple('VersionInfo', ['epoch', 'major', 'minor', 'tag', 'micro', 'codename', 'dev'])
 version_info = VersionInfo(4, 2, 0, 'a', 0, 'Meaning of Liff', 1)
@@ -57,6 +57,7 @@ MicroGP v1: Internal (not released)
 # Auto-detected "modes"
 
 test_mode = 'pytest' in sys.modules
+main_process = multiprocessing.current_process().name == 'MainProcess'
 
 notebook_mode = False
 try:

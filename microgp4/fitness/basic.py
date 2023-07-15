@@ -162,11 +162,11 @@ def make_fitness(data: Any):
 
 ##############################################################################
 # Patch names
-_patch_class_info(Scalar, 'Scalar', tag='fitness')
-_patch_class_info(Integer, 'Integer', tag='fitness')
-_patch_class_info(Float, 'Float', tag='fitness')
-_patch_class_info(Vector, 'Vector', tag='fitness')
-_patch_class_info(Lexicographic, 'Vector', tag='fitness')
+#_patch_class_info(Scalar, 'Scalar', tag='fitness')
+#_patch_class_info(Integer, 'Integer', tag='fitness')
+#_patch_class_info(Float, 'Float', tag='fitness')
+#_patch_class_info(Vector, 'Vector', tag='fitness')
+#_patch_class_info(Lexicographic, 'Vector', tag='fitness')
 #_patch_class_info(ApproximateVector, 'VectorApproximate', tag='fitness')
 #_patch_class_info(IntegerVector, 'VectorInteger', tag='fitness')
 #_patch_class_info(ScalarVector, 'VectorScalar', tag='fitness')

@@ -102,13 +102,17 @@ def set_successors_order(ref: NodeReference, new_order: Sequence[int]) -> None:
     G = ref.graph
     assert check_genome(G)
     current = list((u, v, k) for u, v, k, d in G.out_edges(ref.node, keys=True, data='_type') if d == FRAMEWORK)
+    assert all(k == 0 for u, v, k in current), \
+               f"ValueError: Found a FRAMEWORK edge with key != 0"
     assert {v for u, v, k in current} == set(new_order), \
         f"ValueError: mismatching new order: {[v for u, v, k in current]} vs. {new_order} (paranoia check)"
 
+    attributes = dict()
     for u, v, k in current:
+        attributes[(u, v)] = G.edges[u, v, k]  # save all attributes
         G.remove_edge(u, v, k)
     for v in new_order:
-        G.add_edge(ref.node, v, _type=FRAMEWORK)
+        G.add_edge(ref.node, v, **attributes[(u, v)])  # replace all attributes
 
 
 def get_node_color_dict(G: nx.MultiDiGraph) -> dict[int, int]:

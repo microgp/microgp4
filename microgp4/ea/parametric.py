@@ -40,21 +40,22 @@ from microgp4.user_messages import *
 
 from .selection import *
 
+
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
         f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}" +
         f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]")
 
+
 def parametric_ea(top_frame: type[FrameABC],
-               evaluator: EvaluatorABC,
-               mu: int = 10,
-               lambda_: int = 20,
-               max_generation: int = 100,
-               max_fitness: FitnessABC | None = None,
-               top_best: int = None,
-               lifespan: int = None,
-               operators: list = None) -> Population:
-    
+                  evaluator: EvaluatorABC,
+                  mu: int = 10,
+                  lambda_: int = 20,
+                  max_generation: int = 100,
+                  max_fitness: FitnessABC | None = None,
+                  top_best: int = None,
+                  lifespan: int = None,
+                  operators: list = None) -> Population:
     r"""A configurable evolutionary algorithm
 
     Parameters
@@ -77,8 +78,7 @@ def parametric_ea(top_frame: type[FrameABC],
     Population
         The last population
 
-    """ 
+    """
     population = Population(top_frame)
     if operators is None or all(op.num_parents is not None for op in operators):
         ops0 = [op for op in get_operators() if op.num_parents is None]
-    
