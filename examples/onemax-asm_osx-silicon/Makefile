@@ -11,6 +11,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 SHELL=/bin/sh
+CFLAGS = -O3
 
 .PHONY: run
 
@@ -19,6 +20,3 @@ run: onemax
 
 onemax: main.o onemax.s
 	gcc -o $@ $^
-
-main.o: main.c
-	gcc -c -O3 $<

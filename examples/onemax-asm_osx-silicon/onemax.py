@@ -13,16 +13,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
+import subprocess
 
-try:
-    import microgp4 as ugp
-except ModuleNotFoundError as e:
-    import sys, os
-    sys.path.extend(['..', '../..'])
-    import microgp4 as ugp
+import microgp4 as ugp
 
 
-def main():
+def instruction_library():
     register = ugp.f.choice_parameter([f'x{n}' for n in range(4)])
     int8 = ugp.f.integer_parameter(0, 2**8)
     int16 = ugp.f.integer_parameter(0, 2**16)
@@ -37,42 +33,37 @@ def main():
     branch = ugp.f.macro('b{cond} {label}', cond=conditions, label=ugp.f.local_reference(backward=False, loop=False))
 
     prologue = ugp.f.macro('''; prologue
-.section	__TEXT,__text,regular,pure_instructions
-.globl	_one_max    ; function one_max
-.p2align	2
-_one_max:
-.cfi_startproc''')
+    .section	__TEXT,__text,regular,pure_instructions
+    .globl	_one_max    ; function one_max
+    .p2align	2
+    _one_max:
+    .cfi_startproc''')
 
     epilogue = ugp.f.macro('''; epilogue
-ret
-.cfi_endproc''')
+    ret
+    .cfi_endproc''')
 
     init = ugp.f.macro('''; initialization
-mov x0, #{v0:#x}
-mov x1, #{v1:#x}
-mov x2, #{v2:#x}
-mov x3, #{v3:#x}''',
+    mov x0, #{v0:#x}
+    mov x1, #{v1:#x}
+    mov x2, #{v2:#x}
+    mov x3, #{v3:#x}''',
                        v0=int16,
                        v1=int16,
                        v2=int16,
                        v3=int16)
 
     core = ugp.framework.bunch([op_rr, op_ri, branch], size=(10, 50 + 1))
-    program = ugp.framework.sequence([prologue, init, core, epilogue])
-    #program = ugp.framework.sequence([prologue, init, core, epilogue])
+    #core = ugp.framework.bunch([op_rr, op_ri], size=(10, 50 + 1))
+    return ugp.framework.sequence([prologue, init, core, epilogue])
 
-    population = ugp.classes.Population(top_frame=program, fitness_function=None)
-    population.add_random_individual()
 
-    #code = population.dump_individual(0)
-    code = population.dump_individual(0, {'$dump_node_info': 1})
-    with open('one_max.s', 'w') as src:
-        src.write(code)
-
-    pass
+def main():
+    ugp.microgp_logger.setLevel(logging.INFO)
+    evaluator = ugp.evaluator.MakefileEvaluator('onemax.s', required_files=['Makefile', 'main.o'])
+    top_frame = instruction_library()
+    ugp.ea.vanilla_ea(top_frame, evaluator)
 
 
 if __name__ == '__main__':
-    ugp.rrandom.seed(42)
-    #ugp.set_logger_level(logging.INFO)
     main()

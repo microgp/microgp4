@@ -27,24 +27,38 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero
 
-__all__ = ['EvaluatorABC', 'PythonFunction', 'ParallelPythonFunction']
+__all__ = ['EvaluatorABC', 'SequentialPythonEvaluator', 'ParallelPythonEvaluator', 'MakefileEvaluator']
 
-import logging
 from typing import Callable, Sequence
 from abc import ABC, abstractmethod
-from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
+
+import os
+import subprocess
+import tempfile
+from concurrent.futures import ThreadPoolExecutor
 
 from microgp4.user_messages import *
-from microgp4.classes.fitness import FitnessABC
+from microgp4.classes.fitness import FitnessABC, InvalidFitness
+from microgp4.fitness import make_fitness
 from microgp4.classes.population import Population
 from microgp4.tools.dump import _strip_genome
 from microgp4.registry import *
 from microgp4.global_symbols import *
-from microgp4.classes.individual import Individual
 
 
 class EvaluatorABC(ABC):
-    """Hey
+    """Base abstract class for Evaluator
+
+    `fitness_calls` (``property``):
+        Number of fitness calls required so far.
+
+    All *evaluators* must implement:
+
+    ``def evaluate_population(population)``:
+        Evaluates all individuals without a valid fitness and updates them. Returns ``None``.
+
+        **Note**: the ``EvaluatorABC`` implements the ``__call__`` method, instances can be used as functions to
+        execute the `evaluate_population`.
     """
 
     _fitness_calls: int = 0
@@ -61,7 +75,9 @@ class EvaluatorABC(ABC):
         self.evaluate_population(population)
 
 
-class PythonFunction(EvaluatorABC):
+class SequentialPythonEvaluator(EvaluatorABC):
+    _function: Callable
+    _function_name: str
 
     def __init__(self, function: Callable[[str], FitnessABC], strip_genome: bool = False) -> None:
         assert get_microgp4_type(function) == FITNESS_FUNCTION, \
@@ -70,9 +86,10 @@ class PythonFunction(EvaluatorABC):
             self._function = lambda g: function(_strip_genome(g))
         else:
             self._function = function
+        self._function_name = function.__qualname__
 
     def __str__(self):
-        return f"PurePythonEvaluator❬{self._function.__module__}.{self._function.__name__}❭"
+        return f"{self.__class__.__name__}❬{self._function_name}❭"
 
     def evaluate_population(self, population: Population) -> None:
         for i, ind in [_ for _ in enumerate(population) if _[1].is_finalized is False]:
@@ -83,25 +100,11 @@ class PythonFunction(EvaluatorABC):
                 f"eval: {ind.describe(include_fitness=True, include_birth=True, include_structure=True)}")
 
 
-class Script(EvaluatorABC):
+class ParallelPythonEvaluator(SequentialPythonEvaluator):
 
-    def __init__(self) -> None:
-        raise NotImplementedError
-
-
-class ParallelPythonFunction(EvaluatorABC):
-
-    def __init__(self, function: Callable[[str], FitnessABC], strip_genome: bool = False) -> None:
-        assert get_microgp4_type(function) == FITNESS_FUNCTION, \
-                f"TypeError: {function} has not be registered as a MicgroGP fitness function"
-        if strip_genome:
-            self._cook = lambda g: _strip_genome(g)
-        else:
-            self._cook = lambda g: g
-        self._function = function
-
-    def __str__(self):
-        return f"PurePythonEvaluator_parallel❬{self._function.__module__}.{self._function.__name__}❭"
+    def __init__(self, *args, max_workers=None, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+        self._max_workers = max_workers
 
     def evaluate_population(self, population: Population) -> None:
         indexes = list()
@@ -109,9 +112,9 @@ class ParallelPythonFunction(EvaluatorABC):
         for i, g in enumerate(population):
             if not g.is_finalized:
                 indexes.append(i)
-                genomes.append(self._cook(population.dump_individual(i)))
+                genomes.append(population.dump_individual(i))
 
-        with ProcessPoolExecutor() as pool:
+        with ThreadPoolExecutor(max_workers=self._max_workers, thread_name_prefix=self._function_name) as pool:
             for i, f in zip(indexes, pool.map(self._function, genomes)):
                 self._fitness_calls += 1
                 population[i].fitness = f
@@ -119,6 +122,69 @@ class ParallelPythonFunction(EvaluatorABC):
                     f"eval: {population[i].describe(include_fitness=True, include_birth=True, include_structure=True)}")
 
 
-def shutup_logger():
-    print(f"{microgp_logger.name} @ {id(microgp_logger):x} -> {microgp_logger.parent}")
-    #microgp_logger.setLevel(logging.WARNING)
+class MakefileEvaluator(EvaluatorABC):
+    _file_name: str
+    _required_files: list[str]
+    _max_workers: int | None
+    _microgp_base_dir: str
+
+    def __init__(self, file_name: str, max_workers: int | None = None, required_files: list[str] = None) -> None:
+        if not required_files:
+            required_files = ['makefile']
+        self._file_name = file_name
+        self._required_files = required_files
+        self._max_workers = max_workers
+        self._microgp_base_dir = os.getcwd()
+
+    def evaluate(self, phenotype):
+        with tempfile.TemporaryDirectory(prefix='ugp4_') as tmp_dir:
+            #microgp_logger.debug(f"MakefileEvaluator:evaluate: Creating {tmp_dir}")
+            for f in self._required_files:
+                os.symlink(os.path.join(self._microgp_base_dir, f), os.path.join(tmp_dir, f))
+            os.chdir(tmp_dir)
+            with open(os.path.join(tmp_dir, self._file_name), 'w') as dump:
+                dump.write(phenotype)
+            try:
+                result = subprocess.run(['make', '-s'],
+                                        cwd=tmp_dir,
+                                        universal_newlines=True,
+                                        check=True,
+                                        text=True,
+                                        timeout=1,
+                                        capture_output=True)
+            except subprocess.CalledProcessError as problem:
+                microgp_logger.debug(f"MakefileEvaluator:evaluate: CalledProcessError: {problem}")
+                result = None
+            except subprocess.TimeoutExpired:
+                microgp_logger.debug(f"MakefileEvaluator:evaluate: TimeoutExpired")
+                result = None
+            if result is None:
+                microgp_logger.debug(f"MakefileEvaluator:evaluate: Process failed (returned None)")
+                result = None
+            elif not result.stdout:
+                microgp_logger.debug(f"MakefileEvaluator:evaluate: Process returned empty stdout (stderr: {result.stderr})")
+                result = None
+        #microgp_logger.debug(f"MakefileEvaluator:evaluate: Leaving {tmp_dir}")
+        return result
+
+    def evaluate_population(self, population: Population) -> None:
+        indexes = list()
+        genomes = list()
+        for i, g in enumerate(population):
+            if not g.is_finalized:
+                indexes.append(i)
+                genomes.append(population.dump_individual(i))
+
+        with ThreadPoolExecutor(max_workers=self._max_workers, thread_name_prefix='ugp4') as pool:
+            for i, result in zip(indexes, pool.map(self.evaluate, genomes)):
+                self._fitness_calls += 1
+                if result is None:
+                    population[i].fitness = InvalidFitness()
+                else:
+                    value = [float(r) for r in result.stdout.split()]
+                    if len(value) == 1:
+                        value = value[0]
+                    fitness = make_fitness(value)
+                    population[i].fitness = fitness
+                microgp_logger.debug(
+                    f"eval: {population[i].describe(include_fitness=True, include_birth=True, include_structure=True)}")

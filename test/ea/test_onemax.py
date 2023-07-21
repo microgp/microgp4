@@ -25,7 +25,7 @@ def fitness(genotype: str):
 def test_onemax_base_take1():
     macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 50))
     frame = ugp.f.sequence([macro])
-    evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
+    evaluator = ugp.evaluator.SequentialPythonEvaluator(fitness, strip_genome=True)
     ugp.microgp_logger.setLevel(WARNING)
 
     ugp.rrandom.seed(42)
@@ -43,7 +43,7 @@ def test_onemax_base_take1():
 def test_onemax_base_take2():
     macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
     frame = ugp.f.bunch([macro], size=(10, 100 + 1))
-    evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
+    evaluator = ugp.evaluator.SequentialPythonEvaluator(fitness, strip_genome=True)
     ugp.microgp_logger.setLevel(WARNING)
 
     ugp.rrandom.seed(42)

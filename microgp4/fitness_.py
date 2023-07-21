@@ -29,4 +29,3 @@
 
 from microgp4.classes.fitness import FitnessABC
 from microgp4.fitness import *
-

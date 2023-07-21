@@ -29,6 +29,7 @@
 
 __all__ = ['MacroZero', 'Info']
 
+import sys
 from datetime import datetime
 
 import networkx as nx
