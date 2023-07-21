@@ -178,6 +178,8 @@ class Randy:
 
     def weighted_choice(self, seq: Sequence[Any], p: Sequence[float]) -> Any:
         """Returns a random element from seq using the probabilities in p."""
+
+        # return self._generetor.choice(seq,p=p)
         assert len(seq) == len(p), \
             "ValueError: different number of elements in seq and weight"
         assert math.isclose(sum(p), 1), \
