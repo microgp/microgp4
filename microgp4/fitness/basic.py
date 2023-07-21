@@ -31,11 +31,9 @@ __all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'Lexicographic', 'make_fitnes
 
 from typing import Sequence, Any
 
-from functools import partialmethod
 from math import isclose
 
-from microgp4.classes.fitness import FitnessABC
-from microgp4.tools.names import _patch_class_info
+from microgp4.classes.fitness import FitnessABC, InvalidFitness
 from microgp4.user_messages import *
 
 
@@ -79,17 +77,17 @@ class Scalar(FitnessABC, float):
 
     def is_distinguishable(self, other: FitnessABC) -> bool:
         assert self.check_comparable(other)
-        return not isclose(float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol)
+        return isinstance(other, InvalidFitness) or not isclose(float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol)
 
     def is_fitter(self, other: FitnessABC) -> bool:
         assert self.check_comparable(other)
-        return self != other and float(self) > float(other)
+        return isinstance(other, InvalidFitness) or (self != other and float(self) > float(other))
 
     def check_comparable(self, other: 'Scalar'):
         assert super().check_comparable(other)
-        assert self._abs_tol == other._abs_tol, \
+        assert not isinstance(other, self.__class__) or self._abs_tol == other._abs_tol, \
             f"ValueError: different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol} (paranoia check)"
-        assert self._rel_tol == other._rel_tol, \
+        assert not isinstance(other, self.__class__) or self._rel_tol == other._rel_tol, \
             f"ValueError: different relative tolerance: {float(self)}±{self._rel_tol}r vs. {float(other)}±{other._rel_tol}r (paranoia check)"
         return True
 
@@ -147,17 +145,23 @@ class Lexicographic(Vector):
     """
 
     def __init__(self, values: Sequence, type_: type[FitnessABC] = Scalar):
+        assert len(values) == 0, \
+            f"ValueError: Can't convert empty sequence {values} to Lexicographic Fitness"
         fitness_values = [type_(v) for v in values]
         super().__init__(fitness_values)
 
 
 def make_fitness(data: Any):
-    if isinstance(data, Sequence):
-        return Lexicographic(data)
-    elif isinstance(data, int):
+    if isinstance(data, int):
         return Integer(data)
-    else:
+    elif isinstance(data, float):
         return Scalar(data)
+    elif isinstance(data, Sequence):
+        microgp_logger.warning(f"{data}")
+        return Lexicographic(data)
+    else:
+        assert isinstance(data, Sequence) or isinstance(data, int) or isinstance(data, float), \
+            f"TypeError: Can't convert {data!r} ({type()}) to Fitness"
 
 
 ##############################################################################

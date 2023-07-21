@@ -12,5 +12,8 @@
 
 unsigned long int one_max(void)
 {
-    return -1lu;
+    int a = 1;
+    int b = 1;
+    int c = 1;
+    return a + b - c;
 }

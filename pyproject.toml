@@ -107,6 +107,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 matplotlib = { version = "^3.7.1", optional = true }
+arcade = { version = "^2.6.17", optional = true }
 networkx = "^3.1"
 numpy = "^1.25.0"
 python = ">=3.11,<3.13"
@@ -122,10 +123,11 @@ pylint = "^2.17.4"
 pytest = "^7.4.0"
 yapf = "^0.40.1"
 matplotlib = "^3.7.1"
+arcade = "^2.6.17"
 jupyter = "^1.0.0"
 
 [tool.poetry.extras]
-plot = ["matplotlib"]
+plot = ["matplotlib", "arcade"]
 
 [build-system]
 requires = ["poetry-core"]

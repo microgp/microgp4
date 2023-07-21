@@ -32,8 +32,8 @@ def single_array_parameter():
 
 def multiple_distinct_bits():
     macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
-    frame = ugp.f.bunch([macro], size=(NUM_BITS // 10, NUM_BITS + 1))
-    frame.add_node_check(lambda n: n.framework_out_degree % 2 == 0)
+    frame = ugp.f.bunch([macro], size=(1, NUM_BITS + 1))
+    #frame.add_node_check(lambda n: n.framework_out_degree % 2 == 0)
     return frame
 
 
@@ -49,8 +49,8 @@ def main():
     ugp.microgp_logger.setLevel(logging.INFO)
 
     top_frame = multiple_distinct_bits()
-    evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
-    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=1000, max_fitness=fitness('1' * NUM_BITS))
+    evaluator = ugp.evaluator.SequentialPythonEvaluator(fitness, strip_genome=True)
+    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=100, max_fitness=fitness('1' * NUM_BITS))
 
     population[0].as_forest(filename='forest.svg')
     population[0].as_lgp(filename='lgp.svg', zoom=1.0)

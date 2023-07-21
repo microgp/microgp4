@@ -72,7 +72,7 @@ def vanilla_ea(top_frame: type[FrameABC],
         The last population
 
     """
-    #SElement.is_valid = SElement._is_valid_debug
+    SElement.is_valid = SElement._is_valid_debug
     population = Population(top_frame)
 
     # Initialize population
