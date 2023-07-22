@@ -135,4 +135,3 @@ def test_simple():
     f2 = ugp.fit.reverse_fitness(ugp.fit.Vector)([ugp.fit.Float(sqrt(2)**2), ugp.fit.Float(2)])
     assert f1 != f2
     assert f1 > f2
-    print(f1)
