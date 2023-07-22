@@ -62,7 +62,7 @@ def test_decorate():
 
 
 def test_reverse_fitness():
-    reversed_fitness = ugp.classes.fitness.reverse_fitness(ExampleFitness)
+    reversed_fitness = ugp.fitness.reverse_fitness(ExampleFitness)
     reversed_fitness1 = reversed_fitness(5.0)
     reversed_fitness2 = reversed_fitness(3.0)
 

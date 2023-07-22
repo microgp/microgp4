@@ -100,7 +100,6 @@ class Vector(FitnessABC):
 
     def __init__(self, values: Sequence[FitnessABC]) -> None:
         self._values = tuple(values)
-        assert self.run_paranoia_checks()
 
     def cheeck_comparable(self, other: 'Vector'):
         assert len(self._values) == len(other._values), \
@@ -145,7 +144,8 @@ class Lexicographic(Vector):
     """
 
     def __init__(self, values: Sequence, type_: type[FitnessABC] = Scalar):
-        assert len(values) == 0, \
+        assert check_valid_types(values, Sequence)
+        assert values, \
             f"ValueError: Can't convert empty sequence {values} to Lexicographic Fitness"
         fitness_values = [type_(v) for v in values]
         super().__init__(fitness_values)
