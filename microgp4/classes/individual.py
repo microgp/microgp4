@@ -121,8 +121,8 @@ class Individual(Paranoid):
     def __init__(self, top_frame: type[FrameABC]) -> None:
         Individual.__COUNTER += 1
         self._id = Individual.__COUNTER
-        self._genome = nx.MultiDiGraph(node_count=1, top_frame=top_frame)
-        self._genome.add_node(NODE_ZERO, root=True, _selement=MacroZero(), _type=MACRO_NODE)
+        self._genome = nx.MultiDiGraph(node_count=NODE_ZERO + 1, top_frame=top_frame)
+        self._genome.add_node(NODE_ZERO, _selement=MacroZero(), _type=MACRO_NODE)
         self._fitness = None
         self._str = ''
         self._structure_tree = None

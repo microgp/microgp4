@@ -54,7 +54,7 @@ Have fun! And contact us if you want your code to be included in the next releas
 
 Thanks for trying, but we do not accept monetary donations:
 
-* Alberto and Giovanni are working on MicroGP as an integral part of their research activities. Therefore, they are already paid by their institutions, namely: *Politecnico di Torino* (Italy) and *French National Institute for Agricultural Research* (France).
+* Alberto and Giovanni are working on MicroGP as an integral part of their research activities. Therefore, they are already paid by their institutions, namely: *Politecnico di Torino* (Italy); *INRAE — AgroParisTech* (France) and *Institut des Systèmes Complexes de Paris Île-de-France* (France).
 * Students have worked, are working, and will work on MicroGP as part of their academic curricula, either for Master's theses or Ph.D. programs.
 * A few volunteers did excellent work on specific topics, but as volunteers they did not ask for payment.
 
