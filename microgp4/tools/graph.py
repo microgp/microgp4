@@ -53,6 +53,8 @@ def add_node(G: nx.MultiDiGraph) -> int:
 
 def check_genome(G: nx.MultiDiGraph) -> bool:
     all_edges = G.edges(keys=True, data=True)
+    assert all(n < G.graph['node_count'] for n in G), \
+        f"ValueError: invalid 'node_count' attribute ({G.graph['node_count']})"
     assert all('_type' in d for u, v, k, d in all_edges), \
         "ValueError: missing '_type' attribute (paranoia check)"
     tree_edges = [(u, v) for u, v, k, d in all_edges if d['_type'] == FRAMEWORK]

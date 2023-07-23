@@ -77,7 +77,9 @@ class Scalar(FitnessABC, float):
 
     def is_distinguishable(self, other: FitnessABC) -> bool:
         assert self.check_comparable(other)
-        return isinstance(other, InvalidFitness) or not isclose(float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol)
+        return isinstance(
+            other,
+            InvalidFitness) or not isclose(float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol)
 
     def is_fitter(self, other: FitnessABC) -> bool:
         assert self.check_comparable(other)

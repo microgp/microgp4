@@ -27,7 +27,9 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero
 
-__all__ = ['EvaluatorABC', 'SequentialPythonEvaluator', 'ParallelPythonEvaluator', 'MakefileEvaluator']
+__all__ = [
+    'EvaluatorABC', 'SequentialPythonEvaluator', 'ParallelPythonEvaluator', 'MakefileEvaluator', 'ScriptEvaluator'
+]
 
 from typing import Callable, Sequence
 from abc import ABC, abstractmethod
@@ -92,9 +94,9 @@ class SequentialPythonEvaluator(EvaluatorABC):
         return f"{self.__class__.__name__}❬{self._function_name}❭"
 
     def evaluate_population(self, population: Population) -> None:
-        for i, ind in [_ for _ in enumerate(population) if _[1].is_finalized is False]:
-            fitness = self._function(population.dump_individual(i))
+        for i, ind in filter(lambda x: not x[1].is_finalized, enumerate(population)):
             self._fitness_calls += 1
+            fitness = self._function(population.dump_individual(i))
             ind.fitness = fitness
             microgp_logger.debug(
                 f"eval: {ind.describe(include_fitness=True, include_birth=True, include_structure=True)}")
@@ -137,7 +139,7 @@ class MakefileEvaluator(EvaluatorABC):
         self._microgp_base_dir = os.getcwd()
 
     def evaluate(self, phenotype):
-        with tempfile.TemporaryDirectory(prefix='ugp4_') as tmp_dir:
+        with tempfile.TemporaryDirectory(prefix='ugp4_', ignore_cleanup_errors=True) as tmp_dir:
             #microgp_logger.debug(f"MakefileEvaluator:evaluate: Creating {tmp_dir}")
             for f in self._required_files:
                 os.symlink(os.path.join(self._microgp_base_dir, f), os.path.join(tmp_dir, f))
@@ -153,16 +155,18 @@ class MakefileEvaluator(EvaluatorABC):
                                         timeout=1,
                                         capture_output=True)
             except subprocess.CalledProcessError as problem:
-                microgp_logger.debug(f"MakefileEvaluator:evaluate: CalledProcessError: {problem}")
+                microgp_logger.debug("MakefileEvaluator:evaluate: CalledProcessError: %s", problem)
                 result = None
             except subprocess.TimeoutExpired:
-                microgp_logger.debug(f"MakefileEvaluator:evaluate: TimeoutExpired")
+                microgp_logger.debug("MakefileEvaluator:evaluate: TimeoutExpired")
                 result = None
+
             if result is None:
-                microgp_logger.debug(f"MakefileEvaluator:evaluate: Process failed (returned None)")
+                microgp_logger.debug("MakefileEvaluator:evaluate: Process failed (returned None)")
                 result = None
             elif not result.stdout:
-                microgp_logger.debug(f"MakefileEvaluator:evaluate: Process returned empty stdout (stderr: {result.stderr})")
+                microgp_logger.debug("MakefileEvaluator:evaluate: Process returned empty stdout (stderr: %s)",
+                                     result.stderr)
                 result = None
         #microgp_logger.debug(f"MakefileEvaluator:evaluate: Leaving {tmp_dir}")
         return result
@@ -188,3 +192,77 @@ class MakefileEvaluator(EvaluatorABC):
                     population[i].fitness = fitness
                 microgp_logger.debug(
                     f"eval: {population[i].describe(include_fitness=True, include_birth=True, include_structure=True)}")
+
+
+class ScriptEvaluator(EvaluatorABC):
+    """
+    A class to represent a person.
+
+    ...
+
+    Attributes
+    ----------
+    name : str
+        first name of the person
+    surname : str
+        family name of the person
+    age : int
+        age of the person
+
+    Methods
+    -------
+    info(additional=""):
+        Prints the person's name and age.
+
+    hello
+    """
+    _file_name: str
+    _script_name: str
+
+    def __init__(self, script_name: str, file_name: str = 'phenotype_{i:04x}.txt') -> None:
+        self._script_name = script_name
+        self._file_name = file_name
+
+    def evaluate_population(self, population: Population) -> None:
+        ind_idxs = population.not_evaluated
+        ind_files = list()
+        for i in ind_idxs:
+            self._fitness_calls += 1
+            ind_files.append(self._file_name.format(i=population.individuals[i].id))
+            with open(ind_files[-1], 'w') as dump:
+                dump.write(population.dump_individual(i))
+
+        try:
+            result = subprocess.run([self._script_name, *ind_files],
+                                    universal_newlines=True,
+                                    check=True,
+                                    text=True,
+                                    timeout=10,
+                                    capture_output=True)
+        except subprocess.CalledProcessError as problem:
+            microgp_logger.debug("MakefileEvaluator:evaluate: CalledProcessError: %s", problem)
+            result = None
+        except subprocess.TimeoutExpired:
+            microgp_logger.debug("MakefileEvaluator:evaluate: TimeoutExpired")
+            result = None
+
+        if result is None:
+            microgp_logger.debug("MakefileEvaluator:evaluate: Process failed (returned None)")
+            population[i].fitness = InvalidFitness()
+        elif not result.stdout:
+            microgp_logger.debug("MakefileEvaluator:evaluate: Process returned empty stdout (stderr: %s)",
+                                 result.stderr)
+            population[i].fitness = InvalidFitness()
+        else:
+            results = list(filter(lambda s: bool(s), result.stdout.split('\n')))
+            assert len(results) == len(ind_idxs), \
+                f"ValueError: number of results and number of individual mismatch (paranoia check)"
+            for i, line in zip(ind_idxs, results):
+                value = [float(r) for r in line.split()]
+                if len(value) == 1:
+                    value = value[0]
+                fitness = make_fitness(value)
+                population.individuals[i].fitness = fitness
+
+        for f in ind_files:
+            os.remove(f)

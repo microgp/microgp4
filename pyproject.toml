@@ -64,8 +64,8 @@ pythonpath = ["."]
 branch = true
 
 [tool.coverage.report]
-include = ['microgp4/**']
-#omit = ['test/*', '.venv/*', 'venv/*']
+include = ['microgp4/*']
+omit = ['test/*'] #, '.venv/*', 'venv/*']
 
 [tool.bumpver]
 #commit = true
@@ -111,8 +111,8 @@ arcade = { version = "^2.6.17", optional = true }
 networkx = "^3.1"
 numpy = "^1.25.0"
 python = ">=3.11,<3.13"
-scipy = "^1.11.1"
 tqdm = "^4.65.0"
+scipy = "^1.11.1"
 
 [tool.poetry.group.dev.dependencies]
 black = {extras = ["jupyter"], version = "^23.3.0"}

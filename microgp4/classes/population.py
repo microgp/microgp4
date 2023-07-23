@@ -92,6 +92,10 @@ class Population:
     def generation(self, value):
         self._generation = value
 
+    @property
+    def not_evaluated(self):
+        return list(filter(lambda i: not self._individuals[i].is_finalized, range(len(self._individuals))))
+
     def __getitem__(self, item):
         return self._individuals[item]
 
@@ -145,3 +149,4 @@ class Population:
             sorted_ += sorted(pareto, key=lambda i: (i.fitness, -i.id))
 
         self._individuals = sorted_
+

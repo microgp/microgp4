@@ -52,7 +52,8 @@ def vanilla_ea(top_frame: type[FrameABC],
                mu: int = 10,
                lambda_: int = 20,
                max_generation: int = 100,
-               max_fitness: FitnessABC | None = None) -> Population:
+               max_fitness: FitnessABC | None = None,
+               population_extra_parameters: dict = None) -> Population:
     r"""A simple evolutionary algorithm
 
     Parameters
@@ -73,7 +74,7 @@ def vanilla_ea(top_frame: type[FrameABC],
 
     """
     SElement.is_valid = SElement._is_valid_debug
-    population = Population(top_frame)
+    population = Population(top_frame, extra_parameters=population_extra_parameters)
 
     # Initialize population
     ops0 = [op for op in get_operators() if op.num_parents is None]
