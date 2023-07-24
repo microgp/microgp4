@@ -27,5 +27,6 @@
 # =[ HISTORY ]===============================================================
 # v1 / June 2023 / Squillero (GX)
 
+from .parametric import parametric_ea
 from .vanilla import vanilla_ea
 from .selection import tournament_selection
