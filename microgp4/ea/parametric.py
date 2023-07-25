@@ -40,7 +40,6 @@ from microgp4.user_messages import *
 
 from .selection import *
 
-
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
         f"ParametricEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}"
@@ -58,6 +57,7 @@ def parametric_ea(top_frame: type[FrameABC],
                   operators: list[Callable] = None,
                   end_conditions: list[Callable] = None,
                   alpha: int = 10) -> Population:
+
     r"""A configurable evolutionary algorithm
 
     Parameters
@@ -78,12 +78,10 @@ def parametric_ea(top_frame: type[FrameABC],
         Which operetors you want to use
     alpha
         Parameter to reduce early failure penalty for operators
-
     Returns
     -------
     Population
         The last population
-
     """
 
     def take_operators(init: bool, operators_list: list[Callable]) -> list[Callable]:
