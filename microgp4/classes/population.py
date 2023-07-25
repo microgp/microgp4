@@ -107,6 +107,18 @@ class Population:
         self._individuals.extend(individual)
         return self
 
+    def __isub__(self, individual):
+        assert check_valid_types(individual, Sequence)
+        assert all(check_valid_types(i, Individual) for i in individual)
+        assert all(i.valid for i in individual), \
+            f"ValueError: invalid individual"
+        for i in individual:
+            try:
+                self._individuals.remove(i)
+            except ValueError:
+                pass
+        return self
+
     def __iter__(self):
         return iter(self._individuals)
 
@@ -145,3 +157,7 @@ class Population:
             sorted_ += sorted(pareto, key=lambda i: (i.fitness, -i.id))
 
         self._individuals = sorted_
+
+    def aging(self):
+        for i in self.individuals:
+            i.age = i.age + 1

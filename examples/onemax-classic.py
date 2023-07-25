@@ -52,6 +52,7 @@ def main():
     top_frame = multiple_distinct_bits()
     evaluator = ugp.evaluator.PythonFunction(fitness, strip_genome=True)
     population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=1000, max_fitness=fitness('1' * NUM_BITS))
+    #population = ugp.ea.parametric_ea(top_frame, evaluator, max_generation=1000, max_fitness=fitness('1' * NUM_BITS), top_n=5, lifespan=5)
 
     population[0].as_forest(filename='forest.svg')
     population[0].as_lgp(filename='lgp.svg', zoom=1.0)

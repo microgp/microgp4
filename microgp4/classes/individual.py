@@ -100,6 +100,7 @@ class Individual(Paranoid):
     _genome: nx.classes.MultiDiGraph
     _fitness: FitnessABC | None
     _birth: Birth | None
+    _age: int
     _str: str
 
     # A rainbow color mapping using matplotlib's tableau colors
@@ -126,6 +127,7 @@ class Individual(Paranoid):
         self._str = ''
         self._structure_tree = None
         self._birth = None
+        self._age = 0
 
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
@@ -134,7 +136,7 @@ class Individual(Paranoid):
         return f'𝕚{self._id}'
 
     def __eq__(self, other) -> bool:
-        return type(self) == type(other) and self._fitness == other._fitness and nx.isomorphism(
+        return type(self) == type(other) and self._fitness == other._fitness and nx.isomorphism.is_isomorphic(
             self._genome, other._genome, node_match=operator.eq, edge_match=operator.eq)
 
     def __hash__(self):
@@ -232,6 +234,16 @@ class Individual(Paranoid):
     @property
     def birth(self):
         return self._birth
+
+    @property
+    def age(self):
+        """The age of the individual"""
+        return self._age
+
+    @age.setter
+    def age(self, value: int):
+        assert value >= 0
+        self._age = value
 
     @property
     def fitness(self):
