@@ -55,7 +55,7 @@ Caveats:
 * All the code must be inside this cell
 * MicroGP does not detect Jupyter anymore
 
-### Tamper bytecode in `__pycache__` :-1:
+### Tamper with `__pycache__` :-1:
 
 Terrible and probably dangerous, but someone may want to try:
 
