@@ -20,16 +20,14 @@ $ python -O ./my-fuzzer.py
 
 MicroGP should detect when it is within a Jupyter Notebook:
 
-```jupyter
-Paranoia checks are always enabled in notebooks: performances can be significantly impaired
-See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details
-```
+> Paranoia checks are always enabled in notebooks: performances can be significantly impaired  
+> See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details
 
 However, differently from scripts, it may not be easy to specify the `-O` flag. We suggest three possible solutions:
 
-### Export to Script :+1: 
+### Export to Script
 
-The suggested method, as simple as:
+:+1: The suggested method, as simple as:
 
 * From menu `File`, choose `Save and Export Notebook As...`, and then `Executable Script`.
 * Run it with `python -O ./my-exported-fuzzer.py`
@@ -50,14 +48,16 @@ import microgp4 as ugp
 """My whole fuzzer here"""
 ```
 
-Caveats:
+Problems:
 
-* All the code must be inside this cell
+* **All** the code must be inside this single cell
 * MicroGP does not detect Jupyter anymore
 
-### Tamper with `__pycache__` :-1:
+### Tamper with `__pycache__`
 
-Terrible and probably dangerous, but someone may want to try:
+:warning: This hack may cause the system to become unstable, to provide incorrect results, or to stop functioning completely. You acknowledge that you are solely responsible for any harm or damage that may result.
+
+Someone may want to try:
 
 * Generate the optimized bytecode, e.g., running `python -OO -m pytest` 
 * Locate the `__pycache__` directory
