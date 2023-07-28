@@ -93,8 +93,8 @@ class Population:
         self._generation = value
 
     @property
-    def not_evaluated(self):
-        return list(filter(lambda i: not self._individuals[i].is_finalized, range(len(self._individuals))))
+    def not_evaluated(self, index=False):
+        return list(filter(lambda i, I: not I.is_finalized, enumerate(self._individuals)))
 
     def __getitem__(self, item):
         return self._individuals[item]
@@ -124,7 +124,7 @@ class Population:
         return self
 
     def __iter__(self):
-        return iter(self._individuals)
+        return enumerate(self._individuals)
 
     def __str__(self):
         return f'{self.__class__.__name__} @ {hex(id(self))} (top frame: {self.top_frame.__name__})' + \

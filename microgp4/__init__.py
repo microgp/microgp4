@@ -93,16 +93,6 @@ for name in sorted(dir()):
 del _patch_class_info
 
 #############################################################################
-# Warning
-
-if notebook_mode and logging.getLogger().level <= logging.WARNING:
-    user_messages.performance(
-        "Paranoia checks are always enabled in notebooks: performances can be significantly impaired")
-elif not notebook_mode:
-    assert test_mode or not main_process or user_messages.performance(
-        "Paranoia checks are enabled: performances can be significantly impaired — consider using '-O'")
-
-#############################################################################
 # Welcome!
 
 __welcome__ = f"This is MicroGP v{__version__} \"{version_info.codename}\"\n" + \
@@ -120,3 +110,23 @@ def welcome(level=logging.DEBUG):
 
 if main_process and not notebook_mode:
     welcome(logging.INFO)
+
+#############################################################################
+# Warning
+
+if notebook_mode and logging.getLogger().level <= logging.WARNING:
+    if paranoia_mode:
+        user_messages.performance(
+            "Paranoia checks are always enabled in notebooks: performances can be significantly impaired\n" + \
+            "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details")
+    else:
+        user_messages.performance("Running within a notebook without paranoia checks‼️\n" + \
+                                  "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details")
+elif not notebook_mode:
+    assert test_mode or not main_process or user_messages.performance(
+        "Paranoia checks are enabled: performances can be significantly impaired — consider using '-O'")
+
+if not matplotlib_available:
+    user_messages.runtime_warning("Failed to import 'matplotlib': plotting of individuals will not be available.")
+if not joblib_available:
+    user_messages.runtime_warning("Failed to import 'joblib': process-based parallel evaluators will not be available.")

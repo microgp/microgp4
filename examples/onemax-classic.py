@@ -50,14 +50,14 @@ def main():
 
     top_frame = multiple_distinct_bits()
     evaluator = ugp.evaluator.SequentialPythonEvaluator(fitness, strip_genome=True)
-    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=100, max_fitness=fitness('1' * NUM_BITS))
+    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=1, max_fitness=fitness('1' * NUM_BITS))
 
     population[0].as_forest(filename='forest.svg')
     population[0].as_lgp(filename='lgp.svg', zoom=1.0)
     with open('ind0.lst', 'w') as out:
         out.write(population.dump_individual(0, {'$dump_node_info': True}))
 
-    for i in population:
+    for _, i in population:
         print(i.describe(max_recursion=99))
 
 

@@ -36,7 +36,7 @@ Usually no editing is needed.
 
 ### Cell Magic
 
-IPython has a system of commands known as *cell magic* (see: [built-in magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) in IPython documentation). It can be used to execute a cell in a Python interpreter with optimization flag:
+Jupyter allows using some IPython's [magics](https://ipython.readthedocs.io/en/stable/interactive/magics.html): A *cell magic* can be used to execute the content of a cell in a Python interpreter with an optimization flag:
 
 ```jupyterpython
 %%python -O
@@ -48,15 +48,15 @@ import microgp4 as ugp
 
 Known problems:
 
-* **All** the code must be inside this single cell
-* MicroGP does not detect Jupyter anymore
+* The code must be inside **one single** cell
+* MicroGP is not able to detect Jupyter anymore
 
-### Tamper with `__pycache__`
+### Tamper with bytecode cache
 
 :warning: This hack may cause the system to become unstable, to provide incorrect results, or to stop functioning completely. You acknowledge that you are solely responsible for any harm or damage that may result.
 
-Someone may want to try:
-
-* Generate the optimized bytecode, e.g., running `python -OO -m pytest` 
-* Locate the `__pycache__` directory
-* Substitute the unoptimized bytecode files (`*.pyc` on my computer) with their optimized version (`*.opt-2.pyc` on my computer)
+* Generate the optimized bytecode, e.g., by running `python -OO -m pytest` 
+* Locate all the folders containg the cached compiled files
+* Substitute all bytecode-compiled files (`*.pyc` on my computer) with their optimized versions (`*.opt-2.pyc` on my computer)
+* Stop updating MicroGP files
+* Play with Jupyter

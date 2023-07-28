@@ -30,7 +30,7 @@
 __all__ = [
     'version_info', '__version__', '__author__', '__copyright__', 'FRAMEWORK_DIRECTORY', 'FRAMEWORK', 'LINK',
     'FRAME_NODE', 'MACRO_NODE', 'NODE_ZERO', 'UGP4_TAG', 'GENETIC_OPERATOR', 'FITNESS_FUNCTION', 'test_mode',
-    'notebook_mode', 'debug_mode', 'main_process'
+    'notebook_mode', 'debug_mode', 'main_process', 'joblib_available', 'matplotlib_available', 'paranoia_mode'
 ]
 
 import sys
@@ -66,7 +66,36 @@ try:
 except NameError:
     pass
 
+joblib_available = False
+try:
+    import joblib
+    joblib_available = True
+except ModuleNotFoundError:
+    pass
+
+matplotlib_available = False
+try:
+    import matplotlib
+    matplotlib_available = True
+except ModuleNotFoundError:
+    pass
+
+#############################################################################
+# DEBUG MODE
+
 debug_mode = __debug__
+
+#############################################################################
+# PARANOIA MODE
+
+
+def _check_assert():
+    global paranoia_mode
+    paranoia_mode = True
+
+
+paranoia_mode = False
+assert _check_assert() or True
 
 #####################################################################################################################
 # "Global" constants

@@ -39,6 +39,11 @@ import subprocess
 import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
+from microgp4.global_symbols import *
+
+if joblib_available:
+    from joblib import Parallel, delayed
+
 from microgp4.user_messages import *
 from microgp4.classes.fitness import FitnessABC, InvalidFitness
 from microgp4.fitness import make_fitness
@@ -94,7 +99,7 @@ class SequentialPythonEvaluator(EvaluatorABC):
         return f"{self.__class__.__name__}❬{self._function_name}❭"
 
     def evaluate_population(self, population: Population) -> None:
-        for i, ind in filter(lambda x: not x[1].is_finalized, enumerate(population)):
+        for i, ind in filter(lambda x: not x[1].is_finalized, population):
             self._fitness_calls += 1
             fitness = self._function(population.dump_individual(i))
             ind.fitness = fitness
@@ -104,7 +109,7 @@ class SequentialPythonEvaluator(EvaluatorABC):
 
 class ParallelPythonEvaluator(SequentialPythonEvaluator):
 
-    def __init__(self, *args, max_workers=None, **kwargs) -> None:
+    def __init__(self, *args, type_: str = 'thread_pool', max_workers=None, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self._max_workers = max_workers
 
@@ -224,16 +229,16 @@ class ScriptEvaluator(EvaluatorABC):
         self._file_name = file_name
 
     def evaluate_population(self, population: Population) -> None:
-        ind_idxs = population.not_evaluated
-        ind_files = list()
-        for i in ind_idxs:
+        individuals = population.not_evaluated
+        individuals_files = list()
+        for idx, ind in individuals:
             self._fitness_calls += 1
-            ind_files.append(self._file_name.format(i=population.individuals[i].id))
-            with open(ind_files[-1], 'w') as dump:
+            individuals.append(self._file_name.format(i=population.individuals[i].id))
+            with open(individuals[-1], 'w') as dump:
                 dump.write(population.dump_individual(i))
 
         try:
-            result = subprocess.run([self._script_name, *ind_files],
+            result = subprocess.run([self._script_name, *individuals],
                                     universal_newlines=True,
                                     check=True,
                                     text=True,

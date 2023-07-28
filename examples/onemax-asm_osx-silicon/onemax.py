@@ -60,7 +60,8 @@ def instruction_library():
 
 def main():
     ugp.microgp_logger.setLevel(logging.INFO)
-    evaluator = ugp.evaluator.MakefileEvaluator('onemax.s', required_files=['Makefile', 'main.o'])
+    evaluator = ugp.evaluator.ScriptEvaluator('evaluator_script.sh')
+    #evaluator = ugp.evaluator.MakefileEvaluator('onemax.s', required_files=['Makefile', 'main.o'])
     top_frame = instruction_library()
     ugp.ea.vanilla_ea(top_frame, evaluator)
 

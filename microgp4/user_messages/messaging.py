@@ -41,39 +41,43 @@ from microgp4.global_symbols import notebook_mode
 BASE_STACKLEVEL = 3
 
 
+def _indent_msg(message):
+    return '\n  ' + message.replace('\n', '\n  ')
+
+
 def deprecation(message: str, stacklevel_offset: int = 0) -> bool:
-    warnings.warn(f"\n  {message}", DeprecationWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
+    warnings.warn(f"{_indent_msg(message)}", DeprecationWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
     return True
 
 
 def performance(message: str, stacklevel_offset: int = 0) -> bool:
-    warnings.warn(f"\n  {message}", RuntimeWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
+    warnings.warn(f"{_indent_msg(message)}", RuntimeWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
     return True
 
 
 def runtime_warning(message: str, stacklevel_offset: int = 0) -> bool:
-    warnings.warn(f"\n  {message}", RuntimeWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
+    warnings.warn(f"{_indent_msg(message)}", RuntimeWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
     return True
 
 
 def user_warning(message: str, stacklevel_offset: int = 0) -> bool:
-    warnings.warn(f"\n  {message}", UserWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
+    warnings.warn(f"{_indent_msg(message)}", UserWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
     return True
 
 
 def syntax_warning(message: str, stacklevel_offset: int = 0) -> bool:
-    warnings.warn(f"\n  {message}", SyntaxWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
+    warnings.warn(f"{_indent_msg(message)}", SyntaxWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
     return True
 
 
 def deprecation_warning(message: str, stacklevel_offset: int = 0) -> bool:
-    warnings.warn(f"\n  {message}", DeprecationWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
+    warnings.warn(f"{_indent_msg(message)}", DeprecationWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset)
     return True
 
 
 def syntax_warning_hint(message: str, stacklevel_offset: int = 0) -> bool:
     if microgp_logger.level < logging.INFO:
-        warnings.warn(f"Friendly suggestion:\n  {message}",
+        warnings.warn(f"Friendly suggestion:{_indent_msg(message)}",
                       SyntaxWarning,
                       stacklevel=BASE_STACKLEVEL + stacklevel_offset)
         DEBUG_FRIENDLY_SUGGESTIONS = "Friendly suggestion:\n  Friendly suggestions are only shown if code is not optimized and logging level is DEBUG"

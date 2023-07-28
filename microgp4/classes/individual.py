@@ -39,15 +39,12 @@ import operator
 
 import networkx as nx
 
-try:
-    import matplotlib.pyplot as plt
-except ModuleNotFoundError as e:
-    plt_errror = e
-    plt = None
-
 from microgp4.user_messages import *
 from microgp4.global_symbols import *
 from microgp4.tools.graph import *
+
+if matplotlib_available:
+    import matplotlib.pyplot as plt
 
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.paranoid import Paranoid
@@ -343,10 +340,6 @@ class Individual(Paranoid):
 
         """
 
-        if plt is None:
-            user_warning(f"Rendering of individuals not available: {plt_errror}")
-            return
-
         if filename:
             if 'bbox_inches' not in kwargs:
                 kwargs['bbox_inches'] = 'tight'
@@ -390,10 +383,6 @@ class Individual(Paranoid):
         .. [3] https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html
 
         """
-
-        if not plt:
-            user_warning(f"Rendering of individuals not available: {plt_errror}")
-            return
 
         if filename:
             if 'bbox_inches' not in kwargs:
