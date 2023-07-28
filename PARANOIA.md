@@ -18,12 +18,12 @@ $ python -O ./my-fuzzer.py
 
 ## Jupyter Notebooks
 
-MicroGP should detect when it is within a Jupyter Notebook:
+MicroGP should detect when it is within a Jupyter Notebook and show a warning:
 
 > Paranoia checks are always enabled in notebooks: performances can be significantly impaired  
 > See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details
 
-However, differently from scripts, it may not be easy to specify the `-O` flag. We suggest three possible solutions:
+However, differently from scripts, it may not be easy to specify an `-O` flag. There are possible workarounds.
 
 ### Export to Script
 
@@ -36,9 +36,7 @@ Usually no editing is needed.
 
 ### Cell Magic
 
-IPython has a system of commands known as *cell magic* (see: [built-in magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) in IPython documentation).
-
-`%%python -O` can be used to execute a whole cell in a Python interpreter with optimization flag
+IPython has a system of commands known as *cell magic* (see: [built-in magic commands](https://ipython.readthedocs.io/en/stable/interactive/magics.html) in IPython documentation). It can be used to execute a cell in a Python interpreter with optimization flag:
 
 ```jupyterpython
 %%python -O
@@ -48,7 +46,7 @@ import microgp4 as ugp
 """My whole fuzzer here"""
 ```
 
-Problems:
+Known problems:
 
 * **All** the code must be inside this single cell
 * MicroGP does not detect Jupyter anymore
