@@ -34,49 +34,64 @@ from microgp4 import sys
 
 # noinspection PyUnresolvedReferences
 from microgp4.functions import *
+
 # noinspection PyUnresolvedReferences
 from microgp4.global_symbols import *
+
 # noinspection PyUnresolvedReferences
 from microgp4 import user_messages
+
 # noinspection PyUnresolvedReferences
 from microgp4 import user_messages
+
 ##from _microgp4.user_messages.exception import *
 ### noinspection PyUnresolvedReferences
 
 # noinspection PyUnresolvedReferences
 from microgp4 import classes
+
 # noinspection PyUnresolvedReferences
 from microgp4 import classes as C
 
 # noinspection PyUnresolvedReferences
 from microgp4 import framework
+
 # noinspection PyUnresolvedReferences
 from microgp4 import framework as f
 
 # noinspection PyUnresolvedReferences
 from microgp4 import ea
+
 # noinspection PyUnresolvedReferences
 from microgp4 import operators
+
 # noinspection PyUnresolvedReferences
 from microgp4 import operators as op
 
 # noinspection PyUnresolvedReferences
 from microgp4 import evaluator_ as evaluator
+
 # noinspection PyUnresolvedReferences
 from microgp4 import fitness_ as fitness
+
 # noinspection PyUnresolvedReferences
 from microgp4 import fitness_ as fit
 
 # noinspection PyUnresolvedReferences
 from microgp4.randy.randy import rrandom
+
 # noinspection PyUnresolvedReferences
 from microgp4.user_messages.messaging import microgp_logger
+
 # noinspection PyUnresolvedReferences
 from microgp4.user_messages.messaging import microgp_logger as logger
+
 # noinspection PyUnresolvedReferences
 from microgp4.registry import *
+
 # noinspection PyUnresolvedReferences
 from microgp4.fitness_log import *
+
 # noinspection PyUnresolvedReferences
 from microgp4.sys import SYSINFO as sysinfo
 
@@ -84,10 +99,11 @@ from microgp4.sys import SYSINFO as sysinfo
 # Patch names to ease debugging and visualization
 
 from microgp4.tools.names import _patch_class_info
+
 for name in sorted(dir()):
     item = globals()[name]
-    if isinstance(item, type) and item.__name__.endswith('ABC'):
-        _patch_class_info(item, item.__name__, tag='abc')
+    if isinstance(item, type) and item.__name__.endswith("ABC"):
+        _patch_class_info(item, item.__name__, tag="abc")
     elif isinstance(item, type):
         _patch_class_info(item, item.__name__)
 del _patch_class_info
@@ -95,14 +111,15 @@ del _patch_class_info
 #############################################################################
 # Welcome!
 
-__welcome__ = f"This is MicroGP v{__version__} \"{version_info.codename}\"\n" + \
-    f"(c) 2022-23 G. Squillero & A. Tonda — Licensed under Apache-2.0"
+__welcome__ = (f'This is MicroGP v{__version__} "{version_info.codename}"\n' +
+               f"(c) 2022-23 G. Squillero & A. Tonda — Licensed under Apache-2.0")
 
 
 def welcome(level=logging.DEBUG):
     from sys import stderr
+
     stderr.flush()
-    for m in __welcome__.split('\n'):
+    for m in __welcome__.split("\n"):
         # stars: ⚝ ⭐
         user_messages.microgp_logger.log(level, f"⭐: {m}")
     return True
@@ -114,17 +131,14 @@ if main_process and not notebook_mode:
 #############################################################################
 # Warning
 
-if notebook_mode and logging.getLogger().level <= logging.WARNING:
-    if paranoia_mode:
-        user_messages.performance(
-            "Paranoia checks are always enabled in notebooks: performances can be significantly impaired\n" + \
-            "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details")
-    else:
-        user_messages.performance("Running within a notebook without paranoia checks‼️\n" + \
-                                  "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details")
+if notebook_mode and logging.getLogger().level <= logging.WARNING and paranoia_mode:
+    assert (test_mode or not main_process or user_messages.performance(
+        "Paranoia checks are enabled: performances can be significantly impaired — consider setting 'PYTHONOPTIMIZE'\n"
+        + "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details"))
 elif not notebook_mode:
-    assert test_mode or not main_process or user_messages.performance(
-        "Paranoia checks are enabled: performances can be significantly impaired — consider using '-O'")
+    assert (test_mode or not main_process or user_messages.performance(
+        "Paranoia checks are enabled: performances can be significantly impaired — consider using '-O'\n" +
+        "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details"))
 
 if not matplotlib_available:
     user_messages.runtime_warning("Failed to import 'matplotlib': plotting of individuals will not be available.")
