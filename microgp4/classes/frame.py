@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['FrameABC', 'FrameAlternative', 'FrameSequence', 'FrameMacroBunch']
+__all__ = ["FrameABC", "FrameAlternative", "FrameSequence", "FrameMacroBunch"]
 
 from types import NoneType
 from abc import abstractmethod
@@ -42,7 +42,6 @@ from microgp4.classes.value_bag import ValueBag
 
 
 class FrameABC(SElement, Paranoid):
-
     _registered_names = set()
 
     def __init__(self, extra_parameters: dict | None = None) -> None:
@@ -50,7 +49,7 @@ class FrameABC(SElement, Paranoid):
         super().__init__()
         self._checks = list()
         self._extra_parameters = extra_parameters if extra_parameters is not None else dict()
-        #self._values = list()
+        # self._values = list()
 
     @property
     def valid(self) -> bool:
@@ -63,12 +62,12 @@ class FrameABC(SElement, Paranoid):
 
     @property
     @abstractmethod
-    def successors(self) -> list[type['SElement']]:
+    def successors(self) -> list[type["SElement"]]:
         pass
 
     def dump(self, extra_parameters: ValueBag) -> str:
         check_valid_type(extra_parameters, ValueBag)
-        return ''
+        return ""
 
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()
@@ -76,12 +75,13 @@ class FrameABC(SElement, Paranoid):
     @classmethod
     @property
     def name(cls):
-        return (cls.__name__)
+        return cls.__name__
 
     @staticmethod
     def register_name(name: str) -> bool:
-        assert name not in FrameABC._registered_names, \
-            f"ValueError: Frame name {name!r} already exists (paranoia check)"
+        assert (
+            name not in FrameABC._registered_names
+        ), f"ValueError: Frame name {name!r} already exists (paranoia check)"
         FrameABC._registered_names.add(name)
         return True
 

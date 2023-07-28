@@ -21,7 +21,7 @@ NUM_BITS = 100
 @ugp.fitness_function
 def fitness(genotype: str):
     """Vanilla 1-max"""
-    return sum(b == '1' for b in genotype)
+    return sum(b == "1" for b in genotype)
 
 
 def single_array_parameter():
@@ -33,15 +33,16 @@ def single_array_parameter():
 def multiple_distinct_bits():
     macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
     frame = ugp.f.bunch([macro], size=(1, NUM_BITS + 1))
-    #frame.add_node_check(lambda n: n.framework_out_degree % 2 == 0)
+    # frame.add_node_check(lambda n: n.framework_out_degree % 2 == 0)
     return frame
 
 
 def multiple_frames():
     macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
-    link = ugp.f.macro("[{_node}]=>[{l}]",
-                       l=ugp.f.global_reference(target_frame='blues', first_macro=True, creative_zeal=.01))
-    frame = ugp.f.bunch([macro, link], size=(NUM_BITS // 10 // 10, NUM_BITS // 10 + 1), name='blues')
+    link = ugp.f.macro(
+        "[{_node}]=>[{l}]", l=ugp.f.global_reference(target_frame="blues", first_macro=True, creative_zeal=0.01)
+    )
+    frame = ugp.f.bunch([macro, link], size=(NUM_BITS // 10 // 10, NUM_BITS // 10 + 1), name="blues")
     return frame
 
 
@@ -49,17 +50,17 @@ def main():
     ugp.microgp_logger.setLevel(logging.INFO)
 
     top_frame = multiple_distinct_bits()
-    evaluator = ugp.evaluator.SequentialPythonEvaluator(fitness, strip_genome=True)
-    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=1, max_fitness=fitness('1' * NUM_BITS))
+    evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True)
+    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=1, max_fitness=fitness("1" * NUM_BITS))
 
-    population[0].as_forest(filename='forest.svg')
-    population[0].as_lgp(filename='lgp.svg', zoom=1.0)
-    with open('ind0.lst', 'w') as out:
-        out.write(population.dump_individual(0, {'$dump_node_info': True}))
+    population[0].as_forest(filename="forest.svg")
+    population[0].as_lgp(filename="lgp.svg", zoom=1.0)
+    with open("ind0.lst", "w") as out:
+        out.write(population.dump_individual(0, {"$dump_node_info": True}))
 
     for _, i in population:
         print(i.describe(max_recursion=99))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

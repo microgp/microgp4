@@ -21,7 +21,6 @@ PARANOIA_VALUE_ERROR = "ValueError (paranoia check)"
 
 
 def test_check_valid_type():
-
     assert ugp.user_messages.check_valid_type(404, int) == True
     my_sequence: Sequence[int] = [1, 2, 3, 4, 5]
     assert ugp.user_messages.check_valid_type(my_sequence, Sequence) == True

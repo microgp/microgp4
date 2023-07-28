@@ -22,18 +22,22 @@ import microgp4 as ugp
 
 
 def instruction_library():
-    prologue = ugp.f.macro('''
+    prologue = ugp.f.macro(
+        """
     .text
     .globl	one_max
 one_max:
     pushq	%rbp
     movq	%rsp, %rbp
-        ''')
+        """
+    )
 
-    epilogue = ugp.f.macro('''
+    epilogue = ugp.f.macro(
+        """
 	popq	%rbp
 	ret
-        ''')
+        """
+    )
 
     op = ugp.f.macro("	movl	${val:#x}, %eax", val=ugp.f.integer_parameter(0, 2**32))
 
@@ -43,10 +47,10 @@ one_max:
 
 def main():
     ugp.microgp_logger.setLevel(logging.INFO)
-    evaluator = ugp.evaluator.ScriptEvaluator('evaluate.cmd')
+    evaluator = ugp.evaluator.ScriptEvaluator("evaluate.cmd")
     top_frame = instruction_library()
-    ugp.ea.vanilla_ea(top_frame, evaluator, population_extra_parameters={'_comment': '#'})
+    ugp.ea.vanilla_ea(top_frame, evaluator, population_extra_parameters={"_comment": "#"})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

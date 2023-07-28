@@ -11,7 +11,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 [project]
-authors = [{name = "Giovanni Squillero", email = "giovanni.squillero@polito.it"}]
+authors = [{name = "Giovanni Squillero", email = "giovanni.squillero@polito.it"},
+           {name = "Alberto Tonda", email = "alberto.tonda@inrae.fr"}]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Information Technology",
@@ -51,8 +52,9 @@ ignore_patterns = [
 
 [tool.black]
 # black .
+target-version = ['py311', 'py312']
 exclude = "(^\\.|^__pycache__|^venv)"
-include = '\.ipynb'
+include = '(\.ipynb$|\.py$)'
 line-length = 120
 
 [tool.pytest.ini_options]
@@ -101,7 +103,7 @@ source-roots = ['src']
 name = "microgp4"
 version = "4.2"
 description = "Yet another multi-purpose extensible self-adaptive evolutionary tool"
-authors = ["Giovanni Squillero <giovanni.squillero@polito.it>"]
+authors = ["giovanni.squillero@polito.it"]
 license = "Apache-2.0"
 readme = "README.md"
 

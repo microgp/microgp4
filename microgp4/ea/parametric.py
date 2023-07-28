@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / July 2023 / Squillero (GX)
 
-__all__ = ['parametric_ea']
+__all__ = ["parametric_ea"]
 
 from microgp4.operators import *
 from microgp4.sys import *
@@ -43,19 +43,22 @@ from .selection import *
 
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
-        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}" +
-        f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]")
+        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}"
+        + f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]"
+    )
 
 
-def parametric_ea(top_frame: type[FrameABC],
-                  evaluator: EvaluatorABC,
-                  mu: int = 10,
-                  lambda_: int = 20,
-                  max_generation: int = 100,
-                  max_fitness: FitnessABC | None = None,
-                  top_best: int = None,
-                  lifespan: int = None,
-                  operators: list = None) -> Population:
+def parametric_ea(
+    top_frame: type[FrameABC],
+    evaluator: EvaluatorABC,
+    mu: int = 10,
+    lambda_: int = 20,
+    max_generation: int = 100,
+    max_fitness: FitnessABC | None = None,
+    top_best: int = None,
+    lifespan: int = None,
+    operators: list = None,
+) -> Population:
     r"""A configurable evolutionary algorithm
 
     Parameters

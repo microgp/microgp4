@@ -17,11 +17,8 @@ import microgp4 as ugp
 
 
 class TestIdentifiable:
-
     def test_identity(self):
-
         class MyIdentifiable(ugp.classes.IdentifiableABC):
-
             def __init__(self, id):
                 self.id = id
 
@@ -38,9 +35,7 @@ class TestIdentifiable:
         assert obj3._identity == 1
 
     def test_hash(self):
-
         class MyIdentifiable(ugp.classes.IdentifiableABC):
-
             def __init__(self, id):
                 self.id = id
 
@@ -56,9 +51,7 @@ class TestIdentifiable:
         assert hash(obj1) == hash(obj3)
 
     def test_eq(self):
-
         class MyIdentifiable(ugp.classes.IdentifiableABC):
-
             def __init__(self, id):
                 self.id = id
 

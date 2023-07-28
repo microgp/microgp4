@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['Scalar', 'Integer', 'Float', 'Vector', 'Lexicographic', 'make_fitness']
+__all__ = ["Scalar", "Integer", "Float", "Vector", "Lexicographic", "make_fitness"]
 
 from typing import Sequence, Any
 
@@ -47,7 +47,7 @@ class Float(FitnessABC, float):
         return float.__new__(cls, *args, **kw)
 
     def _decorate(self):
-        return 'ℝ' + str(float(self))
+        return "ℝ" + str(float(self))
 
 
 class Integer(FitnessABC, int):
@@ -68,29 +68,31 @@ class Scalar(FitnessABC, float):
 
     def __init__(self, argument, rel_tol: float = 1e-09, abs_tol: float = 0):
         """See the documentation of math.isclose() and PEP485."""
-        #super(Scalar, self).__init__()
+        # super(Scalar, self).__init__()
         self._rel_tol = rel_tol
         self._abs_tol = abs_tol
 
     def _decorate(self) -> str:
-        return format(self, 'g')
+        return format(self, "g")
 
     def is_distinguishable(self, other: FitnessABC) -> bool:
         assert self.check_comparable(other)
-        return isinstance(
-            other,
-            InvalidFitness) or not isclose(float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol)
+        return isinstance(other, InvalidFitness) or not isclose(
+            float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol
+        )
 
     def is_fitter(self, other: FitnessABC) -> bool:
         assert self.check_comparable(other)
         return isinstance(other, InvalidFitness) or (self != other and float(self) > float(other))
 
-    def check_comparable(self, other: 'Scalar'):
+    def check_comparable(self, other: "Scalar"):
         assert super().check_comparable(other)
-        assert not isinstance(other, self.__class__) or self._abs_tol == other._abs_tol, \
-            f"ValueError: different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol} (paranoia check)"
-        assert not isinstance(other, self.__class__) or self._rel_tol == other._rel_tol, \
-            f"ValueError: different relative tolerance: {float(self)}±{self._rel_tol}r vs. {float(other)}±{other._rel_tol}r (paranoia check)"
+        assert (
+            not isinstance(other, self.__class__) or self._abs_tol == other._abs_tol
+        ), f"ValueError: different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol} (paranoia check)"
+        assert (
+            not isinstance(other, self.__class__) or self._rel_tol == other._rel_tol
+        ), f"ValueError: different relative tolerance: {float(self)}±{self._rel_tol}r vs. {float(other)}±{other._rel_tol}r (paranoia check)"
         return True
 
 
@@ -103,26 +105,27 @@ class Vector(FitnessABC):
     def __init__(self, values: Sequence[FitnessABC]) -> None:
         self._values = tuple(values)
 
-    def cheeck_comparable(self, other: 'Vector'):
-        assert len(self._values) == len(other._values), \
-            f"Can't is_fitter Fitness Vectors of different size ({self} vs. {other})"
+    def cheeck_comparable(self, other: "Vector"):
+        assert len(self._values) == len(
+            other._values
+        ), f"Can't is_fitter Fitness Vectors of different size ({self} vs. {other})"
         assert all(v1.check_comparable(v2) for v1, v2 in zip(self, other))
         return True
 
-    def is_distinguishable(self, other: 'Vector') -> bool:
+    def is_distinguishable(self, other: "Vector") -> bool:
         assert self.check_comparable(other)
         return any(v1.is_distinguishable(v2) for v1, v2 in zip(self, other))
 
-    def is_fitter(self, other: 'Vector') -> bool:
+    def is_fitter(self, other: "Vector") -> bool:
         self.check_comparable(other)
         return list(self) > list(other)
 
-    #def is_dominant(self, other: 'Vector') -> bool:
+    # def is_dominant(self, other: 'Vector') -> bool:
     #    self.check_comparable(other)
     #    return all(v1 >> v2 for v1, v2 in zip(self, other))
 
     def _decorate(self) -> str:
-        return '(' + ', '.join(e._decorate() for e in self) + ')'
+        return "(" + ", ".join(e._decorate() for e in self) + ")"
 
     def __iter__(self):
         return iter(self._values)
@@ -147,8 +150,7 @@ class Lexicographic(Vector):
 
     def __init__(self, values: Sequence, type_: type[FitnessABC] = Scalar):
         assert check_valid_types(values, Sequence)
-        assert values, \
-            f"ValueError: Can't convert empty sequence {values} to Lexicographic Fitness"
+        assert values, f"ValueError: Can't convert empty sequence {values} to Lexicographic Fitness"
         fitness_values = [type_(v) for v in values]
         super().__init__(fitness_values)
 
@@ -162,17 +164,18 @@ def make_fitness(data: Any):
         microgp_logger.warning(f"{data}")
         return Lexicographic(data)
     else:
-        assert isinstance(data, Sequence) or isinstance(data, int) or isinstance(data, float), \
-            f"TypeError: Can't convert {data!r} ({type()}) to Fitness"
+        assert (
+            isinstance(data, Sequence) or isinstance(data, int) or isinstance(data, float)
+        ), f"TypeError: Can't convert {data!r} ({type()}) to Fitness"
 
 
 ##############################################################################
 # Patch names
-#_patch_class_info(Scalar, 'Scalar', tag='fitness')
-#_patch_class_info(Integer, 'Integer', tag='fitness')
-#_patch_class_info(Float, 'Float', tag='fitness')
-#_patch_class_info(Vector, 'Vector', tag='fitness')
-#_patch_class_info(Lexicographic, 'Vector', tag='fitness')
-#_patch_class_info(ApproximateVector, 'VectorApproximate', tag='fitness')
-#_patch_class_info(IntegerVector, 'VectorInteger', tag='fitness')
-#_patch_class_info(ScalarVector, 'VectorScalar', tag='fitness')
+# _patch_class_info(Scalar, 'Scalar', tag='fitness')
+# _patch_class_info(Integer, 'Integer', tag='fitness')
+# _patch_class_info(Float, 'Float', tag='fitness')
+# _patch_class_info(Vector, 'Vector', tag='fitness')
+# _patch_class_info(Lexicographic, 'Vector', tag='fitness')
+# _patch_class_info(ApproximateVector, 'VectorApproximate', tag='fitness')
+# _patch_class_info(IntegerVector, 'VectorInteger', tag='fitness')
+# _patch_class_info(ScalarVector, 'VectorScalar', tag='fitness')

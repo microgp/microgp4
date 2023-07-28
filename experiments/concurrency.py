@@ -48,7 +48,7 @@ def fibonacci(steps: int) -> int:
 
 
 def shell(*args, **kwargs) -> int:
-    return subprocess.run(['sleep', '5'])
+    return subprocess.run(["sleep", "5"])
 
 
 def sequential():
@@ -79,18 +79,18 @@ def multiprocess():
 
 
 def concurrent1():
-    str = ''
+    str = ""
     with ThreadPoolExecutor() as pool:
         for result in pool.map(prime, list(range(110050100, 110050250))):
-            str += '!' if result else '.'
+            str += "!" if result else "."
     print(str)
 
 
 def concurrent2():
-    str = ''
+    str = ""
     with ProcessPoolExecutor() as pool:
         for result in pool.map(prime, list(range(110050100, 110050250))):
-            str += '!' if result else '.'
+            str += "!" if result else "."
     print(str)
 
 
@@ -114,13 +114,13 @@ def timeit(func):
     logging.info(f"timeit: {func.__qualname__} wall-clock: {end_w-start_w:.2f}s; time: {end_p-start_p:.2f}s")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.getLogger().setLevel(logging.INFO)
-    #timeit(sequential)
-    #timeit(multithread)
-    #timeit(multiprocess)
-    #timeit(concurrent1)
-    #timeit(concurrent2)
+    # timeit(sequential)
+    # timeit(multithread)
+    # timeit(multiprocess)
+    # timeit(concurrent1)
+    # timeit(concurrent2)
 
     seq = [1 for _ in range(1_000)] + [-1 for _ in range(1_000)]
     with ThreadPoolExecutor() as pool:

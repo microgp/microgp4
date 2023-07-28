@@ -26,12 +26,14 @@ def draw_background():
     This function draws the background. Specifically, the sky and ground.
     """
     # Draw the sky in the top two-thirds
-    arcade.draw_rectangle_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT * 2 / 3, SCREEN_WIDTH - 1, SCREEN_HEIGHT * 2 / 3,
-                                 arcade.color.SKY_BLUE)
+    arcade.draw_rectangle_filled(
+        SCREEN_WIDTH / 2, SCREEN_HEIGHT * 2 / 3, SCREEN_WIDTH - 1, SCREEN_HEIGHT * 2 / 3, arcade.color.SKY_BLUE
+    )
 
     # Draw the ground in the bottom third
-    arcade.draw_rectangle_filled(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 6, SCREEN_WIDTH - 1, SCREEN_HEIGHT / 3,
-                                 arcade.color.DARK_SPRING_GREEN)
+    arcade.draw_rectangle_filled(
+        SCREEN_WIDTH / 2, SCREEN_HEIGHT / 6, SCREEN_WIDTH - 1, SCREEN_HEIGHT / 3, arcade.color.DARK_SPRING_GREEN
+    )
 
 
 def draw_bird(x, y):

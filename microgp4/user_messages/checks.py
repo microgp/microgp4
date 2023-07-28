@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['check_valid_type', 'check_valid_types', 'check_value_range', 'check_valid_length', 'check_no_duplicates']
+__all__ = ["check_valid_type", "check_valid_types", "check_value_range", "check_valid_length", "check_no_duplicates"]
 
 from numbers import Number
 from collections.abc import Collection
@@ -46,13 +46,19 @@ def check_valid_type(obj, valid: type, subclass: bool = False) -> bool:
     elif subclass and isinstance(obj, type) and issubclass(obj, valid):
         return True
     if subclass and isinstance(obj, valid):
-        hint = ' — did you instantiate the object adding extra \'()\'?'
+        hint = " — did you instantiate the object adding extra '()'?"
     elif not subclass and isinstance(obj, type) and issubclass(obj, valid):
-        hint = ' — did you forget to instantiate the object?'
+        hint = " — did you forget to instantiate the object?"
     else:
-        hint = ''
-    microgp_logger.error("TypeError: invalid type %s for %s: expected %s%s%s", type(obj), repr(obj),
-                         'sublass of ' if subclass else '', valid, hint)
+        hint = ""
+    microgp_logger.error(
+        "TypeError: invalid type %s for %s: expected %s%s%s",
+        type(obj),
+        repr(obj),
+        "sublass of " if subclass else "",
+        valid,
+        hint,
+    )
     raise MicroGPError(PARANOIA_TYPE_ERROR)
 
 
@@ -63,8 +69,12 @@ def check_valid_types(obj, *valid_types: type, subclass: bool = False) -> bool:
             return True
         elif subclass and isinstance(obj, type) and issubclass(obj, valid):
             return True
-    microgp_logger.error("TypeError: invalid type %s for %s: expected %s", type(obj), repr(obj),
-                         ' or '.join(repr(v) for v in valid_types))
+    microgp_logger.error(
+        "TypeError: invalid type %s for %s: expected %s",
+        type(obj),
+        repr(obj),
+        " or ".join(repr(v) for v in valid_types),
+    )
     raise MicroGPError(PARANOIA_TYPE_ERROR)
 
 
@@ -97,6 +107,6 @@ def check_no_duplicates(obj: Collection) -> bool:
     seq = list(obj)
     if any(i != seq.index(x) for i, x in enumerate(seq)):
         dups = set(x for i, x in enumerate(seq) if i != seq.index(x))
-        microgp_logger.error("ValueError: duplicated elements: %s", ', '.join(repr(_) for _ in sorted(dups)))
+        microgp_logger.error("ValueError: duplicated elements: %s", ", ".join(repr(_) for _ in sorted(dups)))
         raise MicroGPError(PARANOIA_VALUE_ERROR)
     return True

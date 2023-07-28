@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['canonize_name', 'uncanonize_name']
+__all__ = ["canonize_name", "uncanonize_name"]
 
 from collections import Counter
 from abc import ABCMeta
@@ -38,30 +38,31 @@ _name_counter = Counter()
 _used_names = set()
 
 
-def canonize_name(name: str,
-                  tag: str,
-                  user: bool | None = None,
-                  make_unique: bool = True,
-                  user_space: bool = False,
-                  warn_duplicates: bool = True) -> str:
-
-    assert any(s not in name for s in '<❬#❭>'), \
-        f"ValueError: Illegal character in name: {name} (paranoia check)"
+def canonize_name(
+    name: str,
+    tag: str,
+    user: bool | None = None,
+    make_unique: bool = True,
+    user_space: bool = False,
+    warn_duplicates: bool = True,
+) -> str:
+    assert any(s not in name for s in "<❬#❭>"), f"ValueError: Illegal character in name: {name} (paranoia check)"
 
     if user is True:
         user_space = True
     elif make_unique:
         _name_counter[(tag, name)] += 1
-        name += f'#{_name_counter[(tag, name)]}'
+        name += f"#{_name_counter[(tag, name)]}"
 
     if user_space:
-        canonic_name = f'{tag}<{name}>'
+        canonic_name = f"{tag}<{name}>"
     else:
         # NOTE[GX]: These "fancy" brackets are difficult to enter ;-)
-        canonic_name = f'{tag}❬{name}❭'
+        canonic_name = f"{tag}❬{name}❭"
 
-    assert not warn_duplicates or canonic_name not in _used_names, \
-        f"ValueError: Name {canonic_name} has already been used (paranoia check)"
+    assert (
+        not warn_duplicates or canonic_name not in _used_names
+    ), f"ValueError: Name {canonic_name} has already been used (paranoia check)"
     _used_names.add(canonic_name)
 
     return canonic_name
@@ -69,20 +70,21 @@ def canonize_name(name: str,
 
 def uncanonize_name(name: str, keep_number: bool = False, user: bool = False) -> str:
     if user is None:
-        user = '❬' not in name and '❭' not in name
-    if user and '<' in name:
-        tag = name[0:name.index('<')]
-    elif not user and '❬' in name:
-        tag = name[0:name.index('❬')]
+        user = "❬" not in name and "❭" not in name
+    if user and "<" in name:
+        tag = name[0 : name.index("<")]
+    elif not user and "❬" in name:
+        tag = name[0 : name.index("❬")]
     else:
-        return ''
+        return ""
 
     tlen = len(tag)
-    assert (name[tlen] == '❬' and name[-1] == '❭') or (name[tlen] == '<' and name[-1] == '>'), \
-        f'ValueError: not a canonic name: {name} (paranoia check)'
-    stripped = name[tlen + 1:-1]
-    if '#' in stripped and not keep_number:
-        stripped, num = stripped.split('#')
+    assert (name[tlen] == "❬" and name[-1] == "❭") or (
+        name[tlen] == "<" and name[-1] == ">"
+    ), f"ValueError: not a canonic name: {name} (paranoia check)"
+    stripped = name[tlen + 1 : -1]
+    if "#" in stripped and not keep_number:
+        stripped, num = stripped.split("#")
     return stripped
 
 
@@ -90,7 +92,7 @@ def _patch_class_info(obj: type, name: str | None, tag: str | None = None) -> No
     if name:
         obj.__name__ = name
     obj.__qualname__ = obj.__name__
-    obj.__module__ = '_microgp4'
+    obj.__module__ = "_microgp4"
 
     if tag is not None:
-        obj.__module__ += f'.{tag}'
+        obj.__module__ += f".{tag}"

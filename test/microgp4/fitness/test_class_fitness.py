@@ -17,17 +17,16 @@ import microgp4 as ugp
 
 
 class ExampleFitness(ugp.classes.fitness.FitnessABC):
-
     def __init__(self, value: float):
         self.value = value
 
-    def is_fitter(self, other: 'ExampleFitness') -> bool:
+    def is_fitter(self, other: "ExampleFitness") -> bool:
         return self.value > other.value
 
-    def is_dominant(self, other: 'ExampleFitness') -> bool:
+    def is_dominant(self, other: "ExampleFitness") -> bool:
         return self.is_fitter(other)
 
-    def is_distinguishable(self, other: 'ExampleFitness') -> bool:
+    def is_distinguishable(self, other: "ExampleFitness") -> bool:
         return self.value != other.value
 
     def _decorate(self) -> str:

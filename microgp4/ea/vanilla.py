@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['vanilla_ea']
+__all__ = ["vanilla_ea"]
 
 from microgp4.operators import *
 from microgp4.sys import *
@@ -43,17 +43,20 @@ from .selection import *
 
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
-        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}" +
-        f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]")
+        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}"
+        + f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]"
+    )
 
 
-def vanilla_ea(top_frame: type[FrameABC],
-               evaluator: EvaluatorABC,
-               mu: int = 10,
-               lambda_: int = 20,
-               max_generation: int = 100,
-               max_fitness: FitnessABC | None = None,
-               population_extra_parameters: dict = None) -> Population:
+def vanilla_ea(
+    top_frame: type[FrameABC],
+    evaluator: EvaluatorABC,
+    mu: int = 10,
+    lambda_: int = 20,
+    max_generation: int = 100,
+    max_fitness: FitnessABC | None = None,
+    population_extra_parameters: dict = None,
+) -> Population:
     r"""A simple evolutionary algorithm
 
     Parameters
@@ -120,7 +123,7 @@ def vanilla_ea(top_frame: type[FrameABC],
             best = population[0]
             _new_best(population, evaluator)
 
-    #population._zap = all_individuals
+    # population._zap = all_individuals
     microgp_logger.info("VanillaEA: Genetic operators statistics:")
     for op in get_operators():
         microgp_logger.info(f"VanillaEA: * {op.__qualname__}: {op.stats}")

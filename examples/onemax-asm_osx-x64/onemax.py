@@ -20,21 +20,22 @@ import microgp4 as ugp
 
 
 def prepare_frames():
-    register = ugp.f.choice_parameter(['%rax', '%rbx', '%rcx', '%rdx'])
+    register = ugp.f.choice_parameter(["%rax", "%rbx", "%rcx", "%rdx"])
     int8 = ugp.f.integer_parameter(0, 2**8)
     int16 = ugp.f.integer_parameter(0, 2**16)
     int32 = ugp.f.integer_parameter(0, 2**32)
     int64 = ugp.f.integer_parameter(0, 2**64)
 
-    opcode = ugp.f.choice_parameter(['addq', 'subq', 'andq', 'orq', 'xorq'])
-    inst_rr = ugp.f.macro('{op} {r1}, {r2}', op=opcode, r1=register, r2=register)
-    inst_ri = ugp.f.macro('{op} ${i:#x}, {r}', op=opcode, i=int16, r=register)
+    opcode = ugp.f.choice_parameter(["addq", "subq", "andq", "orq", "xorq"])
+    inst_rr = ugp.f.macro("{op} {r1}, {r2}", op=opcode, r1=register, r2=register)
+    inst_ri = ugp.f.macro("{op} ${i:#x}, {r}", op=opcode, i=int16, r=register)
 
-    cond = ugp.f.choice_parameter(['z', 'nz'])
+    cond = ugp.f.choice_parameter(["z", "nz"])
     ref = ugp.f.local_reference(backward=False, loop=False, forward=True)
-    branch = ugp.f.macro('j{c} {t}', c=cond, t=ref)
+    branch = ugp.f.macro("j{c} {t}", c=cond, t=ref)
 
-    prologue = ugp.f.macro(r'''
+    prologue = ugp.f.macro(
+        r"""
 .globl _one_max ## -- Begin function one_max
 _one_max:
 push %rbx
@@ -47,16 +48,19 @@ movq ${init:#x}, %rbx
 movq ${init:#x}, %rcx
 movq ${init:#x}, %rdx
 addq $0, %rax
-''',
-                           init=int64)
+""",
+        init=int64,
+    )
 
-    epilogue = ugp.f.macro('''
+    epilogue = ugp.f.macro(
+        """
 popq %rbp
 pop %rdx
 pop %rcx
 pop %rbx
 retq
-''')
+"""
+    )
 
     main_body = ugp.f.bunch([inst_rr, inst_ri, branch], size=(10, 101))
     program = ugp.f.sequence([prologue, main_body, epilogue])
@@ -65,21 +69,20 @@ retq
 
 
 def evaluate(txt):
-    with open('onemax.s', 'w') as fout:
+    with open("onemax.s", "w") as fout:
         fout.write(txt)
 
-    process = Popen(['make', '-s'], stdout=PIPE)
+    process = Popen(["make", "-s"], stdout=PIPE)
     (output, err) = process.communicate()
     exit_code = process.wait()
-    #ugp.microgp_logger.debug(f"eval: out=%s / err=%s / exit_code=%s", output, err, exit_code)
+    # ugp.microgp_logger.debug(f"eval: out=%s / err=%s / exit_code=%s", output, err, exit_code)
     return int(output)
 
 
 def main():
-
     top_frame = prepare_frames()
 
-    population = ugp.classes.Population(top_frame, None, extra_parameters={'_comment': '#'})
+    population = ugp.classes.Population(top_frame, None, extra_parameters={"_comment": "#"})
     population.add_random_individual()
     txt = population.dump_individual(-1)
     old_value = evaluate(txt)
@@ -88,7 +91,8 @@ def main():
     for n in range(1000):
         I = deepcopy(population.individuals[-1])
         params = list(
-            chain.from_iterable(I.G.nodes[n]['_macro'].parameters.values() for n in I.G if '_macro' in I.G.nodes[n]))
+            chain.from_iterable(I.G.nodes[n]["_macro"].parameters.values() for n in I.G if "_macro" in I.G.nodes[n])
+        )
         p = ugp.rrandom.choice(params)
         p.mutate(1)
         population.individuals.append(I)
@@ -103,12 +107,12 @@ def main():
         if new_value == 64:
             break
 
-    with open('solution.s', 'w') as fout:
+    with open("solution.s", "w") as fout:
         fout.write(population.dump_individual(-1))
-    population.individuals[-1].as_lgp(figsize=(20, 50), filename='soluzion.png', bbox_inches='tight')
+    population.individuals[-1].as_lgp(figsize=(20, 50), filename="soluzion.png", bbox_inches="tight")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ugp.rrandom.seed(42)
-    #ugp.set_logger_level(logging.INFO)
+    # ugp.set_logger_level(logging.INFO)
     main()

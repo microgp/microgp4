@@ -20,11 +20,11 @@ import microgp4 as ugp
 class FrameConcrete(ugp.classes.FrameABC):
     _name_counter = {}
 
-    def mutate(self, strength: float = 1., **kwargs) -> None:
+    def mutate(self, strength: float = 1.0, **kwargs) -> None:
         pass
 
     @property
-    def successors(self) -> list[Type['ugp.classes.FrameABC'] | Type[ugp.classes.Macro]]:
+    def successors(self) -> list[Type["ugp.classes.FrameABC"] | Type[ugp.classes.Macro]]:
         return []
 
 

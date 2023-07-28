@@ -111,8 +111,10 @@ del _patch_class_info
 #############################################################################
 # Welcome!
 
-__welcome__ = (f'This is MicroGP v{__version__} "{version_info.codename}"\n' +
-               f"(c) 2022-23 G. Squillero & A. Tonda — Licensed under Apache-2.0")
+__welcome__ = (
+    f'This is MicroGP v{__version__} "{version_info.codename}"\n'
+    + f"(c) 2022-23 G. Squillero & A. Tonda — Licensed under Apache-2.0"
+)
 
 
 def welcome(level=logging.DEBUG):
@@ -125,6 +127,9 @@ def welcome(level=logging.DEBUG):
     return True
 
 
+#############################################################################
+# Welcome
+
 if main_process and not notebook_mode:
     welcome(logging.INFO)
 
@@ -132,13 +137,23 @@ if main_process and not notebook_mode:
 # Warning
 
 if notebook_mode and logging.getLogger().level <= logging.WARNING and paranoia_mode:
-    assert (test_mode or not main_process or user_messages.performance(
-        "Paranoia checks are enabled: performances can be significantly impaired — consider setting 'PYTHONOPTIMIZE'\n"
-        + "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details"))
+    assert (
+        test_mode
+        or not main_process
+        or user_messages.performance(
+            "Paranoia checks are enabled: performances can be significantly impaired — consider setting 'PYTHONOPTIMIZE'\n"
+            + "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details"
+        )
+    )
 elif not notebook_mode:
-    assert (test_mode or not main_process or user_messages.performance(
-        "Paranoia checks are enabled: performances can be significantly impaired — consider using '-O'\n" +
-        "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details"))
+    assert (
+        test_mode
+        or not main_process
+        or user_messages.performance(
+            "Paranoia checks are enabled: performances can be significantly impaired — consider using '-O'\n"
+            + "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details"
+        )
+    )
 
 if not matplotlib_available:
     user_messages.runtime_warning("Failed to import 'matplotlib': plotting of individuals will not be available.")

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['Macro']
+__all__ = ["Macro"]
 
 from collections import defaultdict
 from typing import Any
@@ -52,12 +52,12 @@ class Macro(SElement, Paranoid):
     def __init__(self):
         self._dont_use_this_parameters = dict()
 
-    def __eq__(self, other: 'Macro') -> bool:
+    def __eq__(self, other: "Macro") -> bool:
         if type(self) != type(other):
             return False
         elif self.text != other.text or self.parameter_types != other.parameter_types:
             return False
-        #elif self.text != other.text or self.parameters != other.parameters:
+        # elif self.text != other.text or self.parameters != other.parameters:
         #    return False
         return True
 
@@ -65,8 +65,8 @@ class Macro(SElement, Paranoid):
     def is_correct(self, nv: Any) -> bool:
         """Checks a NodeView against a macro."""
         return True
-        #assert check_valid_type(nv, NodeView)
-        #return all(nv.attributes[n].is_correct(nv.attributes[n].value) for n, p in self.PARAMETERS.items())
+        # assert check_valid_type(nv, NodeView)
+        # return all(nv.attributes[n].is_correct(nv.attributes[n].value) for n, p in self.PARAMETERS.items())
 
     @property
     def text(self) -> str:
@@ -80,14 +80,14 @@ class Macro(SElement, Paranoid):
     def parameter_types(self) -> dict[str, type[ParameterABC]]:
         return self.PARAMETERS
 
-    #def __getitem__(self, parameter: str) -> Any:
+    # def __getitem__(self, parameter: str) -> Any:
     #    assert Macro.is_name_valid(parameter), \
     #        f"ValueError: invalid parameter name: {parameter} (paranoia check)"
     #    return self.parameters[parameter]
 
     def __str__(self):
         # BRACKETS: ⁅ ⁆ 〈 〉❬ ❭
-        #return f'Macro❬{self.__class__.__name__}❭'
+        # return f'Macro❬{self.__class__.__name__}❭'
         return self.__class__.__name__
 
     def dump(self, extra_parameters: ValueBag) -> str:

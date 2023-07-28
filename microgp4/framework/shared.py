@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['make_shared_parameter']
+__all__ = ["make_shared_parameter"]
 
 from typing import Any
 from microgp4.classes.parameter import ParameterABC
@@ -41,7 +41,6 @@ def make_shared_parameter(parameter: type[ParameterABC]) -> type[ParameterABC]:
     parameter_instance = parameter()
 
     class T(ParameterABC):
-
         def __init__(self):
             if parameter_instance.key not in _parameters:
                 self._owner = True
@@ -58,12 +57,12 @@ def make_shared_parameter(parameter: type[ParameterABC]) -> type[ParameterABC]:
             if self._owner:
                 parameter_instance.value = new_value
 
-        def mutate(self, strength: float = 1., **kwargs) -> None:
+        def mutate(self, strength: float = 1.0, **kwargs) -> None:
             if self._owner:
                 parameter_instance.mutate(strength, **kwargs)
 
         def is_correct(self, obj: Any) -> bool:
             return parameter_instance.is_correct(obj)
 
-    _patch_class_info(T, f'Shared❬{parameter_instance.__class__.__name__}❭', tag='parameter')
+    _patch_class_info(T, f"Shared❬{parameter_instance.__class__.__name__}❭", tag="parameter")
     return T

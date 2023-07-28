@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['reverse_fitness']
+__all__ = ["reverse_fitness"]
 
 from abc import ABC, abstractmethod
 from functools import cache
@@ -43,21 +43,22 @@ def reverse_fitness(fitness_class: type[FitnessABC]) -> type[FitnessABC]:
     assert check_valid_type(fitness_class, FitnessABC, subclass=True)
 
     class T(fitness_class):
-
         def is_fitter(self, other: FitnessABC) -> bool:
-            assert self.__class__ == other.__class__, \
-                    f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
+            assert (
+                self.__class__ == other.__class__
+            ), f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
             return super(T, other).is_fitter(self)
 
         def is_dominant(self, other: FitnessABC) -> bool:
-            assert self.__class__ == other.__class__, \
-                    f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
+            assert (
+                self.__class__ == other.__class__
+            ), f"TypeError: different types of fitness: '{self.__class__}' and '{other.__class__}'"
             return super(T, other).is_dominant(self)
 
         def _decorate(self) -> str:
-            #return 'ᴙ⟦' + fitness_class._decorate(self) + '⟧'
-            return 'ᴙ' + fitness_class._decorate(self)
+            # return 'ᴙ⟦' + fitness_class._decorate(self) + '⟧'
+            return "ᴙ" + fitness_class._decorate(self)
 
-    _patch_class_info(T, f'reverse[{fitness_class.__name__}]', tag='fitness')
+    _patch_class_info(T, f"reverse[{fitness_class.__name__}]", tag="fitness")
 
     return T

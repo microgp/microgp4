@@ -14,8 +14,8 @@
 
 import microgp4 as ugp
 
-#@ugp.genetic_operator(num_parents=1)
-#def foo():
+# @ugp.genetic_operator(num_parents=1)
+# def foo():
 #    pass
 
 
@@ -26,7 +26,7 @@ def onemax1(x):
 
 print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
 print(foo.stats)
-x = foo('x')
+x = foo("x")
 print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
 print(foo.stats)
 
@@ -38,10 +38,10 @@ print(f"Genetic operators: {ugp.sysinfo.genetic_operators}")
 print(f"Fitness functions: {ugp.sysinfo.fitness_functions}")
 
 ugp.sysinfo.show(foo)
-ugp.sysinfo.show('foo')
+ugp.sysinfo.show("foo")
 ugp.sysinfo.show(print)
 pass
 
 i = ugp.classes.Individual(None)
 i.fitness = ugp.fitness.Scalar(3)
-#i.fitness = ugp.fitness.Scalar(3)
+# i.fitness = ugp.fitness.Scalar(3)

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['NodeView']
+__all__ = ["NodeView"]
 
 from itertools import chain
 import networkx as nx
@@ -57,12 +57,11 @@ class NodeView:
         elif len(args) == 2:
             node_ref = NodeReference(args[0], args[1])
         else:
-            assert 1 <= len(args) <= 2, \
-                f"Expected NodeRef or (Graph, node)"
+            assert 1 <= len(args) <= 2, f"Expected NodeRef or (Graph, node)"
         assert check_valid_type(node_ref, NodeReference)
-        self.__dict__['_ref'] = node_ref
-        self.__dict__['_genome'] = node_ref.graph
-        self.__dict__['_node_id'] = node_ref.node
+        self.__dict__["_ref"] = node_ref
+        self.__dict__["_genome"] = node_ref.graph
+        self.__dict__["_node_id"] = node_ref.node
 
     @property
     def genome(self) -> nx.classes.MultiDiGraph:
@@ -73,66 +72,69 @@ class NodeView:
         return self._node_id
 
     def __str__(self) -> str:
-        return f'n{self._node_id}'
+        return f"n{self._node_id}"
 
     def __getattr__(self, item):
         id, G = self._node_id, self._genome
-        if item == 'G':  # Networkx MultiDiGraph (deprecated)
-            deprecation('Direct access to the internal Networkx MultiDiGraph is generally considered a bad idea')
+        if item == "G":  # Networkx MultiDiGraph (deprecated)
+            deprecation("Direct access to the internal Networkx MultiDiGraph is generally considered a bad idea")
             self.__dict__[item] = G
-        elif item == 'attributes':  # ValueBag with all node attributes
+        elif item == "attributes":  # ValueBag with all node attributes
             self.__dict__[item] = ValueBag(G.nodes[id])
-        elif item == 'macro':  # ValueBag with values of macro parameters
-            self.__dict__[item] = ValueBag({k: v.value for k, v in G.nodes[id]['_macro'].parameters.items()})
-        elif item == 'framework_tree':  # Framework tree from the full genome
+        elif item == "macro":  # ValueBag with values of macro parameters
+            self.__dict__[item] = ValueBag({k: v.value for k, v in G.nodes[id]["_macro"].parameters.items()})
+        elif item == "framework_tree":  # Framework tree from the full genome
             tree = nx.DiGraph()
             tree.add_edges_from((x, y) for x, y, _ in G.edges(data=FRAMEWORK, keys=False))
             self.__dict__[item] = tree
-        elif item == 'predecessor':  # Predecessor in the tree framework
+        elif item == "predecessor":  # Predecessor in the tree framework
             self.__dict__[item] = NodeView(NodeReference(G, get_predecessor(NodeReference(G, id))))
-        elif item == 'successors':
+        elif item == "successors":
             # Successors NodeView in the tree framework
             self.__dict__[item] = list(NodeView(NodeReference(G, v)) for v in get_successors(NodeReference(G, id)))
-        elif item == 'links':
+        elif item == "links":
             # All incoming and outgoing edges not in the tree framework
             self.__dict__[item] = sorted(
                 (u, v, k)
-                for u, v, k in chain(G.out_edges(id, data='_type'), G.in_edges(id, data='_type'))
-                if k != FRAMEWORK)
-        elif item == 'index':
+                for u, v, k in chain(G.out_edges(id, data="_type"), G.in_edges(id, data="_type"))
+                if k != FRAMEWORK
+            )
+        elif item == "index":
             # Index of a node id among the successors
             return lambda n: self._successor_ids.index(n)
-        elif item == 'name':
+        elif item == "name":
             # Name of the SElement inside a node
-            self.__dict__[item] = G.nodes[id]['_selement'].__class__.__name__
-        elif item == 'path':
+            self.__dict__[item] = G.nodes[id]["_selement"].__class__.__name__
+        elif item == "path":
             # Tuple of the path from top-frame to node
             path = list()
             node = id
             while node > 0:
                 path.append(node)
-                node = next(u for u, v, k in G.in_edges(node, data='_type') if k == FRAMEWORK)
+                node = next(u for u, v, k in G.in_edges(node, data="_type") if k == FRAMEWORK)
             path.append(node)
             self.__dict__[item] = tuple(reversed(path))
-        elif item == 'pathname':
-            return '.'.join(f'n{_}' for _ in self.path)
-        elif item == 'out_degree':
+        elif item == "pathname":
+            return ".".join(f"n{_}" for _ in self.path)
+        elif item == "out_degree":
             # Global out degree (fanout)
-            self.__dict__[item] = len(G.out_edges(id, data='_type'))
-        elif item == 'in_degree':
+            self.__dict__[item] = len(G.out_edges(id, data="_type"))
+        elif item == "in_degree":
             # Global in degree (fanin)
-            self.__dict__[item] = len(G.in_edges(id, data='_type'))
-        elif item.endswith('_out_degree'):
+            self.__dict__[item] = len(G.in_edges(id, data="_type"))
+        elif item.endswith("_out_degree"):
             # Out degree from a specific type of edges
-            tag, _ = item.split('_', maxsplit=1)
-            self.__dict__[item] = sum(1 for u, v, k in G.out_edges(id, data='_type') if k == tag)
-        elif item.endswith('_in_degree'):
+            tag, _ = item.split("_", maxsplit=1)
+            self.__dict__[item] = sum(1 for u, v, k in G.out_edges(id, data="_type") if k == tag)
+        elif item.endswith("_in_degree"):
             # In degree from a specific type of edges
-            tag, _ = item.split('_', maxsplit=1)
-            self.__dict__[item] = sum(1 for u, v, k in G.in_edges(id, data='_type') if k == tag)
-        elif item == 'all_edges':
-            self.__dict__[item] = sorted([(u, v, k) for u, v, k in G.in_edges(id, data='_type')] +
-                                         [(u, v, k) for u, v, k in G.out_edges(id, data='_type')])
+            tag, _ = item.split("_", maxsplit=1)
+            self.__dict__[item] = sum(1 for u, v, k in G.in_edges(id, data="_type") if k == tag)
+        elif item == "all_edges":
+            self.__dict__[item] = sorted(
+                [(u, v, k) for u, v, k in G.in_edges(id, data="_type")]
+                + [(u, v, k) for u, v, k in G.out_edges(id, data="_type")]
+            )
         else:
             raise KeyError(f"Unknown property: {item!r}")
 

@@ -100,28 +100,28 @@ def test_float_parameter():
 
 
 def test_choice_parameter():
-    param = ugp.framework.choice_parameter(['A', 'B', 'C'])
+    param = ugp.framework.choice_parameter(["A", "B", "C"])
     assert isinstance(param, type)
     assert issubclass(param, ugp.classes.ParameterABC)
-    assert param.ALTERNATIVES == ('A', 'B', 'C')
+    assert param.ALTERNATIVES == ("A", "B", "C")
     instance = param()
     assert instance.run_paranoia_checks()
-    assert instance.is_valid('A')
-    assert not instance.is_valid('D')
+    assert instance.is_valid("A")
+    assert not instance.is_valid("D")
     assert instance.mutate(0.5) is None
 
 
 def test_array_parameter():
-    param = ugp.framework.array_parameter(['0', '1'], 3)
+    param = ugp.framework.array_parameter(["0", "1"], 3)
     assert isinstance(param, type)
     assert issubclass(param, ugp.classes.ParameterABC)
-    assert param.DIGITS == ('0', '1')
+    assert param.DIGITS == ("0", "1")
     assert param.LENGTH == 3
     instance = param()
     assert instance.run_paranoia_checks()
-    assert instance.is_valid('010')
-    assert not instance.is_valid('012')
-    assert not instance.is_valid('01')
+    assert instance.is_valid("010")
+    assert not instance.is_valid("012")
+    assert not instance.is_valid("01")
     assert instance.mutate(1.0) is None
     with pytest.raises(NotImplementedError):
         instance.mutate(0.5)

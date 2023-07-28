@@ -85,14 +85,14 @@ def test_randy_sigma_randint():
 
 def test_randy_choice():
     randy = ugp.randy.Randy(42)
-    seq = ['apple', 'banana', 'cherry']
+    seq = ["apple", "banana", "cherry"]
     choice_val = randy.choice(seq)
     assert choice_val in seq
 
 
 def test_randy_weighted_choice():
     randy = ugp.randy.Randy(42)
-    seq = ['apple', 'banana', 'cherry']
+    seq = ["apple", "banana", "cherry"]
     weights = [0.1, 0.3, 0.6]
     weighted_choice_val = randy.weighted_choice(seq, weights)
     assert weighted_choice_val in seq
@@ -100,14 +100,14 @@ def test_randy_weighted_choice():
 
 def test_randy_sigma_choice():
     randy = ugp.randy.Randy(42)
-    seq = ['apple', 'banana', 'cherry']
+    seq = ["apple", "banana", "cherry"]
     sigma_choice_val = randy.sigma_choice(seq, 1, 0.5)
     assert sigma_choice_val in seq
 
 
 def test_randy_shuffle():
     randy = ugp.randy.Randy(42)
-    seq = ['apple', 'banana', 'cherry']
+    seq = ["apple", "banana", "cherry"]
     shuffled_seq = randy.shuffled(seq)
     assert set(shuffled_seq) == set(seq)
 

@@ -18,9 +18,8 @@ import microgp4 as ugp
 
 @pytest.fixture
 def macro():
-
     class TestMacro(ugp.classes.Macro):
-        TEXT = 'test'
+        TEXT = "test"
         PARAMETERS = {}
         EXTRA_PARAMETERS = {}
 
@@ -29,10 +28,8 @@ def macro():
 
 @pytest.fixture
 def parameter_abc():
-
     class TestParameterABC(ugp.classes.ParameterABC):
-
-        def mutate(self, strength: float = 1., **kwargs) -> None:
+        def mutate(self, strength: float = 1.0, **kwargs) -> None:
             pass
 
     return TestParameterABC()
@@ -40,9 +37,7 @@ def parameter_abc():
 
 @pytest.fixture
 def node_view():
-
     class TestNodeView(ugp.classes.NodeView):
-
         def __init__(self):
             pass
 
@@ -69,7 +64,7 @@ def test_macro_is_valid(macro, node_view):
 
 
 def test_macro_text(macro):
-    assert macro.text == 'test'
+    assert macro.text == "test"
 
 
 def test_macro_extra_parameters(macro):
@@ -81,19 +76,19 @@ def test_macro_parameter_types(macro):
 
 
 def test_macro_str(macro):
-    assert str(macro) == 'TestMacro'
+    assert str(macro) == "TestMacro"
 
 
 def test_macro_dump(macro):
-    extra_parameters = ugp.classes.ValueBag({'test': 'value'})
-    assert macro.dump(extra_parameters) == 'test'
+    extra_parameters = ugp.classes.ValueBag({"test": "value"})
+    assert macro.dump(extra_parameters) == "test"
 
 
 def test_macro_mutate(macro, parameter_abc):
-    macro.parameters = {'test': parameter_abc}
+    macro.parameters = {"test": parameter_abc}
     macro.mutate(0.5)
 
 
 def test_macro_is_name_valid():
-    assert ugp.classes.Macro.is_name_valid('test')
+    assert ugp.classes.Macro.is_name_valid("test")
     assert not ugp.classes.Macro.is_name_valid(123)

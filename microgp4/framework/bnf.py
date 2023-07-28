@@ -40,9 +40,9 @@ from microgp4.framework.macro import macro
 from .framework import *
 
 
-def bnf(production: list[list[FrameABC | Macro | str]],
-        name: str | None = None,
-        extra_parameters: dict = None) -> FrameABC:
+def bnf(
+    production: list[list[FrameABC | Macro | str]], name: str | None = None, extra_parameters: dict = None
+) -> FrameABC:
     r"""Creates the class for a frame specifying a BNF derivation rule.
 
     The ``bnf`` specifies a single derivation rule in a Backus normal form [1]_, where
@@ -108,14 +108,14 @@ def bnf(production: list[list[FrameABC | Macro | str]],
     derivations = list()
     for expression in production:
         frame = sequence(expression)
-        _patch_class_info(frame, canonize_name('BNF:' + uncanonize_name(frame.__name__), 'Frame'), tag=FRAMEWORK)
+        _patch_class_info(frame, canonize_name("BNF:" + uncanonize_name(frame.__name__), "Frame"), tag=FRAMEWORK)
         derivations.append(frame)
 
     root = alternative(derivations, extra_parameters=extra_parameters)
     if name:
-        _patch_class_info(root, canonize_name(name, 'Frame', user=True), tag=FRAMEWORK)
+        _patch_class_info(root, canonize_name(name, "Frame", user=True), tag=FRAMEWORK)
     else:
-        _patch_class_info(root, canonize_name('BNF', 'Frame'), tag=FRAMEWORK)
+        _patch_class_info(root, canonize_name("BNF", "Frame"), tag=FRAMEWORK)
 
     # patch derivations to include a self reference
     for derivation in root.ALTERNATIVES:

@@ -24,7 +24,6 @@ def test_evaluator_abstract_methods():
         assert False, "EvaluatorABC should not be instantiable"
 
     class MyEvaluator(ugp.classes.evaluator.EvaluatorABC):
-
         def evaluate(self, individuals):
             return [ugp.classes.fitness.FitnessABC() for i in individuals]
 

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['sequence', 'alternative', 'bunch']
+__all__ = ["sequence", "alternative", "bunch"]
 
 from collections import abc
 
@@ -42,10 +42,9 @@ from microgp4.framework.utilities import cook_sequence
 from microgp4.randy import rrandom
 
 
-def alternative(alternatives: abc.Collection[type[SElement]],
-                *,
-                name: str | None = None,
-                extra_parameters: dict = None) -> type[FrameABC]:
+def alternative(
+    alternatives: abc.Collection[type[SElement]], *, name: str | None = None, extra_parameters: dict = None
+) -> type[FrameABC]:
     r"""Creates the class for a frame that can have alternative forms.
 
     An ``alternative`` is a frame that can take different forms,
@@ -109,19 +108,17 @@ def alternative(alternatives: abc.Collection[type[SElement]],
             return [rrandom.choice(T.ALTERNATIVES)]
 
     if name:
-        _patch_class_info(T, canonize_name(name, 'Frame', user=True), tag=FRAMEWORK)
+        _patch_class_info(T, canonize_name(name, "Frame", user=True), tag=FRAMEWORK)
     else:
-        _patch_class_info(T, canonize_name('FrameAlternative', 'Frame'), tag=FRAMEWORK)
+        _patch_class_info(T, canonize_name("FrameAlternative", "Frame"), tag=FRAMEWORK)
 
     FRAMEWORK_DIRECTORY[T.__name__] = T
     return T
 
 
-def sequence(seq: abc.Sequence[type[SElement] | str],
-             *,
-             name: str | None = None,
-             extra_parameters: dict = None) -> type[FrameABC]:
-
+def sequence(
+    seq: abc.Sequence[type[SElement] | str], *, name: str | None = None, extra_parameters: dict = None
+) -> type[FrameABC]:
     cooked_seq = cook_sequence(seq)
 
     class T(FrameSequence, FrameABC):
@@ -135,46 +132,49 @@ def sequence(seq: abc.Sequence[type[SElement] | str],
             return T.SEQUENCE
 
     if name:
-        _patch_class_info(T, canonize_name(name, 'Frame', user=True), tag=FRAMEWORK)
+        _patch_class_info(T, canonize_name(name, "Frame", user=True), tag=FRAMEWORK)
     else:
-        _patch_class_info(T, canonize_name('FrameSequence', 'Frame'), tag=FRAMEWORK)
+        _patch_class_info(T, canonize_name("FrameSequence", "Frame"), tag=FRAMEWORK)
 
     FRAMEWORK_DIRECTORY[T.__name__] = T
     return T
 
 
-def bunch(pool: Macro | abc.Collection[type[Macro]],
-          size: tuple[int, int] | int = 1,
-          *,
-          name: str | None = None,
-          extra_parameters: dict = None) -> type[FrameABC]:
-
+def bunch(
+    pool: Macro | abc.Collection[type[Macro]],
+    size: tuple[int, int] | int = 1,
+    *,
+    name: str | None = None,
+    extra_parameters: dict = None,
+) -> type[FrameABC]:
     def _debug_hints(size):
         if not isinstance(size, int) and size[0] + 1 == size[1]:
             syntax_warning_hint(
                 f"Ranges are half open: the size of this macro bunch is always {size[0]} — did you mean 'size=({size[0]}, {size[1]+1})'?",
-                stacklevel_offset=1)
+                stacklevel_offset=1,
+            )
         return True
 
     assert check_valid_types(size, int, abc.Collection)
-    assert (not isinstance(pool, abc.Collection) and check_valid_type(pool, Macro, subclass=True)) or \
-           isinstance(pool, abc.Collection) and (not pool or any(check_valid_type(t, Macro, subclass=True) for t in pool))
+    assert (
+        (not isinstance(pool, abc.Collection) and check_valid_type(pool, Macro, subclass=True))
+        or isinstance(pool, abc.Collection)
+        and (not pool or any(check_valid_type(t, Macro, subclass=True) for t in pool))
+    )
 
     assert _debug_hints(size)
 
     if isinstance(pool, type) and issubclass(pool, Macro):
         pool = [pool]
-    #assert check_no_duplicates(pool)
+    # assert check_no_duplicates(pool)
     assert check_valid_length(pool, 1)
 
     if isinstance(size, int):
         size = (size, size + 1)
     else:
         size = tuple(size)
-        assert len(size) == 2, \
-            f"ValueError: Not a half open range [min, max) (paranoia check)"
-    assert 0 < size[0] <= size[1] - 1, \
-        f"ValueError: min size is {size[0]} and max size is {size[1]-1} (paranoia check)"
+        assert len(size) == 2, f"ValueError: Not a half open range [min, max) (paranoia check)"
+    assert 0 < size[0] <= size[1] - 1, f"ValueError: min size is {size[0]} and max size is {size[1]-1} (paranoia check)"
 
     class T(FrameMacroBunch, FrameABC):
         SIZE = size
@@ -197,13 +197,13 @@ def bunch(pool: Macro | abc.Collection[type[Macro]],
 
     # White parentheses: ⦅ ⦆  (U+2985, U+2986)
     if name:
-        canonic_name = canonize_name(name, 'Frame', user=True)
+        canonic_name = canonize_name(name, "Frame", user=True)
     elif size == (1, 2):
-        canonic_name = canonize_name('SingleMacro', 'Frame')
+        canonic_name = canonize_name("SingleMacro", "Frame")
     elif size[1] - size[0] == 1:
-        canonic_name = canonize_name('MacroArray', 'Frame')
+        canonic_name = canonize_name("MacroArray", "Frame")
     else:
-        canonic_name = canonize_name('MacroBunch', 'Frame')
+        canonic_name = canonize_name("MacroBunch", "Frame")
     _patch_class_info(T, canonic_name, tag=FRAMEWORK)
 
     FRAMEWORK_DIRECTORY[T.__name__] = T

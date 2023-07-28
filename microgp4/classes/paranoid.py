@@ -28,10 +28,10 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['Paranoid']
+__all__ = ["Paranoid"]
 
 
-class Paranoid():
+class Paranoid:
     """Abstract class: Paranoid classes do implement `run_paranoia_checks()`."""
 
     def run_paranoia_checks(self) -> bool:

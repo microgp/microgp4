@@ -25,12 +25,12 @@ def test_simple():
 
     # SCALAR
     # nb. sqrt(2)**2 = 2.0000000000000004
-    assert not ugp.fit.Float(2) == ugp.fit.Float(sqrt(2)**2)
-    assert ugp.fit.Float(2) != ugp.fit.Float(sqrt(2)**2)
-    assert not ugp.fit.Float(2) > ugp.fit.Float(sqrt(2)**2)
-    assert not ugp.fit.Float(2) >= ugp.fit.Float(sqrt(2)**2)
-    assert ugp.fit.Float(2) < ugp.fit.Float(sqrt(2)**2)
-    assert ugp.fit.Float(2) <= ugp.fit.Float(sqrt(2)**2)
+    assert not ugp.fit.Float(2) == ugp.fit.Float(sqrt(2) ** 2)
+    assert ugp.fit.Float(2) != ugp.fit.Float(sqrt(2) ** 2)
+    assert not ugp.fit.Float(2) > ugp.fit.Float(sqrt(2) ** 2)
+    assert not ugp.fit.Float(2) >= ugp.fit.Float(sqrt(2) ** 2)
+    assert ugp.fit.Float(2) < ugp.fit.Float(sqrt(2) ** 2)
+    assert ugp.fit.Float(2) <= ugp.fit.Float(sqrt(2) ** 2)
     #
     assert not ugp.fit.Float(13) == ugp.fit.Float(17)
     assert ugp.fit.Float(13) != ugp.fit.Float(17)
@@ -41,8 +41,8 @@ def test_simple():
 
     # INTEGER
     assert ugp.fit.Integer(13) == ugp.fit.Integer(13)
-    assert ugp.fit.Integer(13) == ugp.fit.Integer(13 + .01)
-    assert ugp.fit.Integer(13) != ugp.fit.Integer(13 - .01)
+    assert ugp.fit.Integer(13) == ugp.fit.Integer(13 + 0.01)
+    assert ugp.fit.Integer(13) != ugp.fit.Integer(13 - 0.01)
     assert ugp.fit.Integer(17) > ugp.fit.Integer(13)
     assert ugp.fit.Integer(17) >= ugp.fit.Integer(13)
     assert not ugp.fit.Integer(17) < ugp.fit.Integer(13)
@@ -50,12 +50,12 @@ def test_simple():
 
     # SCALAR / APPROXIMATE
     # nb. sqrt(2)**2 = 2.0000000000000004
-    assert ugp.fit.Scalar(2) == ugp.fit.Scalar(sqrt(2)**2)
-    assert not ugp.fit.Scalar(2) != ugp.fit.Scalar(sqrt(2)**2)
-    assert not ugp.fit.Scalar(2) > ugp.fit.Scalar(sqrt(2)**2)
-    assert ugp.fit.Scalar(2) >= ugp.fit.Scalar(sqrt(2)**2)
-    assert not ugp.fit.Scalar(2) < ugp.fit.Scalar(sqrt(2)**2)
-    assert ugp.fit.Scalar(2) <= ugp.fit.Scalar(sqrt(2)**2)
+    assert ugp.fit.Scalar(2) == ugp.fit.Scalar(sqrt(2) ** 2)
+    assert not ugp.fit.Scalar(2) != ugp.fit.Scalar(sqrt(2) ** 2)
+    assert not ugp.fit.Scalar(2) > ugp.fit.Scalar(sqrt(2) ** 2)
+    assert ugp.fit.Scalar(2) >= ugp.fit.Scalar(sqrt(2) ** 2)
+    assert not ugp.fit.Scalar(2) < ugp.fit.Scalar(sqrt(2) ** 2)
+    assert ugp.fit.Scalar(2) <= ugp.fit.Scalar(sqrt(2) ** 2)
     #
     assert not ugp.fit.Scalar(13) == ugp.fit.Scalar(17)
     assert ugp.fit.Scalar(13) != ugp.fit.Scalar(17)
@@ -66,12 +66,12 @@ def test_simple():
 
     # REVERSE FITNESS (the smaller, the better -- ie. 2 > 3)
     rev_scalar = ugp.fit.reverse_fitness(ugp.fit.Float)
-    assert not rev_scalar(2) == rev_scalar(sqrt(2)**2)
-    assert rev_scalar(2) != rev_scalar(sqrt(2)**2)
-    assert rev_scalar(2) > rev_scalar(sqrt(2)**2)
-    assert rev_scalar(2) >= rev_scalar(sqrt(2)**2)
-    assert not rev_scalar(2) < rev_scalar(sqrt(2)**2)
-    assert not rev_scalar(2) <= rev_scalar(sqrt(2)**2)
+    assert not rev_scalar(2) == rev_scalar(sqrt(2) ** 2)
+    assert rev_scalar(2) != rev_scalar(sqrt(2) ** 2)
+    assert rev_scalar(2) > rev_scalar(sqrt(2) ** 2)
+    assert rev_scalar(2) >= rev_scalar(sqrt(2) ** 2)
+    assert not rev_scalar(2) < rev_scalar(sqrt(2) ** 2)
+    assert not rev_scalar(2) <= rev_scalar(sqrt(2) ** 2)
     assert not rev_scalar(13) == rev_scalar(17)
     assert rev_scalar(13) != rev_scalar(17)
     assert rev_scalar(13) > rev_scalar(17)
@@ -80,12 +80,12 @@ def test_simple():
     assert not rev_scalar(13) <= rev_scalar(17)
     #
     rev_approximate = ugp.fit.reverse_fitness(ugp.fit.Scalar)
-    assert rev_approximate(2) == rev_approximate(sqrt(2)**2)
-    assert not rev_approximate(2) != rev_approximate(sqrt(2)**2)
-    assert not rev_approximate(2) > rev_approximate(sqrt(2)**2)
-    assert rev_approximate(2) >= rev_approximate(sqrt(2)**2)
-    assert not rev_approximate(2) < rev_approximate(sqrt(2)**2)
-    assert rev_approximate(2) <= rev_approximate(sqrt(2)**2)
+    assert rev_approximate(2) == rev_approximate(sqrt(2) ** 2)
+    assert not rev_approximate(2) != rev_approximate(sqrt(2) ** 2)
+    assert not rev_approximate(2) > rev_approximate(sqrt(2) ** 2)
+    assert rev_approximate(2) >= rev_approximate(sqrt(2) ** 2)
+    assert not rev_approximate(2) < rev_approximate(sqrt(2) ** 2)
+    assert rev_approximate(2) <= rev_approximate(sqrt(2) ** 2)
     assert not rev_approximate(13) == rev_approximate(17)
     assert rev_approximate(13) != rev_approximate(17)
     assert rev_approximate(13) > rev_approximate(17)
@@ -100,8 +100,8 @@ def test_simple():
     # VECTOR of Scalars
     assert ugp.fit.Lexicographic([23, 2], ugp.fit.Float) == ugp.fit.Lexicographic([23, 2], ugp.fit.Float)
     assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Float) != ugp.fit.Lexicographic([23, 2], ugp.fit.Float)
-    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Float) == ugp.fit.Lexicographic([23, sqrt(2)**2], ugp.fit.Float)
-    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Float) != ugp.fit.Lexicographic([23, sqrt(2)**2], ugp.fit.Float)
+    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Float) == ugp.fit.Lexicographic([23, sqrt(2) ** 2], ugp.fit.Float)
+    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Float) != ugp.fit.Lexicographic([23, sqrt(2) ** 2], ugp.fit.Float)
     assert ugp.fit.Lexicographic([23, 10], ugp.fit.Float) == ugp.fit.Lexicographic([23, 10], ugp.fit.Float)
     assert not ugp.fit.Lexicographic([23, 10], ugp.fit.Float) == ugp.fit.Lexicographic([10, 23], ugp.fit.Float)
     assert ugp.fit.Lexicographic([23, 10], ugp.fit.Float) != ugp.fit.Lexicographic([10, 23], ugp.fit.Float)
@@ -113,25 +113,33 @@ def test_simple():
     # VECTOR of Scalar
     assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) == ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar)
     assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) != ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar)
-    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) == ugp.fit.Lexicographic([23, sqrt(2)**2], ugp.fit.Scalar)
-    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) != ugp.fit.Lexicographic([23, sqrt(2)**2], ugp.fit.Scalar)
-    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) == ugp.fit.Lexicographic([sqrt(2)**2, 23], ugp.fit.Scalar)
-    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) != ugp.fit.Lexicographic([sqrt(2)**2, 23], ugp.fit.Scalar)
-    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) > ugp.fit.Lexicographic([sqrt(2)**2, 23], ugp.fit.Scalar)
-    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) >= ugp.fit.Lexicographic([sqrt(2)**2, 23], ugp.fit.Scalar)
-    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) < ugp.fit.Lexicographic([sqrt(2)**2, 23], ugp.fit.Scalar)
-    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) <= ugp.fit.Lexicographic([sqrt(2)**2, 23], ugp.fit.Scalar)
+    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) == ugp.fit.Lexicographic([23, sqrt(2) ** 2], ugp.fit.Scalar)
+    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) != ugp.fit.Lexicographic(
+        [23, sqrt(2) ** 2], ugp.fit.Scalar
+    )
+    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) == ugp.fit.Lexicographic(
+        [sqrt(2) ** 2, 23], ugp.fit.Scalar
+    )
+    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) != ugp.fit.Lexicographic([sqrt(2) ** 2, 23], ugp.fit.Scalar)
+    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) > ugp.fit.Lexicographic([sqrt(2) ** 2, 23], ugp.fit.Scalar)
+    assert ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) >= ugp.fit.Lexicographic([sqrt(2) ** 2, 23], ugp.fit.Scalar)
+    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) < ugp.fit.Lexicographic(
+        [sqrt(2) ** 2, 23], ugp.fit.Scalar
+    )
+    assert not ugp.fit.Lexicographic([23, 2], ugp.fit.Scalar) <= ugp.fit.Lexicographic(
+        [sqrt(2) ** 2, 23], ugp.fit.Scalar
+    )
 
-    f1 = ugp.fit.Vector([ugp.fit.Float(2), ugp.fit.Float(sqrt(2)**2)])
-    f2 = ugp.fit.Vector([ugp.fit.Float(sqrt(2)**2), ugp.fit.Float(2)])
+    f1 = ugp.fit.Vector([ugp.fit.Float(2), ugp.fit.Float(sqrt(2) ** 2)])
+    f2 = ugp.fit.Vector([ugp.fit.Float(sqrt(2) ** 2), ugp.fit.Float(2)])
     assert f1 != f2
     assert f1 < f2
-    f1 = ugp.fit.Vector([ugp.fit.reverse_fitness(ugp.fit.Float)(2), ugp.fit.Float(sqrt(2)**2)])
-    f2 = ugp.fit.Vector([ugp.fit.reverse_fitness(ugp.fit.Float)(sqrt(2)**2), ugp.fit.Float(2)])
+    f1 = ugp.fit.Vector([ugp.fit.reverse_fitness(ugp.fit.Float)(2), ugp.fit.Float(sqrt(2) ** 2)])
+    f2 = ugp.fit.Vector([ugp.fit.reverse_fitness(ugp.fit.Float)(sqrt(2) ** 2), ugp.fit.Float(2)])
     assert f1 != f2
     assert f1 > f2
 
-    f1 = ugp.fit.reverse_fitness(ugp.fit.Vector)([ugp.fit.Float(2), ugp.fit.Float(sqrt(2)**2)])
-    f2 = ugp.fit.reverse_fitness(ugp.fit.Vector)([ugp.fit.Float(sqrt(2)**2), ugp.fit.Float(2)])
+    f1 = ugp.fit.reverse_fitness(ugp.fit.Vector)([ugp.fit.Float(2), ugp.fit.Float(sqrt(2) ** 2)])
+    f2 = ugp.fit.reverse_fitness(ugp.fit.Vector)([ugp.fit.Float(sqrt(2) ** 2), ugp.fit.Float(2)])
     assert f1 != f2
     assert f1 > f2

@@ -17,7 +17,7 @@ import microgp4 as ugp
 
 
 def test_test_mode():
-    assert ugp.test_mode == ('pytest' in sys.modules)
+    assert ugp.test_mode == ("pytest" in sys.modules)
 
 
 def test_notebook_mode():

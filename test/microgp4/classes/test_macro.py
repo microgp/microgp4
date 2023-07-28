@@ -18,7 +18,6 @@ import pytest
 
 
 class MockParameter(ugp.classes.ParameterABC):
-
     def __init__(self):
         super().__init__()
         self._value = "test"

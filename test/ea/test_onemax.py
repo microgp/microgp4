@@ -19,13 +19,13 @@ import microgp4 as ugp
 @ugp.fitness_function
 def fitness(genotype: str):
     """Vanilla 1-max"""
-    return sum(b == '1' for b in genotype)
+    return sum(b == "1" for b in genotype)
 
 
 def test_onemax_base_take1():
     macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 50))
     frame = ugp.f.sequence([macro])
-    evaluator = ugp.evaluator.SequentialPythonEvaluator(fitness, strip_genome=True)
+    evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True)
     ugp.microgp_logger.setLevel(WARNING)
 
     ugp.rrandom.seed(42)
@@ -36,14 +36,14 @@ def test_onemax_base_take1():
     ugp.rrandom.seed(42)
     p3 = ugp.ea.vanilla_ea(frame, evaluator, max_generation=10)
 
-    assert any(i1.fitness != i2.fitness for i1, i2 in zip(p1, p2))
-    assert all(i1.fitness == i3.fitness for i1, i3 in zip(p1, p3))
+    assert any(i1[1].fitness != i2[1].fitness for i1, i2 in zip(p1, p2))
+    assert all(i1[1].fitness == i3[1].fitness for i1, i3 in zip(p1, p3))
 
 
 def test_onemax_base_take2():
     macro = ugp.f.macro("{v}", v=ugp.f.choice_parameter("01"))
     frame = ugp.f.bunch([macro], size=(10, 100 + 1))
-    evaluator = ugp.evaluator.SequentialPythonEvaluator(fitness, strip_genome=True)
+    evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True)
     ugp.microgp_logger.setLevel(WARNING)
 
     ugp.rrandom.seed(42)
@@ -54,5 +54,5 @@ def test_onemax_base_take2():
     ugp.rrandom.seed(42)
     p3 = ugp.ea.vanilla_ea(frame, evaluator, max_generation=10)
 
-    assert any(i1.fitness != i2.fitness for i1, i2 in zip(p1, p2))
-    assert all(i1.fitness == i3.fitness for i1, i3 in zip(p1, p3))
+    assert any(i1[1].fitness != i2[1].fitness for i1, i2 in zip(p1, p2))
+    assert all(i1[1].fitness == i3[1].fitness for i1, i3 in zip(p1, p3))

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / June 2023 / Squillero (GX)
 
-__all__ = ['random_individual']
+__all__ = ["random_individual"]
 
 from microgp4.user_messages import *
 from microgp4.registry import *

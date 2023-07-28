@@ -27,13 +27,13 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['ValueBag', 'USER_PARAMETER']
+__all__ = ["ValueBag", "USER_PARAMETER"]
 
 import re
 
 from microgp4.user_messages import *
 
-USER_PARAMETER = re.compile(r'[a-z][a-z_0-9]*', re.IGNORECASE)
+USER_PARAMETER = re.compile(r"[a-z][a-z_0-9]*", re.IGNORECASE)
 
 
 class ValueBag(dict):
@@ -51,9 +51,9 @@ class ValueBag(dict):
     * The default value for missing keys is None
     """
 
-    FLAG_KEY = re.compile(r'\$[a-z_0-9]*', re.IGNORECASE)
-    SAFE_KEY = re.compile(r'[a-z_][a-z_0-9]*', re.IGNORECASE)
-    VALID_KEY = re.compile(r'[a-z_$][a-z_0-9]*', re.IGNORECASE)
+    FLAG_KEY = re.compile(r"\$[a-z_0-9]*", re.IGNORECASE)
+    SAFE_KEY = re.compile(r"[a-z_][a-z_0-9]*", re.IGNORECASE)
+    VALID_KEY = re.compile(r"[a-z_$][a-z_0-9]*", re.IGNORECASE)
 
     def __init__(self, init=None, **items):
         if init and isinstance(init, ValueBag):
@@ -64,7 +64,7 @@ class ValueBag(dict):
             super().__init__(**items)
 
     def __str__(self):
-        return '{{' + ', '.join(f'{k!r}: {self[k]!r}' for k in sorted(super().keys())) + '}}'
+        return "{{" + ", ".join(f"{k!r}: {self[k]!r}" for k in sorted(super().keys())) + "}}"
 
     def __repr__(self):
         return f"<{self.__class__.__module__}.{self.__class__.__name__} @ {hex(id(self))}>"
@@ -93,7 +93,7 @@ class ValueBag(dict):
         else:
             return None
 
-    #def __getitem__(self, key: str):
+    # def __getitem__(self, key: str):
     #    assert check_valid_types(key, str)
     #    assert ValueBag.VALID_KEY.fullmatch(key), \
     #        f"ValueError: Invalid key: {key!r} (paranoia check)"
@@ -104,14 +104,13 @@ class ValueBag(dict):
 
     def __getattr__(self, key: str):
         assert check_valid_type(key, str)
-        assert ValueBag.SAFE_KEY.fullmatch(key), \
-            f"KeyError: invalid key (paranoia check): {key!r}"
+        assert ValueBag.SAFE_KEY.fullmatch(key), f"KeyError: invalid key (paranoia check): {key!r}"
         return self[key]
 
     def __iter__(self):
         return super().__iter__()
 
-    def __or__(self, other) -> 'ValueBag':
+    def __or__(self, other) -> "ValueBag":
         new = ValueBag(self._items())
         if isinstance(other, ValueBag):
             new.update(other._items())
@@ -119,7 +118,7 @@ class ValueBag(dict):
             new.update(other.items())
         return new
 
-    def __ior__(self, other) -> 'ValueBag':
+    def __ior__(self, other) -> "ValueBag":
         if isinstance(other, ValueBag):
             super().update(other._items())
         else:

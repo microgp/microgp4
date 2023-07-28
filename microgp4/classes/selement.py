@@ -52,16 +52,17 @@ class SElement:
     def add_node_check(cls, function: Callable) -> None:
         cls.NODE_CHECKS = tuple([*cls.NODE_CHECKS, function])
 
-    def is_valid(self, node: Optional['NodeReference'] = None) -> bool:
+    def is_valid(self, node: Optional["NodeReference"] = None) -> bool:
         r"""Checks the validity of a `NodeReference` and internal attributes"""
         self.__last_check_result = all(f(node) for f in self.__class__.NODE_CHECKS)
         return self.__last_check_result
 
-    def _is_valid_debug(self, node: 'NodeReference') -> None:
+    def _is_valid_debug(self, node: "NodeReference") -> None:
         self.__last_check_result = True
         for f in self.__class__.NODE_CHECKS:
             if not f(node):
                 microgp_logger.info(
-                    f"NodeChecks: Failed check on genome 0x{id(node.genome):x}: {f.__qualname__}({node})")
+                    f"NodeChecks: Failed check on genome 0x{id(node.genome):x}: {f.__qualname__}({node})"
+                )
                 self.__last_check_result = False
         return self.__last_check_result

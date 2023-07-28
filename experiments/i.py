@@ -27,5 +27,5 @@ class Integer2(ugp.classes.FitnessABC, int):
 
 
 f = ugp.fit.make_fitness(4)
-#f = Integer2(4)
+# f = Integer2(4)
 print(pickle.dumps(f))

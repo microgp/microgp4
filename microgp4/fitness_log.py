@@ -1,13 +1,12 @@
-__all__ = ['FitnessLog']
+__all__ = ["FitnessLog"]
 
 from pprint import pformat
 from datetime import datetime
 
 
 class FitnessLog:
-
     def __init__(self, backend: str):
-        if backend == 'list':
+        if backend == "list":
             self._log = list()
         else:
             raise NotImplementedError
@@ -16,4 +15,4 @@ class FitnessLog:
         self._log.append((datetime.now(), value))
 
     def __str__(self):
-        return '[' + ',\n '.join(f'({d}, {v})' for d, v in self._log) + ']'
+        return "[" + ",\n ".join(f"({d}, {v})" for d, v in self._log) + "]"

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['SELF']
+__all__ = ["SELF"]
 
 from .frame import FrameABC
 from microgp4.tools.names import canonize_name, _patch_class_info
@@ -35,7 +35,8 @@ from microgp4.tools.names import canonize_name, _patch_class_info
 
 class SELF(FrameABC):
     """Placeholder for the BNF frame."""
+
     pass
 
 
-_patch_class_info(SELF, canonize_name('SELF', 'Frame', make_unique=False, warn_duplicates=False), tag='framework')
+_patch_class_info(SELF, canonize_name("SELF", "Frame", make_unique=False, warn_duplicates=False), tag="framework")

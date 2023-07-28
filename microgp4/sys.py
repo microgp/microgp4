@@ -31,7 +31,7 @@
 Mostly useful in interactive environments such as a Jupyter Notebook.
 """
 
-__all__ = ['get_operators']
+__all__ = ["get_operators"]
 
 import inspect
 from pprint import pformat
@@ -42,7 +42,6 @@ from microgp4.operators import *
 
 
 class View:
-
     def __init__(self, data: dict):
         try:
             self._data = dict(sorted(data.items()))
@@ -61,7 +60,7 @@ class View:
         return "⟦" + pformat(self._data)[1:-1] + "⟧"
 
     def __str__(self):
-        return "⟦" + ', '.join(k for k in self._data.keys()) + "⟧"
+        return "⟦" + ", ".join(k for k in self._data.keys()) + "⟧"
 
     def items(self):
         return tuple(self._data.items())
@@ -74,7 +73,6 @@ class View:
 
 
 class SysInfo:
-
     def __init__(self):
         pass
 
@@ -84,7 +82,7 @@ class SysInfo:
         ops = dict()
         snapshot = inspect.currentframe().f_back.f_globals
         for k, v in snapshot.items():
-            if hasattr(v, 'microgp') and v.type == GENETIC_OPERATOR:
+            if hasattr(v, "microgp") and v.type == GENETIC_OPERATOR:
                 ops[k] = v
         return View(ops)
 
@@ -94,7 +92,7 @@ class SysInfo:
         ops = dict()
         snapshot = inspect.currentframe().f_back.f_globals
         for k, v in snapshot.items():
-            if hasattr(v, 'microgp') and v.type == FITNESS_FUNCTION:
+            if hasattr(v, "microgp") and v.type == FITNESS_FUNCTION:
                 ops[k] = v
         return View(ops)
 
@@ -106,7 +104,7 @@ class SysInfo:
                 raise KeyError(object)
             object = inspect.currentframe().f_back.f_globals[object]
 
-        if hasattr(object, 'microgp') and object.type == GENETIC_OPERATOR:
+        if hasattr(object, "microgp") and object.type == GENETIC_OPERATOR:
             print(f"Genetic operator: {object}")
             print(f"  {object.stats}")
         else:
@@ -116,11 +114,9 @@ class SysInfo:
 def get_operators():
     x = random_individual
     snapshot = inspect.currentframe().f_back.f_globals
-    return [o for o in snapshot.values() if hasattr(o, 'microgp') and o.type == GENETIC_OPERATOR]
+    return [o for o in snapshot.values() if hasattr(o, "microgp") and o.type == GENETIC_OPERATOR]
 
 
-assert 'SYSINFO' not in globals(), \
-    f"SystemError: SYSINFO already initialized (paranoia check)"
+assert "SYSINFO" not in globals(), f"SystemError: SYSINFO already initialized (paranoia check)"
 SYSINFO = SysInfo()
-assert 'SYSINFO' in globals(), \
-    f"SystemError: FRAMEWORK_DIRECTORY not initialized (paranoia check)"
+assert "SYSINFO" in globals(), f"SystemError: FRAMEWORK_DIRECTORY not initialized (paranoia check)"
