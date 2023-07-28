@@ -53,5 +53,5 @@ def safe_dump(obj, **extra_parameters):
     return dumped
 
 
-def _cook_genome(raw_dump: str) -> str:
+def _strip_genome(raw_dump: str) -> str:
     return "\n".join(raw_dump.split("\n")[1:-1])
