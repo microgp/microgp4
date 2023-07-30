@@ -29,6 +29,9 @@
 
 __all__ = ["vanilla_ea"]
 
+from time import perf_counter_ns
+from datetime import datetime
+
 from microgp4.operators import *
 from microgp4.sys import *
 from microgp4.classes.selement import *
@@ -101,6 +104,7 @@ def vanilla_ea(
         stopping_conditions.append(lambda: best.fitness == max_fitness or best.fitness >> max_fitness)
 
     # Let's roll
+    start = perf_counter_ns()
     while not any(s() for s in stopping_conditions):
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
@@ -122,9 +126,11 @@ def vanilla_ea(
         if best.fitness << population[0].fitness:
             best = population[0]
             _new_best(population, evaluator)
+    end = perf_counter_ns()
+    print(f"Elapsed: {(end-start)/1e9:.2} seconds")
 
     # population._zap = all_individuals
-    microgp_logger.info("VanillaEA: Genetic operators statistics:")
-    for op in get_operators():
-        microgp_logger.info(f"VanillaEA: * {op.__qualname__}: {op.stats}")
+    # microgp_logger.info("VanillaEA: Genetic operators statistics:")
+    # for op in get_operators():
+    #    microgp_logger.info(f"VanillaEA: * {op.__qualname__}: {op.stats}")
     return population

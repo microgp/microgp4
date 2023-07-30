@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 #############################################################################
 #           __________                                                      #
 #    __  __/ ____/ __ \__ __   This file is part of MicroGP v4!2.0          #
@@ -10,13 +11,14 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-SHELL=/bin/sh
-CFLAGS = -O3
+TIMEOUT=gtimeout
 
-.PHONY: run
-
-run: onemax
-	./onemax
-
-onemax: main.o onemax.s
-	gcc -o $@ $^
+for file in "$@"; do
+    gcc -O -o onemax.out main.o "$file"
+    ret="$($TIMEOUT 1 ./onemax.out)"
+    if [[ -n $ret ]]; then
+        echo "$ret"
+    else
+        echo 0
+    fi
+done

@@ -13,44 +13,29 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import subprocess
-
-# NOTE:
-# https://www.scivision.dev/windows-symbolic-link-permission-enable/
+import platform
+import platform
 
 import microgp4 as ugp
 
+if platform.machine() == "arm64":
+    import library_arm64 as library
+else:
+    raise NotImplementedError(f"Unknown machine type: {platform.machine()}")
 
-def instruction_library():
-    prologue = ugp.f.macro(
-        """
-    .text
-    .globl	one_max
-one_max:
-    pushq	%rbp
-    movq	%rsp, %rbp
-        """
-    )
 
-    epilogue = ugp.f.macro(
-        """
-	popq	%rbp
-	ret
-        """
-    )
-
-    op = ugp.f.macro("	movl	${val:#x}, %eax", val=ugp.f.integer_parameter(0, 2**32))
-
-    core = ugp.framework.bunch(op, size=(10, 50 + 1))
-    return ugp.framework.sequence([prologue, core, epilogue])
+SCRIPT_NAME = {"Linux": "./evaluate-all.sh", "Darwin": "./evaluate-all.sh", "Windows": "evaluate-all.cmd"}
 
 
 def main():
+    top_frame = library.define_frame()
+
     ugp.microgp_logger.setLevel(logging.INFO)
-    evaluator = ugp.evaluator.ScriptEvaluator("evaluate.cmd")
-    top_frame = instruction_library()
+    evaluator = ugp.evaluator.ScriptEvaluator(SCRIPT_NAME[platform.system()], file_name="ind{i}.s")
     ugp.ea.vanilla_ea(top_frame, evaluator, population_extra_parameters={"_comment": "#"})
 
 
 if __name__ == "__main__":
+    ugp.rrandom.seed(42)
+    # ugp.set_logger_level(logging.INFO)
     main()

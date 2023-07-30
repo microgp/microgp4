@@ -12,5 +12,5 @@
 
 unsigned long int one_max(void)
 {
-    return 42;
+    return 42 + 23 - 1;
 }

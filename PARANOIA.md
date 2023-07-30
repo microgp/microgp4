@@ -20,8 +20,7 @@ $ python -O ./my-fuzzer.py
 
 MicroGP detects when it is within a Jupyter Notebook and shows a warning:
 
-> Paranoia checks are enabled: performances can be significantly impaired — consider setting 'PYTHONOPTIMIZE'  
-> See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details
+> Paranoia checks are enabled: performances can be significantly impaired — consider setting 'PYTHONOPTIMIZE'
 
 Possible solutions.
 
@@ -56,9 +55,8 @@ import microgp4 as ugp
 
 ### Tamper with the bytecode cache
 
-:warning: This hack may cause the system to become unstable, to provide incorrect results, to stop functioning, or to explode. You acknowledge that you are solely responsible for any harm or damage that may result from it.
+:warning: This hack may cause your system to become unstable and/or provide incorrect results. You acknowledge that you are solely responsible for any harm or damage that may result from it.
 
 * Generate the optimized bytecode (e.g., run `python -O -m pytest`)
 * Locate all the folders that contain compiled bytecode (e.g., `**/__pycache__`)
 * Substitute all bytecode-compiled files (e.g., `*.pyc`) with their optimized versions (e.g., `*.opt-1.pyc`)
-* Stop updating MicroGP files

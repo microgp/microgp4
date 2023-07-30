@@ -45,7 +45,7 @@ from concurrent.futures import ThreadPoolExecutor
 from microgp4.global_symbols import *
 
 if joblib_available:
-    from joblib import Parallel, delayed
+    import joblib
 
 from microgp4.user_messages import *
 from microgp4.classes.fitness import FitnessABC, InvalidFitness
@@ -95,7 +95,7 @@ class PythonEvaluator(EvaluatorABC):
         self,
         fitness_function: Callable[[str], FitnessABC],
         cook_genome: bool = False,
-        max_jobs=1,
+        max_jobs=None,
         backend: str | None = None,
     ) -> None:
         f"""Initialize a PythonEvaluator
@@ -110,9 +110,9 @@ class PythonEvaluator(EvaluatorABC):
         if set to ``None`` the exact behavior depends on the type of parallelism, but the general idea is that all
         jobs that can be reasonably handled are started.
 
-        The `backend` is a string that specifies the type of parallelism, it is only meanigful if `max_jobs` != 1.
-        Valid backends are "thread_pool" for multi-threading via `subprocess` module, and "joblib" for multi-processing
-        via the external `joblib` library.
+        The `backend` is a string that specifies the type of parallelism, it is only meaningful if `max_jobs` != 1.
+        Valid backends are ``None`` (no parallelism), 'thread_pool' (multi-threading via `concurrent` module),
+        and 'joblib' (multi-processing via the external `joblib` library).
 
         Parameters
         ----------
@@ -122,13 +122,19 @@ class PythonEvaluator(EvaluatorABC):
             ``True`` if the genome needs to be reformatted, ``False`` otherwise.
         max_jobs : int
             The number of parallel evaluations to run.
-        backend : str
-            The type of parallelism.
+        backend : str | None
+            ``thread_pool`` or ``joblib``
         """
 
         assert (
             get_microgp4_type(fitness_function) == FITNESS_FUNCTION
         ), f"TypeError: {fitness_function} has not be registered as a MicgroGP fitness function"
+
+        if not backend or (max_jobs is not None and max_jobs < 2):
+            backend = ""
+            max_jobs = 1
+        assert max_jobs is None or check_value_range(max_jobs, 1)
+
         self._fitness_function = fitness_function
         self._max_jobs = max_jobs
         if cook_genome:
@@ -157,7 +163,12 @@ class PythonEvaluator(EvaluatorABC):
                     self._fitness_calls += 1
                     I.fitness = f
         elif self._backend == "joblib":
-            pass
+            jobs = list(joblib.delayed(self._fitness_function)(P) for _, _, P in individuals)
+            n_jobs = self._max_jobs if self._max_jobs else -1
+            values = joblib.Parallel(n_jobs=n_jobs, return_as="generator")(jobs)
+            for I, f in zip((I for _, I, _ in individuals), values):
+                self._fitness_calls += 1
+                I.fitness = f
         else:
             raise NotImplementedError(self._backend)
 
@@ -268,16 +279,16 @@ class ScriptEvaluator(EvaluatorABC):
 
     def evaluate_population(self, population: Population) -> None:
         individuals = population.not_finalized
-        individuals_files = list()
+        files = list()
         for idx, ind in individuals:
             self._fitness_calls += 1
-            individuals.append(self._file_name.format(i=population.individuals[i].id))
-            with open(individuals[-1], "w") as dump:
-                dump.write(population.dump_individual(i))
+            files.append(self._file_name.format(i=population.individuals[idx].id))
+            with open(files[-1], "w") as dump:
+                dump.write(population.dump_individual(idx))
 
         try:
             result = subprocess.run(
-                [self._script_name, *individuals],
+                [self._script_name, *files],
                 universal_newlines=True,
                 check=True,
                 text=True,
@@ -302,14 +313,14 @@ class ScriptEvaluator(EvaluatorABC):
         else:
             results = list(filter(lambda s: bool(s), result.stdout.split("\n")))
             assert len(results) == len(
-                ind_idxs
-            ), f"ValueError: number of results and number of individual mismatch (paranoia check)"
-            for i, line in zip(ind_idxs, results):
+                individuals
+            ), f"ValueError: number of results and number of individual mismatch (paranoia check): found {len(results)} expected {len(individuals)}"
+            for ind, line in zip(individuals, results):
                 value = [float(r) for r in line.split()]
                 if len(value) == 1:
                     value = value[0]
                 fitness = make_fitness(value)
-                population.individuals[i].fitness = fitness
+                ind[1].fitness = fitness
 
-        for f in ind_files:
+        for f in files:
             os.remove(f)
