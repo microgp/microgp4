@@ -17,6 +17,8 @@
 
 import microgp4 as ugp
 
+COMMENT = '#'
+
 
 def define_frame():
     prologue = ugp.f.macro(

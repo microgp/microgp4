@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #############################################################################
 #           __________                                                      #
 #    __  __/ ____/ __ \__ __   This file is part of MicroGP v4!2.0          #
@@ -12,30 +10,12 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-import logging
-import platform
-import platform
+SHELL=/bin/sh
 
-import microgp4 as ugp
+.PHONY: run
 
-if platform.machine() == "arm64":
-    import library_arm64 as library
-else:
-    raise NotImplementedError(f"Unknown machine type: {platform.machine()}")
+run:
+	./onemax-shell.sh `tail -1 genome.dat`
 
 
-SCRIPT_NAME = {"Linux": "./evaluate-all.sh", "Darwin": "./evaluate-all.sh", "Windows": "evaluate-all.cmd"}
 
-
-def main():
-    top_frame = library.define_frame()
-
-    ugp.microgp_logger.setLevel(logging.INFO)
-    evaluator = ugp.evaluator.ScriptEvaluator(SCRIPT_NAME[platform.system()], filename_format="ind{i}.s")
-    ugp.ea.vanilla_ea(top_frame, evaluator, population_extra_parameters={"_comment": library.COMMENT})
-
-
-if __name__ == "__main__":
-    ugp.rrandom.seed(42)
-    # ugp.set_logger_level(logging.INFO)
-    main()

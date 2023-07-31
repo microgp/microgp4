@@ -15,6 +15,8 @@
 
 import microgp4 as ugp
 
+COMMENT = ';'
+
 
 def define_frame():
     register = ugp.f.choice_parameter([f"x{n}" for n in range(4)])

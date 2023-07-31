@@ -20,15 +20,15 @@ import pytest
 class MockParameter(ugp.classes.ParameterABC):
     def __init__(self):
         super().__init__()
-        self._value = "test"
+        self._value = 'test'
 
     def is_valid(self, obj: Any) -> bool:
         return super().is_valid(obj) and isinstance(obj, str)
 
 
 def test_macro():
-    text = "Hello, {name}"
-    parameters = {"name": MockParameter}
+    text = 'Hello, {name}'
+    parameters = {'name': MockParameter}
 
     MacroClass = ugp.framework.macro(text, **parameters)
 

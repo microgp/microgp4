@@ -17,17 +17,17 @@ import pytest
 
 
 def test_canonize_name():
-    assert ugp.tools.names.canonize_name("foo", "bar") == "bar❬foo#1❭"
-    assert ugp.tools.names.canonize_name("foo", "bar") == "bar❬foo#2❭"
-    assert ugp.tools.names.canonize_name("baz", "qux") == "qux❬baz#1❭"
+    assert ugp.tools.names.canonize_name('oo', 'bar') == 'bar❬foo#1❭'
+    assert ugp.tools.names.canonize_name('foo', 'bar') == 'bar❬foo#2❭'
+    assert ugp.tools.names.canonize_name('baz', 'qux') == 'qux❬baz#1❭'
 
-    assert ugp.tools.names.canonize_name("foo", "pippo", user=True) == "pippo<foo>"
+    assert ugp.tools.names.canonize_name('foo', 'pippo', user=True) == ppo<foo>'
 
-    assert ugp.tools.names.canonize_name("thing", "some", make_unique=False) == "some❬thing❭"
-    assert ugp.tools.names.canonize_name("tag", "some", make_unique=False) == "some❬tag❭"
+    assert ugp.tools.names.canonize_name('thing', 'some', make_unique=False) == 'some❬thing❭'
+    assert ugp.tools.names.canonize_name('tag', 'some', make_unique=False) == 'some❬tag❭'
 
-    assert ugp.tools.names.canonize_name("foo", "bar", user_space=True) == "bar<foo#3>"
-    assert ugp.tools.names.canonize_name("foo", "bar", user_space=True) == "bar<foo#4>"
+    assert ugp.tools.names.canonize_name('foo', 'bar', user_space=True) == 'bar<foo#3>'
+    assert ugp.tools.names.canonize_name('foo', 'bar', user_space=True) == 'bar<foo#4>'
 
 
 # user <>

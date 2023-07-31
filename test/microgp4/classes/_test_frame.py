@@ -24,13 +24,13 @@ class FrameConcrete(ugp.classes.FrameABC):
         pass
 
     @property
-    def successors(self) -> list[Type["ugp.classes.FrameABC"] | Type[ugp.classes.Macro]]:
+    def successors(self) -> list[Type['ugp.classes.FrameABC'] | Type[ugp.classes.Macro]]:
         return []
 
 
 def test_frame_instance_creation():
-    frame_instance = FrameConcrete(parameters={"test": "test"})
-    assert frame_instance._parameters == {"test": "test"}
+    frame_instance = FrameConcrete(parameters={'test': 'test'})
+    assert frame_instance._parameters == {'test': 'test'}
 
 
 def test_frame_eq_method():
@@ -41,7 +41,7 @@ def test_frame_eq_method():
 
 def test_frame_dump_method():
     frame_instance = FrameConcrete()
-    assert frame_instance.dump(ugp.classes.ValueBag()) == ""
+    assert frame_instance.dump(ugp.classes.ValueBag()) == ''
 
 
 def test_frame_is_valid():
@@ -50,11 +50,11 @@ def test_frame_is_valid():
 
 
 def test_frame_name():
-    assert FrameConcrete.name == "FrameConcrete"
+    assert FrameConcrete.name == 'FrameConcrete'
 
 
 def test_frame_register_name():
     FrameConcrete._registered_names = set()
-    assert FrameConcrete.register_name("TestName") == True
+    assert FrameConcrete.register_name('TestName') == True
     with pytest.raises(AssertionError):
-        FrameConcrete.register_name("TestName")
+        FrameConcrete.register_name('TestName')

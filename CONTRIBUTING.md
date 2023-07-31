@@ -35,12 +35,11 @@ This section contains notes for programmers interested in modifying μGP⁴.
 
 #### TL;DR
 
-* Follow this [style guide](https://github.com/squillero/style/blob/master/python.md)
+* Follow this [style guide](https://github.com/squillero/style/blob/master/python.md) and keep the source code formatted with [Black](https://black.readthedocs.io/en/stable/)
 * Write as few lines of code and as much line of comments as possible
 * Use builtins, exploit generators and list comprehension
 * Use [pytest](https://docs.pytest.org/) and [Coverage.py](https://coverage.readthedocs.io/) for unit testing (i.e., `coverage run -m pytest`).
 * Use [pylint](https://mypy-lang.org/) for linting (and possibly use also [mypy](https://mypy-lang.org/) for additional type checking.)
-* Keep the source code formatted with [Black](https://black.readthedocs.io/en/stable/) (see `pyproject.toml`)
 
 #### Asserts
 

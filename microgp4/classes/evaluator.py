@@ -37,6 +37,8 @@ __all__ = [
 from typing import Callable, Sequence
 from abc import ABC, abstractmethod
 
+from itertools import zip_longest
+
 import os
 import subprocess
 import tempfile
@@ -48,7 +50,7 @@ if joblib_available:
     import joblib
 
 from microgp4.user_messages import *
-from microgp4.classes.fitness import FitnessABC, InvalidFitness
+from microgp4.classes.fitness import FitnessABC
 from microgp4.fitness import make_fitness
 from microgp4.classes.population import Population
 from microgp4.tools.dump import _cook_genome
@@ -57,7 +59,7 @@ from microgp4.global_symbols import *
 
 
 class EvaluatorABC(ABC):
-    """Base abstract class for Evaluator
+    r"""Base abstract class for Evaluator
 
     `fitness_calls` (``property``):
         Number of fitness calls required so far.
@@ -67,8 +69,8 @@ class EvaluatorABC(ABC):
     ``def evaluate_population(population)``:
         Evaluates all individuals without a valid fitness and updates them. Returns ``None``.
 
-        **Note**: the ``EvaluatorABC`` implements the ``__call__`` method, instances can be used as functions to
-        execute the `evaluate_population`.
+    **Note**: the ``EvaluatorABC`` implements the ``__call__`` method, instances can be used as functions to
+    execute the `evaluate_population`.
     """
 
     _fitness_calls: int = 0
@@ -86,7 +88,21 @@ class EvaluatorABC(ABC):
 
 
 class PythonEvaluator(EvaluatorABC):
-    """ """
+    r"""
+    A PythonEvaluators is a wrapper around a Python function that evaluates the fitness of a genotype (a string).
+    Such function must have been declared with the `@fitness` decorator. If the flag `cook_genome` is ``True``,
+    the genome may be optionally reformatted by removing the banner in the first line and replacing newlines with
+    spaces.
+
+    PythonEvaluators allow a simplistic form of parallelism, either thread-based or process-based. The maximum
+    number of concurrent fitness functions is set by `max_jobs`. The default value is 1 (no parallelism),
+    if set to ``None`` the exact behavior depends on the type of parallelism, but the general idea is that all
+    jobs that can be reasonably handled are started.
+
+    The `backend` is a string that specifies the type of parallelism, it is only meaningful if `max_jobs` != 1.
+    Valid backends are ``None`` (no parallelism), 'thread_pool' (multi-threading via `concurrent` module),
+    and 'joblib' (multi-processing via the external `joblib` library).
+    """
 
     _function: Callable
     _function_name: str
@@ -98,21 +114,7 @@ class PythonEvaluator(EvaluatorABC):
         max_jobs=None,
         backend: str | None = None,
     ) -> None:
-        f"""Initialize a PythonEvaluator
-
-        A PythonEvaluators is a wrapper around a Python function that evaluates the fitness of a genotype (a string).
-        Such function must have been declared with the `@fitness` decorator. If the flag `cook_genome` is ``True``,
-        the genome may be optionally reformatted by removing the banner in the first line and replacing newlines with
-        spaces.
-
-        PythonEvaluators allow a simplistic form of parallelism, either thread-based or process-based. The maximum
-        number of concurrent fitness functions is set by `max_jobs`. The default value is 1 (no parallelism),
-        if set to ``None`` the exact behavior depends on the type of parallelism, but the general idea is that all
-        jobs that can be reasonably handled are started.
-
-        The `backend` is a string that specifies the type of parallelism, it is only meaningful if `max_jobs` != 1.
-        Valid backends are ``None`` (no parallelism), 'thread_pool' (multi-threading via `concurrent` module),
-        and 'joblib' (multi-processing via the external `joblib` library).
+        r"""Initialize a PythonEvaluator
 
         Parameters
         ----------
@@ -174,15 +176,15 @@ class PythonEvaluator(EvaluatorABC):
 
 
 class MakefileEvaluator(EvaluatorABC):
-    _file_name: str
+    _filename: str
     _required_files: list[str]
     _max_workers: int | None
     _microgp_base_dir: str
 
-    def __init__(self, file_name: str, max_workers: int | None = None, required_files: list[str] = None) -> None:
+    def __init__(self, filename: str, max_workers: int | None = None, required_files: list[str] = None) -> None:
         if not required_files:
             required_files = ["makefile"]
-        self._file_name = file_name
+        self._filename = filename
         self._required_files = required_files
         self._max_workers = max_workers
         self._microgp_base_dir = os.getcwd()
@@ -190,10 +192,10 @@ class MakefileEvaluator(EvaluatorABC):
     def evaluate(self, phenotype):
         with tempfile.TemporaryDirectory(prefix="ugp4_", ignore_cleanup_errors=True) as tmp_dir:
             # microgp_logger.debug(f"MakefileEvaluator:evaluate: Creating {tmp_dir}")
-            for f in self._required_files:
+            for f in ['Makefile'] + self._required_files:
                 os.symlink(os.path.join(self._microgp_base_dir, f), os.path.join(tmp_dir, f))
-            os.chdir(tmp_dir)
-            with open(os.path.join(tmp_dir, self._file_name), "w") as dump:
+            # os.chdir(tmp_dir)
+            with open(os.path.join(tmp_dir, self._filename), "w") as dump:
                 dump.write(phenotype)
             try:
                 result = subprocess.run(
@@ -226,7 +228,7 @@ class MakefileEvaluator(EvaluatorABC):
     def evaluate_population(self, population: Population) -> None:
         indexes = list()
         genomes = list()
-        for i, g in enumerate(population):
+        for i, g in population:
             if not g.is_finalized:
                 indexes.append(i)
                 genomes.append(population.dump_individual(i))
@@ -235,7 +237,7 @@ class MakefileEvaluator(EvaluatorABC):
             for i, result in zip(indexes, pool.map(self.evaluate, genomes)):
                 self._fitness_calls += 1
                 if result is None:
-                    population[i].fitness = InvalidFitness()
+                    raise RuntimeError("Thread failed (returned None)")
                 else:
                     value = [float(r) for r in result.stdout.split()]
                     if len(value) == 1:
@@ -273,9 +275,16 @@ class ScriptEvaluator(EvaluatorABC):
     _file_name: str
     _script_name: str
 
-    def __init__(self, script_name: str, file_name: str = "phenotype_{i:04x}.txt") -> None:
+    def __init__(
+        self,
+        script_name: str,
+        args: Sequence[str] | None = None,
+        *,
+        filename_format: str = "phenotype_{i:04x}.txt",
+    ) -> None:
         self._script_name = script_name
-        self._file_name = file_name
+        self._script_options = args if args else list()
+        self._file_name = filename_format
 
     def evaluate_population(self, population: Population) -> None:
         individuals = population.not_finalized
@@ -288,7 +297,7 @@ class ScriptEvaluator(EvaluatorABC):
 
         try:
             result = subprocess.run(
-                [self._script_name, *files],
+                [self._script_name, *self._script_options, *files],
                 universal_newlines=True,
                 check=True,
                 text=True,
@@ -303,19 +312,15 @@ class ScriptEvaluator(EvaluatorABC):
             result = None
 
         if result is None:
-            microgp_logger.debug("MakefileEvaluator:evaluate: Process failed (returned None)")
-            population[i].fitness = InvalidFitness()
+            raise RuntimeError("Process failed (returned None)")
         elif not result.stdout:
-            microgp_logger.debug(
-                "MakefileEvaluator:evaluate: Process returned empty stdout (stderr: %s)", result.stderr
-            )
-            population[i].fitness = InvalidFitness()
+            raise RuntimeError(f"Process returned empty stdout (stderr: '{result.stderr}')")
         else:
             results = list(filter(lambda s: bool(s), result.stdout.split("\n")))
             assert len(results) == len(
                 individuals
             ), f"ValueError: number of results and number of individual mismatch (paranoia check): found {len(results)} expected {len(individuals)}"
-            for ind, line in zip(individuals, results):
+            for ind, line in zip_longest(individuals, results):
                 value = [float(r) for r in line.split()]
                 if len(value) == 1:
                     value = value[0]
@@ -323,4 +328,4 @@ class ScriptEvaluator(EvaluatorABC):
                 ind[1].fitness = fitness
 
         for f in files:
-            os.remove(f)
+            os.unlink(f)

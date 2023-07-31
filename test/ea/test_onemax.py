@@ -19,12 +19,12 @@ import microgp4 as ugp
 @ugp.fitness_function
 def fitness(genotype: str):
     """Vanilla 1-max"""
-    return sum(b == "1" for b in genotype)
+    return sum(b == '1' for b in genotype)
 
 
 def test_onemax():
     ugp.microgp_logger.setLevel(WARNING)
-    macro = ugp.f.macro("{v}", v=ugp.f.array_parameter("01", 50))
+    macro = ugp.f.macro('{v}', v=ugp.f.array_parameter('01', 50))
     frame = ugp.f.sequence([macro])
 
     # sequential evaluator
@@ -44,13 +44,13 @@ def test_onemax():
     assert all(r[1].fitness == o[1].fitness for r, o in zip(reference_population, other_population))
 
     # multi-thread parallel evaluator & seed 42 (result should be ==)
-    evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True, max_jobs=None, backend="thread_pool")
+    evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True, max_jobs=None, backend='thread_pool')
     ugp.rrandom.seed(42)
     other_population = ugp.ea.vanilla_ea(frame, evaluator, mu=10, max_generation=10)
     assert all(r[1].fitness == o[1].fitness for r, o in zip(reference_population, other_population))
 
     # multi-process parallel evaluator & seed 42 (result should be ==)
-    evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True, max_jobs=None, backend="joblib")
+    evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True, max_jobs=None, backend='joblib')
     ugp.rrandom.seed(42)
     other_population = ugp.ea.vanilla_ea(frame, evaluator, mu=10, max_generation=10)
     assert all(r[1].fitness == o[1].fitness for r, o in zip(reference_population, other_population))

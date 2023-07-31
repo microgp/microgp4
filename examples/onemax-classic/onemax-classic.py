@@ -13,29 +13,31 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-import platform
-import platform
-
 import microgp4 as ugp
 
-if platform.machine() == "arm64":
-    import library_arm64 as library
-else:
-    raise NotImplementedError(f"Unknown machine type: {platform.machine()}")
+NUM_BITS = 50
 
 
-SCRIPT_NAME = {"Linux": "./evaluate-all.sh", "Darwin": "./evaluate-all.sh", "Windows": "evaluate-all.cmd"}
+@ugp.fitness_function
+def fitness(genotype: str):
+    """Vanilla 1-max"""
+    return sum(b == '1' for b in genotype)
 
 
 def main():
-    top_frame = library.define_frame()
-
     ugp.microgp_logger.setLevel(logging.INFO)
-    evaluator = ugp.evaluator.ScriptEvaluator(SCRIPT_NAME[platform.system()], filename_format="ind{i}.s")
-    ugp.ea.vanilla_ea(top_frame, evaluator, population_extra_parameters={"_comment": library.COMMENT})
+
+    macro = ugp.f.macro('{v}', v=ugp.f.array_parameter('01', NUM_BITS + 1))
+    top_frame = ugp.f.sequence([macro])
+
+    # evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True, backend=None)
+    # evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True, backend='thread_pool')
+    # evaluator = ugp.evaluator.PythonEvaluator(fitness, cook_genome=True, backend='joblib')
+    # evaluator = ugp.evaluator.ScriptEvaluator('./onemax-shell.sh', args=['-f'])
+    evaluator = ugp.evaluator.MakefileEvaluator('genome.dat', required_files=['onemax-shell.sh'])
+
+    population = ugp.ea.vanilla_ea(top_frame, evaluator, max_generation=1_000, lambda_=20, mu=30)
 
 
 if __name__ == "__main__":
-    ugp.rrandom.seed(42)
-    # ugp.set_logger_level(logging.INFO)
     main()

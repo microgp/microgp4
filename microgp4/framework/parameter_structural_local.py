@@ -45,14 +45,14 @@ __all__ = ["local_reference"]
 
 @cache
 def _local_reference(
-    backward: bool = True, self_loop: bool = True, foreward: bool = True
+    backward: bool = True, self_loop: bool = True, forward: bool = True
 ) -> type[ParameterStructuralABC]:
     """
 
     Args:
         backward:
         self_loop:
-        foreward:
+        forward:
 
     Returns:
 
@@ -63,7 +63,7 @@ def _local_reference(
 
         BACKWARD = backward
         SELF_LOOP = self_loop
-        FOREWARD = foreward
+        FORWARD = forward
 
         @property
         def potential_targets(self):
@@ -74,7 +74,7 @@ def _local_reference(
                 r += siblings[:i]
             if T.SELF_LOOP:
                 r += [siblings[i]]
-            if T.FOREWARD:
+            if T.FORWARD:
                 r += siblings[i + 1 :]
             return r
 
@@ -91,7 +91,7 @@ def _local_reference(
 
     _patch_class_info(
         T,
-        f"""LocalReference[{'<' if backward else '≮'}{'=' if self_loop else '≠'}{'>' if foreward else '≯'}]""",
+        f"""LocalReference[{'<' if backward else '≮'}{'=' if self_loop else '≠'}{'>' if forward else '≯'}]""",
         tag="parameter",
     )
     return T

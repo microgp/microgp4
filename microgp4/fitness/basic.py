@@ -33,7 +33,7 @@ from typing import Sequence, Any
 
 from math import isclose
 
-from microgp4.classes.fitness import FitnessABC, InvalidFitness
+from microgp4.classes.fitness import FitnessABC
 from microgp4.user_messages import *
 
 
@@ -77,13 +77,11 @@ class Scalar(FitnessABC, float):
 
     def is_distinguishable(self, other: FitnessABC) -> bool:
         assert self.check_comparable(other)
-        return isinstance(other, InvalidFitness) or not isclose(
-            float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol
-        )
+        return not isclose(float(self), float(other), rel_tol=self._rel_tol, abs_tol=self._abs_tol)
 
     def is_fitter(self, other: FitnessABC) -> bool:
         assert self.check_comparable(other)
-        return isinstance(other, InvalidFitness) or (self != other and float(self) > float(other))
+        return self != other and float(self) > float(other)
 
     def check_comparable(self, other: "Scalar"):
         assert super().check_comparable(other)

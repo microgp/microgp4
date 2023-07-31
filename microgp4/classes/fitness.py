@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / June 2023 / Squillero (GX)
 
-__all__ = ["FitnessABC", "InvalidFitness"]
+__all__ = ["FitnessABC"]
 
 from abc import ABC, abstractmethod
 from functools import wraps, cache
@@ -78,7 +78,7 @@ class FitnessABC(ABC):
 
     def check_comparable(self, other: "FitnessABC"):
         assert (
-            self.__class__ == other.__class__ or isinstance(self, InvalidFitness) or isinstance(other, InvalidFitness)
+            self.__class__ == other.__class__
         ), f"TypeError: different Fitness types: {self.__class__} and {other.__class__} (paranoia check)"
         return True
 
@@ -129,15 +129,3 @@ class FitnessABC(ABC):
 
     def run_paranoia_checks(self) -> bool:
         return super().run_paranoia_checks()
-
-
-class InvalidFitness(FitnessABC):
-    """An invalid Fitness, worse that any possible fitness value"""
-
-    def is_fitter(self, other: "FitnessABC") -> bool:
-        """Any possible value is fitter than an InvalidFitness, except another InvalidFitness"""
-        return isinstance(other, InvalidFitness)
-
-    def is_distinguishable(self, other: "FitnessABC"):
-        """Any possible value is fitter than an InvalidFitness, except another InvalidFitness"""
-        return not isinstance(other, InvalidFitness)
