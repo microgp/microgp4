@@ -53,7 +53,6 @@ from microgp4.user_messages import *
 from microgp4.classes.fitness import FitnessABC
 from microgp4.fitness import make_fitness
 from microgp4.classes.population import Population
-from microgp4.tools.dump import _cook_genome
 from microgp4.registry import *
 from microgp4.global_symbols import *
 
@@ -61,19 +60,36 @@ from microgp4.global_symbols import *
 class EvaluatorABC(ABC):
     r"""Base abstract class for Evaluator
 
+    The `Evaluator` classes evaluate individuals in the population. There are
+
     `fitness_calls` (``property``):
         Number of fitness calls required so far.
 
-    All *evaluators* must implement:
-
-    ``def evaluate_population(population)``:
-        Evaluates all individuals without a valid fitness and updates them. Returns ``None``.
+    All *evaluators* implement the function `evaluate_population`, that evaluates all individuals without a valid
+    fitness and updates them.
 
     **Note**: the ``EvaluatorABC`` implements the ``__call__`` method, instances can be used as functions to
     execute the `evaluate_population`.
+
+    See Also
+    --------
+        foo
     """
 
     _fitness_calls: int = 0
+    cook: Callable[[str], str]
+
+    def __init__(self, strip_phenotypes: bool = False):
+        r"""
+        Parameters
+        ----------
+        strip_phenotypes: bool
+            ``True`` if both the banner and the last `newline` should be stripped out
+        """
+        if strip_phenotypes:
+            self.cook = lambda g: EvaluatorABC.strip_phenotypes(g)
+        else:
+            self.cook = lambda g: g
 
     @abstractmethod
     def evaluate_population(self, population: Population) -> None:
@@ -86,88 +102,117 @@ class EvaluatorABC(ABC):
     def __call__(self, population: Population) -> None:
         self.evaluate_population(population)
 
+    @staticmethod
+    def strip_phenotypes(raw_dump: str) -> str:
+        return "\n".join(raw_dump.split("\n")[1:-1])
+
 
 class PythonEvaluator(EvaluatorABC):
     r"""
-    A PythonEvaluators is a wrapper around a Python function that evaluates the fitness of a genotype (a string).
-    Such function must have been declared with the `@fitness` decorator. If the flag `cook_genome` is ``True``,
-    the genome may be optionally reformatted by removing the banner in the first line and replacing newlines with
-    spaces.
+    An  `Evaluator` based on a Python function that calculates the fitness of a genotype (a string).
 
-    PythonEvaluators allow a simplistic form of parallelism, either thread-based or process-based. The maximum
-    number of concurrent fitness functions is set by `max_jobs`. The default value is 1 (no parallelism),
-    if set to ``None`` the exact behavior depends on the type of parallelism, but the general idea is that all
-    jobs that can be reasonably handled are started.
+    `PythonEvaluators` allow a simplistic form of parallelism
 
-    The `backend` is a string that specifies the type of parallelism, it is only meaningful if `max_jobs` != 1.
-    Valid backends are ``None`` (no parallelism), 'thread_pool' (multi-threading via `concurrent` module),
-    and 'joblib' (multi-processing via the external `joblib` library).
+    *   thread-based (builtin): Multiple functions are evaluated in different threads. Threads are lightweight,
+        but due to the GIL [1]_, this method is likely to be useful only if the fitness function accesses external
+        resources (eg. files, REST APIs, databases, external tools).
+
+    *   process-based (based on `joblib` [2]_): Multiple functions are evaluated in different processes.
+        Processes-based paralelism does not suffer from the GIL limitation [1]_, but starting/stopping them
+        introduces considerable overhead, thus this method is likely to be useful only when the fitness function
+        is computationally intensive.
+
+    The `backend` parameters select the type of parallelism: ``None`` for sequential evaluation, ```thread_pool``` for
+    threads, ``'joblib'`` for processes.
+
+    When the evaluation is parallel, the parameter `max_workers` control the maximum number of workers that are
+    started in parallel. If ``None``, a *reasonable* value is used, that takes into consideration the characteristic of
+    the microprocessor.
+
+    Use option `strip_phenotypes` to remove both the MicroGP header and the final newline ``\n`` from the phenotype.
+
+    Examples
+    --------
+
+    Use as many threads as reasonably possible, strip (cleanup) the phenotype before calling the function
+
+    >>> ugp.evaluator.PythonEvaluator(fitness, backend='thread_pool', strip_phenotypes=True)
+
+    Notes
+    -----
+
+    *   The fitness function must have been declared with the ``@fitness`` decorator.
+
+    References
+    ----------
+    .. [1] https://docs.python.org/3/glossary.html#term-global-interpreter-lock
+    .. [2] https://joblib.readthedocs.io/en/stable/
     """
 
     _function: Callable
     _function_name: str
 
     def __init__(
-        self,
-        fitness_function: Callable[[str], FitnessABC],
-        cook_genome: bool = False,
-        max_jobs=None,
-        backend: str | None = None,
+        self, fitness_function: Callable[[str], FitnessABC], max_workers=None, backend: str | None = None, **kwargs
     ) -> None:
-        r"""Initialize a PythonEvaluator
+        """
+        See :py:class:`classes.evaluator.PythonEvaluator` for more information
 
         Parameters
         ----------
-        fitness_function : Callable
+        fitness_function: Callable
             The Python function for calculating the fitness
-        cook_genome : bool
-            ``True`` if the genome needs to be reformatted, ``False`` otherwise.
-        max_jobs : int
-            The number of parallel evaluations to run.
-        backend : str | None
-            ``thread_pool`` or ``joblib``
+        max_workers: int | None
+            Maximum number of workers to start in parallel. If ``None``, a reasonable number is used.
+        backend: str | None
+            ``None`` or `'thread_pool'` or `'joblib'`
         """
 
+        super().__init__(**kwargs)
         assert (
             get_microgp4_type(fitness_function) == FITNESS_FUNCTION
         ), f"TypeError: {fitness_function} has not be registered as a MicgroGP fitness function"
 
-        if not backend or (max_jobs is not None and max_jobs < 2):
+        if not backend or (max_workers is not None and max_workers < 2):
             backend = ""
-            max_jobs = 1
-        assert max_jobs is None or check_value_range(max_jobs, 1)
+            max_workers = 1
+        assert max_workers is None or check_value_range(max_workers, 1)
 
         self._fitness_function = fitness_function
-        self._max_jobs = max_jobs
-        if cook_genome:
-            self._cooker = lambda g: _cook_genome(g)
-        else:
-            self._cooker = lambda g: g
+        self._max_workers = max_workers
         self._backend = backend
         self._fitness_function_name = fitness_function.__qualname__
 
     def __str__(self):
-        return f"{self.__class__.__name__}❬{self._fitness_function_name}❭"
+        if not self._backend:
+            return f"{self.__class__.__name__}❬{self._fitness_function_name}❭"
+        elif self._backend == 'thread_pool':
+            return f"{self.__class__.__name__}/ThreadPool❬{self._fitness_function_name}❭"
+        elif self._backend == 'joblib':
+            return f"{self.__class__.__name__}/JobLib❬{self._fitness_function_name}❭"
+        else:
+            raise NotImplementedError
 
     def evaluate_population(self, population: Population) -> None:
-        individuals = [(i, I, self._cooker(population.dump_individual(i))) for i, I in population.not_finalized]
+        individuals = [(i, I, self.cook(population.dump_individual(i))) for i, I in population.not_finalized]
 
-        if self._max_jobs == 1 or not self._backend:
+        if self._max_workers == 1 or not self._backend:
             # Simple, sequential, Python evaluator
             for _, I, P in individuals:
                 self._fitness_calls += 1
                 I.fitness = self._fitness_function(P)
-        elif self._backend == "thread_pool":
-            with ThreadPoolExecutor(max_workers=self._max_jobs, thread_name_prefix=self._fitness_function_name) as pool:
+        elif self._backend == 'thread_pool':
+            with ThreadPoolExecutor(
+                max_workers=self._max_workers, thread_name_prefix=self._fitness_function_name
+            ) as pool:
                 for I, f in zip(
                     (I for _, I, _ in individuals), pool.map(self._fitness_function, (P for _, _, P in individuals))
                 ):
                     self._fitness_calls += 1
                     I.fitness = f
-        elif self._backend == "joblib":
+        elif self._backend == 'joblib':
             jobs = list(joblib.delayed(self._fitness_function)(P) for _, _, P in individuals)
-            n_jobs = self._max_jobs if self._max_jobs else -1
-            values = joblib.Parallel(n_jobs=n_jobs, return_as="generator")(jobs)
+            values = joblib.Parallel(n_jobs=self._max_workers if self._max_workers else -1, return_as="generator")(jobs)
             for I, f in zip((I for _, I, _ in individuals), values):
                 self._fitness_calls += 1
                 I.fitness = f
@@ -177,29 +222,46 @@ class PythonEvaluator(EvaluatorABC):
 
 class MakefileEvaluator(EvaluatorABC):
     _filename: str
-    _required_files: list[str]
     _max_workers: int | None
+    _make_command: str
+    _make_flags: tuple[str]
+    _makefile: str
+    _required_files: tuple[str]
     _microgp_base_dir: str
 
-    def __init__(self, filename: str, max_workers: int | None = None, required_files: list[str] = None) -> None:
-        if not required_files:
-            required_files = ["makefile"]
+    def __init__(
+        self,
+        filename: str,
+        *,
+        max_workers: int | None = None,
+        make_command='make',
+        make_flags: Sequence[str] = ('-s',),
+        makefile='Makefile',
+        required_files: Sequence[str] = (),
+        **kwargs,
+    ) -> None:
+        super().__init__(**kwargs)
+        assert max_workers is None or check_value_range(max_workers)
         self._filename = filename
-        self._required_files = required_files
         self._max_workers = max_workers
+        self._make_command = make_command
+        self._make_flags = tuple(make_flags)
+        self._makefile = makefile
+        self._required_files = tuple(required_files)
         self._microgp_base_dir = os.getcwd()
+
+    def __str__(self):
+        return f"{self.__class__.__name__}❬{self._filename}❭"
 
     def evaluate(self, phenotype):
         with tempfile.TemporaryDirectory(prefix="ugp4_", ignore_cleanup_errors=True) as tmp_dir:
-            # microgp_logger.debug(f"MakefileEvaluator:evaluate: Creating {tmp_dir}")
-            for f in ['Makefile'] + self._required_files:
+            for f in [self._makefile, *self._required_files]:
                 os.symlink(os.path.join(self._microgp_base_dir, f), os.path.join(tmp_dir, f))
-            # os.chdir(tmp_dir)
             with open(os.path.join(tmp_dir, self._filename), "w") as dump:
                 dump.write(phenotype)
             try:
                 result = subprocess.run(
-                    ["make", "-s"],
+                    [self._make_command, *self._make_flags],
                     cwd=tmp_dir,
                     universal_newlines=True,
                     check=True,
@@ -222,7 +284,6 @@ class MakefileEvaluator(EvaluatorABC):
                     "MakefileEvaluator:evaluate: Process returned empty stdout (stderr: %s)", result.stderr
                 )
                 result = None
-        # microgp_logger.debug(f"MakefileEvaluator:evaluate: Leaving {tmp_dir}")
         return result
 
     def evaluate_population(self, population: Population) -> None:
@@ -231,7 +292,7 @@ class MakefileEvaluator(EvaluatorABC):
         for i, g in population:
             if not g.is_finalized:
                 indexes.append(i)
-                genomes.append(population.dump_individual(i))
+                genomes.append(self.cook(population.dump_individual(i)))
 
         with ThreadPoolExecutor(max_workers=self._max_workers, thread_name_prefix="ugp4") as pool:
             for i, result in zip(indexes, pool.map(self.evaluate, genomes)):
@@ -281,10 +342,15 @@ class ScriptEvaluator(EvaluatorABC):
         args: Sequence[str] | None = None,
         *,
         filename_format: str = "phenotype_{i:04x}.txt",
+        **kwargs,
     ) -> None:
+        super().__init__(**kwargs)
         self._script_name = script_name
         self._script_options = args if args else list()
         self._file_name = filename_format
+
+    def __str__(self):
+        return f"{self.__class__.__name__}❬{self._script_name}❭"
 
     def evaluate_population(self, population: Population) -> None:
         individuals = population.not_finalized
@@ -293,7 +359,7 @@ class ScriptEvaluator(EvaluatorABC):
             self._fitness_calls += 1
             files.append(self._file_name.format(i=population.individuals[idx].id))
             with open(files[-1], "w") as dump:
-                dump.write(population.dump_individual(idx))
+                dump.write(self.cook(population.dump_individual(idx)))
 
         try:
             result = subprocess.run(

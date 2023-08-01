@@ -127,7 +127,7 @@ def vanilla_ea(
             best = population[0]
             _new_best(population, evaluator)
     end = perf_counter_ns()
-    print(f"Elapsed: {(end-start)/1e9:.2} seconds")
+    # print(f"Elapsed: {(end-start)/1e9:.2} seconds")
 
     # population._zap = all_individuals
     # microgp_logger.info("VanillaEA: Genetic operators statistics:")
