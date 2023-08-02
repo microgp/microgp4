@@ -37,13 +37,13 @@ def main():
     evaluators.append(ugp.evaluator.PythonEvaluator(fitness, strip_phenotypes=True, backend='thread_pool'))
     evaluators.append(ugp.evaluator.PythonEvaluator(fitness, strip_phenotypes=True, backend='joblib'))
     evaluators.append(ugp.evaluator.ScriptEvaluator('./onemax-shell.sh', args=['-f']))
-    evaluators.append(ugp.evaluator.MakefileEvaluator('genome.dat', required_files=['onemax-shell.sh']))
+    evaluators.append(ugp.evaluator.MakefileEvaluator('genome.dat', required_files=['zzonemax-shell.sh']))
 
     populations = list()
     for e in evaluators:
         ugp.rrandom.seed(42)
         ugp.logger.info("main: Using %s", e)
-        populations.append(ugp.ea.vanilla_ea(top_frame, e, max_generation=1000, lambda_=200, mu=300))
+        populations.append(ugp.ea.vanilla_ea(top_frame, e, max_generation=100, lambda_=20, mu=30))
         pass
 
     for p1, p2 in itertools.combinations(populations, 2):
