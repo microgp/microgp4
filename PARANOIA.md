@@ -23,9 +23,9 @@ Using an optimization flag will disable *Paranoia Checks*:
 $ python -O ./my-fuzzer.py
 ```
 
-#### Set [`PYTHONOPTIMIZE`](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONOPTIMIZE)
+#### Set `PYTHONOPTIMIZE`
 
-Setting the environment variable `PYTHONOPTIMIZE` to a non-empty string it is equivalent to specifying the `-O` option:
+Setting the environment variable [`PYTHONOPTIMIZE`](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONOPTIMIZE) to a non-empty string it is equivalent to specifying the `-O` option:
 
 ```sh
 $ PYTHONOPTIMIZE=1 python ./my-fuzzer.py
