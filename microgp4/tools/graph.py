@@ -65,12 +65,12 @@ def check_genome(G: nx.MultiDiGraph) -> bool:
     assert all(
         n < G.graph["node_count"] for n in G
     ), f"ValueError: invalid 'node_count' attribute ({G.graph['node_count']})"
-    assert all("_type" in d for u, v, k, d in all_edges), "ValueError: missing '_type' attribute (paranoia check)"
+    assert all("_type" in d for u, v, k, d in all_edges), "ValueError (paranoia check): missing '_type' attribute"
     tree_edges = [(u, v) for u, v, k, d in all_edges if d["_type"] == FRAMEWORK]
-    assert len(tree_edges) == len(set(tree_edges)), "ValueError: duplicated framework edge (paranoia check)"
+    assert len(tree_edges) == len(set(tree_edges)), "ValueError (paranoia check): duplicated framework edge"
     assert all(
         d["_type"] != FRAMEWORK or len(d) == 1 for u, v, k, d in all_edges
-    ), "ValueError: unknown attribute in tree edge (paranoia check)"
+    ), "ValueError (paranoia check): unknown attribute in tree edge"
     return True
 
 
@@ -80,7 +80,7 @@ def get_structure_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
     tree.add_edges_from((u, v) for u, v, k in G.edges(data="_type") if k == FRAMEWORK)
     assert nx.is_branching(tree) and nx.is_weakly_connected(
         tree
-    ), f"ValueError: Structure of {G!r} is not a valid tree (paranoia check)"
+    ), f"ValueError (paranoia check): Structure of {G!r} is not a valid tree"
     return tree
 
 
@@ -116,7 +116,7 @@ def set_successors_order(ref: NodeReference, new_order: Sequence[int]) -> None:
     assert all(k == 0 for u, v, k in current), f"ValueError: Found a FRAMEWORK edge with key != 0"
     assert {v for u, v, k in current} == set(
         new_order
-    ), f"ValueError: mismatching new order: {[v for u, v, k in current]} vs. {new_order} (paranoia check)"
+    ), f"ValueError (paranoia check): mismatching new order: {[v for u, v, k in current]} vs. {new_order}"
 
     attributes = dict()
     for u, v, k in current:

@@ -156,7 +156,7 @@ class Individual(Paranoid):
 
     @property
     def valid(self) -> bool:
-        assert check_genome(self._genome), "ValueError: Invalid genome structure (paranoia check)"
+        assert check_genome(self._genome), "ValueError (paranoia check): Invalid genome structure"
         return all(
             self.genome.nodes[n]["_selement"].is_valid(NodeView(NodeReference(self.genome, n)))
             for n in nx.dfs_preorder_nodes(self.genome)
@@ -251,14 +251,14 @@ class Individual(Paranoid):
     @property
     def fitness(self):
         """The fitness of the individual."""
-        assert self.is_finalized, f"ValueError: Individual not marked as final, fitness value not set (paranoia check)"
+        assert self.is_finalized, f"ValueError (paranoia check): Individual not marked as final, fitness value not set"
         return self._fitness
 
     def _check_fitness(self, value):
         check_valid_types(value, FitnessABC)
         assert (
             not self.is_finalized
-        ), f"ValueError: Individual marked as final, fitness value already set to {self._fitness} (paranoia check)"
+        ), f"ValueError (paranoia check): Individual marked as final, fitness value already set to {self._fitness}"
         return True
 
     @fitness.setter

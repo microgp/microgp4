@@ -136,6 +136,6 @@ FITNESS_FUNCTION = "fitness_function"
 
 #####################################################################################################################
 
-assert "FRAMEWORK_DIRECTORY" not in globals(), f"SystemError: FRAMEWORK_DIRECTORY already initialized (paranoia check)"
+assert "FRAMEWORK_DIRECTORY" not in globals(), f"SystemError (paranoia check): FRAMEWORK_DIRECTORY already initialized"
 FRAMEWORK_DIRECTORY: dict[str, "FrameABC"] = dict()
-assert "FRAMEWORK_DIRECTORY" in globals(), f"SystemError: FRAMEWORK_DIRECTORY not initialized (paranoia check)"
+assert "FRAMEWORK_DIRECTORY" in globals(), f"SystemError (paranoia check): FRAMEWORK_DIRECTORY not initialized"

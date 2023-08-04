@@ -87,10 +87,10 @@ class Scalar(FitnessABC, float):
         assert super().check_comparable(other)
         assert (
             not isinstance(other, self.__class__) or self._abs_tol == other._abs_tol
-        ), f"ValueError: different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol} (paranoia check)"
+        ), f"ValueError (paranoia check): different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol}"
         assert (
             not isinstance(other, self.__class__) or self._rel_tol == other._rel_tol
-        ), f"ValueError: different relative tolerance: {float(self)}±{self._rel_tol}r vs. {float(other)}±{other._rel_tol}r (paranoia check)"
+        ), f"ValueError (paranoia check): different relative tolerance: {float(self)}±{self._rel_tol}r vs. {float(other)}±{other._rel_tol}r"
         return True
 
 

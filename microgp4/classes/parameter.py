@@ -73,7 +73,7 @@ class ParameterABC(SElement, Paranoid, ABC):
 
     @value.setter
     def value(self, new_value):
-        assert self.is_correct(new_value), f"ValueError: invalid value: {new_value} (paranoia check)"
+        assert self.is_correct(new_value), f"ValueError (paranoia check): invalid value: {new_value}"
         self._value = new_value
 
     @abstractmethod

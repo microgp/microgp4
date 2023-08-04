@@ -173,8 +173,8 @@ def bunch(
         size = (size, size + 1)
     else:
         size = tuple(size)
-        assert len(size) == 2, f"ValueError: Not a half open range [min, max) (paranoia check)"
-    assert 0 < size[0] <= size[1] - 1, f"ValueError: min size is {size[0]} and max size is {size[1]-1} (paranoia check)"
+        assert len(size) == 2, f"ValueError (paranoia check): Not a half open range [min, max)"
+    assert 0 < size[0] <= size[1] - 1, f"ValueError (paranoia check): min size is {size[0]} and max size is {size[1]-1}"
 
     class T(FrameMacroBunch, FrameABC):
         SIZE = size

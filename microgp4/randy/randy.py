@@ -68,7 +68,7 @@ class Randy:
         """Stretches [0,1] on a standard deviation ]0, 20.8[."""
         if strength is None:
             return None
-        assert 0 <= strength <= 1, f"ValueError: invalid sigma: {strength} (paranoia check)"
+        assert 0 <= strength <= 1, f"ValueError (paranoia check): invalid sigma: {strength}"
         x = strength / 2 + 0.5
         x = min(x, 1 - Randy.SMALL_NUMBER)
         val = math.log(x / (1 - x))
@@ -240,6 +240,6 @@ class Randy:
         return y
 
 
-assert "rrandom" not in globals(), f"SystemError: Randy the Random already initialized (paranoia check)"
+assert "rrandom" not in globals(), f"SystemError (paranoia check): Randy the Random already initialized"
 rrandom = Randy(42)
-assert "rrandom" in globals(), f"SystemError: Randy the Random not initialized (paranoia check)"
+assert "rrandom" in globals(), f"SystemError (paranoia check): Randy the Random not initialized"

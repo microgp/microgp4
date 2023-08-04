@@ -83,7 +83,7 @@ class ValueBag(dict):
     def __delattr__(self, key: str):
         # assert check_valid_types(key, str)
         # assert ValueBag.SAFE_KEY.fullmatch(key), \
-        #     f"KeyError: invalid key: {key!r} (paranoia check)"
+        #     f"KeyError (paranoia check): invalid key: {key!r}"
         # del self[key]
         raise NotImplementedError(f"ValueBag is read-only: can't delete {key!r}")
 
@@ -96,7 +96,7 @@ class ValueBag(dict):
     # def __getitem__(self, key: str):
     #    assert check_valid_types(key, str)
     #    assert ValueBag.VALID_KEY.fullmatch(key), \
-    #        f"ValueError: Invalid key: {key!r} (paranoia check)"
+    #        f"ValueError (paranoia check): Invalid key: {key!r}"
     #    try:
     #        return super().__getitem__(key)
     #    except KeyError:
@@ -104,7 +104,7 @@ class ValueBag(dict):
 
     def __getattr__(self, key: str):
         assert check_valid_type(key, str)
-        assert ValueBag.SAFE_KEY.fullmatch(key), f"KeyError: invalid key (paranoia check): {key!r}"
+        assert ValueBag.SAFE_KEY.fullmatch(key), f"KeyError (paranoia check): invalid key: {key!r}"
         return self[key]
 
     def __iter__(self):

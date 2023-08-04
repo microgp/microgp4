@@ -324,6 +324,9 @@ class MakefileEvaluator(EvaluatorABC):
     def evaluate(self, phenotype):
         with tempfile.TemporaryDirectory(prefix="ugp4_", ignore_cleanup_errors=True) as tmp_dir:
             for f in [self._makefile, *self._required_files]:
+                assert os.path.exists(
+                    f
+                ), f"FileNotFoundError (paranoia check): No such file or directory: '{f}' (cwd was '{self._microgp_base_dir}')"
                 os.symlink(os.path.join(self._microgp_base_dir, f), os.path.join(tmp_dir, f))
             with open(os.path.join(tmp_dir, self._filename), "w") as dump:
                 dump.write(phenotype)
@@ -458,7 +461,7 @@ class ScriptEvaluator(EvaluatorABC):
             results = list(filter(lambda s: bool(s), result.stdout.split("\n")))
             assert len(results) == len(
                 individuals
-            ), f"ValueError: number of results and number of individual mismatch (paranoia check): found {len(results)} expected {len(individuals)}"
+            ), f"ValueError (paranoia check): number of results and number of individual mismatch: found {len(results)} expected {len(individuals)}"
             for ind, line in zip_longest(individuals, results):
                 value = [float(r) for r in line.split()]
                 if len(value) == 1:

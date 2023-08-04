@@ -81,7 +81,7 @@ class FrameABC(SElement, Paranoid):
     def register_name(name: str) -> bool:
         assert (
             name not in FrameABC._registered_names
-        ), f"ValueError: Frame name {name!r} already exists (paranoia check)"
+        ), f"ValueError (paranoia check): Frame name {name!r} already exists"
         FrameABC._registered_names.add(name)
         return True
 

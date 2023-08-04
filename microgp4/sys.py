@@ -117,6 +117,6 @@ def get_operators():
     return [o for o in snapshot.values() if hasattr(o, "microgp") and o.type == GENETIC_OPERATOR]
 
 
-assert "SYSINFO" not in globals(), f"SystemError: SYSINFO already initialized (paranoia check)"
+assert "SYSINFO" not in globals(), f"SystemError (paranoia check): SYSINFO already initialized"
 SYSINFO = SysInfo()
-assert "SYSINFO" in globals(), f"SystemError: FRAMEWORK_DIRECTORY not initialized (paranoia check)"
+assert "SYSINFO" in globals(), f"SystemError (paranoia check): FRAMEWORK_DIRECTORY not initialized"

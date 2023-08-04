@@ -60,7 +60,7 @@ def unroll_individual(individual: Individual, top: type[FrameABC]) -> int | None
 
     assert check_valid_types(individual, Individual)
     assert check_valid_types(top, FrameABC, Macro, subclass=True)
-    assert not individual.is_finalized, f"ValueError: individual is finalized (paranoia check)"
+    assert not individual.is_finalized, f"ValueError (paranoia check): individual is finalized"
 
     G = individual.genome
     new_node = unroll_selement(top, G)

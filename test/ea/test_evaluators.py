@@ -14,6 +14,7 @@
 
 import logging
 import itertools
+import os
 
 import microgp4 as ugp
 
@@ -26,8 +27,10 @@ def fitness(genotype):
     return sum(b == '1' for b in genotype)
 
 
-def main():
-    ugp.microgp_logger.setLevel(logging.INFO)
+def test_evaluators():
+    ugp.microgp_logger.setLevel(logging.WARNING)
+    assert os.path.exists('ea')
+    os.chdir('ea')
 
     macro = ugp.f.macro('{v}', v=ugp.f.array_parameter('01', NUM_BITS + 1))
     top_frame = ugp.f.sequence([macro])
@@ -50,7 +53,3 @@ def main():
         for i1, i2 in zip(populations[0], populations[1]):
             assert i1[1].fitness == i2[1].fitness, f"Mismatch! {i1[1]} vs. {i2[1]}"
     ugp.logger.info("main: Results are identitcal!")
-
-
-if __name__ == "__main__":
-    main()

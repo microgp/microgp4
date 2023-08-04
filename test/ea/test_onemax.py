@@ -44,13 +44,13 @@ def test_onemax():
     assert all(r[1].fitness == o[1].fitness for r, o in zip(reference_population, other_population))
 
     # multi-thread parallel evaluator & seed 42 (result should be ==)
-    evaluator = ugp.evaluator.PythonEvaluator(fitness, strip_phenotypes=True, max_jobs=None, backend='thread_pool')
+    evaluator = ugp.evaluator.PythonEvaluator(fitness, strip_phenotypes=True, max_workers=None, backend='thread_pool')
     ugp.rrandom.seed(42)
     other_population = ugp.ea.vanilla_ea(frame, evaluator, mu=10, max_generation=10)
     assert all(r[1].fitness == o[1].fitness for r, o in zip(reference_population, other_population))
 
     # multi-process parallel evaluator & seed 42 (result should be ==)
-    evaluator = ugp.evaluator.PythonEvaluator(fitness, strip_phenotypes=True, max_jobs=None, backend='joblib')
+    evaluator = ugp.evaluator.PythonEvaluator(fitness, strip_phenotypes=True, max_workers=None, backend='joblib')
     ugp.rrandom.seed(42)
     other_population = ugp.ea.vanilla_ea(frame, evaluator, mu=10, max_generation=10)
     assert all(r[1].fitness == o[1].fitness for r, o in zip(reference_population, other_population))
