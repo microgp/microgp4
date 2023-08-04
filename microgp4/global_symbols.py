@@ -107,7 +107,7 @@ except ModuleNotFoundError:
 debug_mode = __debug__
 
 #############################################################################
-# PARANOIA MODE
+# PARANOID MODE
 
 
 def _check_assert():

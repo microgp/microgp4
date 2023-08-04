@@ -1,4 +1,4 @@
-# PARANOIA MODE
+# PARANOID MODE
 
 > Can you help me occupy my brain?  
 > Oh, yeah  
