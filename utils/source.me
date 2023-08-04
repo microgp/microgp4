@@ -17,3 +17,6 @@ while [[ ! -f "${dir}/microgp4/__init__.py" ]]; do
   (( ++n > 10 )) && break
 done
 [[ -f "${dir}/microgp4/__init__.py" ]] && export PYTHONPATH="${PYTHONPATH}:${dir}"
+
+echo "export PYTHONPATH=\"${PYTHONPATH}\""
+echo "export PYTHONOPTIMIZE=1"

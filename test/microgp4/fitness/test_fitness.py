@@ -19,9 +19,10 @@ import microgp4 as ugp
 
 
 def test_simple():
-    with pytest.raises(AssertionError):
-        # TypeError: different types of fitness
-        assert ugp.fit.Scalar(13) <= ugp.fit.Float(13)
+    if ugp.paranoia_mode:
+        with pytest.raises(AssertionError):
+            # TypeError: different types of fitness
+            assert ugp.fit.Scalar(13) <= ugp.fit.Float(13)
 
     # SCALAR
     # nb. sqrt(2)**2 = 2.0000000000000004
@@ -93,9 +94,10 @@ def test_simple():
     assert not rev_approximate(13) < rev_approximate(17)
     assert not rev_approximate(13) <= rev_approximate(17)
     #
-    with pytest.raises(AssertionError):
-        # TypeError: different types of fitness
-        assert rev_approximate(13) <= rev_scalar(13)
+    if ugp.paranoia_mode:
+        with pytest.raises(AssertionError):
+            # TypeError: different types of fitness
+            assert rev_approximate(13) <= rev_scalar(13)
 
     # VECTOR of Scalars
     assert ugp.fit.Lexicographic([23, 2], ugp.fit.Float) == ugp.fit.Lexicographic([23, 2], ugp.fit.Float)

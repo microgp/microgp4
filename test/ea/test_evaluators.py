@@ -29,8 +29,12 @@ def fitness(genotype):
 
 def test_evaluators():
     ugp.microgp_logger.setLevel(logging.WARNING)
-    assert os.path.exists('ea')
-    os.chdir('ea')
+
+    assert os.path.exists('ea') or os.path.exists('test/ea')
+    if os.path.exists('test/ea'):
+        os.chdir('test/ea')
+    elif os.path.exists('ea'):
+        os.chdir('ea')
 
     macro = ugp.f.macro('{v}', v=ugp.f.array_parameter('01', NUM_BITS + 1))
     top_frame = ugp.f.sequence([macro])
