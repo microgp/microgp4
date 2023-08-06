@@ -31,7 +31,6 @@ from abc import ABC, abstractmethod
 
 
 class IdentifiableABC(ABC):
-
     @property
     @abstractmethod
     def _identity(self):

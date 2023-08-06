@@ -20,9 +20,9 @@ import microgp4 as ugp
 @pytest.fixture
 def sample_graph():
     G = nx.MultiDiGraph()
-    G.add_node(0, _macro='macro1')
-    G.add_node(1, _macro='macro2')
-    G.add_edge(0, 1, kind='framework')
+    G.add_node(0, _macro="macro1")
+    G.add_node(1, _macro="macro2")
+    G.add_edge(0, 1, kind="framework")
     return G
 
 
@@ -38,7 +38,7 @@ def test_nodeview_attributes(sample_graph):
     ref = ugp.classes.NodeReference(sample_graph, 0)
     node_view = ugp.classes.NodeView(ref)
 
-    assert dict(node_view.attributes) == {'_macro': 'macro1'}
+    assert dict(node_view.attributes) == {"_macro": "macro1"}
 
 
 def test_nodeview_setattr(sample_graph):
@@ -98,7 +98,7 @@ def test_nodeview_name(sample_graph):
     ref = ugp.classes.NodeReference(sample_graph, 0)
     node_view = ugp.classes.NodeView(ref)
 
-    assert node_view.name == 'macro1'
+    assert node_view.name == "macro1"
 
 
 def test_nodeview_path(sample_graph):
@@ -112,7 +112,7 @@ def test_nodeview_pathname(sample_graph):
     ref = ugp.classes.NodeReference(sample_graph, 1)
     node_view = ugp.classes.NodeView(ref)
 
-    assert node_view.pathname == 'n0.n1'
+    assert node_view.pathname == "n0.n1"
 
 
 def test_nodeview_out_degree(sample_graph):
@@ -148,4 +148,4 @@ def test_nodeview_all_edges(sample_graph):
     node_view = ugp.classes.NodeView(ref)
 
     assert len(node_view.all_edges) == 1
-    assert node_view.all_edges[0] == (0, 1, 'framework')
+    assert node_view.all_edges[0] == (0, 1, "framework")

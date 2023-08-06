@@ -31,7 +31,7 @@
 from microgp4.user_messages import *
 from microgp4.classes.parameter import ParameterABC
 
-__all__ = ['mutate']
+__all__ = ["mutate"]
 
 
 def mutate(parameter: ParameterABC, /, strength: float) -> None:
@@ -56,6 +56,12 @@ def mutate(parameter: ParameterABC, /, strength: float) -> None:
         counter += 1
         parameter.mutate(strength=strength)
 
-    assert parameter.value != old_value or counter < 100 or strength < .01 or \
-           performance(f"Failed to mutate {parameter.__class__.__name__} with strength {strength} after {counter:,} attempts",
-        stacklevel_offset=2)
+    assert (
+        parameter.value != old_value
+        or counter < 100
+        or strength < 0.01
+        or performance(
+            f"Failed to mutate {parameter.__class__.__name__} with strength {strength} after {counter:,} attempts",
+            stacklevel_offset=2,
+        )
+    )

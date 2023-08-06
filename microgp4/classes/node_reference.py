@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['NodeReference']
+__all__ = ["NodeReference"]
 
 from typing import NamedTuple
 from networkx.classes import MultiDiGraph
@@ -39,5 +39,5 @@ class NodeReference(NamedTuple):
 
 
 # NOTE[GX]: Untyped alternative...
-#from collections import namedtuple
-#NodeRef = namedtuple('NodeRef', ['individual', 'node'])
+# from collections import namedtuple
+# NodeRef = namedtuple('NodeRef', ['individual', 'node'])

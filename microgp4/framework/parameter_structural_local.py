@@ -40,31 +40,30 @@ from microgp4.randy import rrandom
 from microgp4.tools.graph import *
 from microgp4.tools.names import canonize_name, _patch_class_info
 
-__all__ = ['local_reference']
+__all__ = ["local_reference"]
 
 
 @cache
-def _local_reference(backward: bool = True,
-                     self_loop: bool = True,
-                     foreward: bool = True) -> type[ParameterStructuralABC]:
+def _local_reference(
+    backward: bool = True, self_loop: bool = True, forward: bool = True
+) -> type[ParameterStructuralABC]:
     """
 
     Args:
         backward:
         self_loop:
-        foreward:
+        forward:
 
     Returns:
 
     """
 
     class T(ParameterStructuralABC):
-
         __slots__ = []  # Preventing the automatic creation of __dict__
 
         BACKWARD = backward
         SELF_LOOP = self_loop
-        FOREWARD = foreward
+        FORWARD = forward
 
         @property
         def potential_targets(self):
@@ -75,11 +74,11 @@ def _local_reference(backward: bool = True,
                 r += siblings[:i]
             if T.SELF_LOOP:
                 r += [siblings[i]]
-            if T.FOREWARD:
-                r += siblings[i + 1:]
+            if T.FORWARD:
+                r += siblings[i + 1 :]
             return r
 
-        def mutate(self, strength: float = 1., node_reference: NodeReference | None = None, *args, **kwargs) -> None:
+        def mutate(self, strength: float = 1.0, node_reference: NodeReference | None = None, *args, **kwargs) -> None:
             if node_reference is not None:
                 self._fasten(node_reference)
             pt = self.potential_targets
@@ -92,8 +91,9 @@ def _local_reference(backward: bool = True,
 
     _patch_class_info(
         T,
-        f'''LocalReference[{'<' if backward else '≮'}{'=' if self_loop else '≠'}{'>' if foreward else '≯'}]''',
-        tag='parameter')
+        f"""LocalReference[{'<' if backward else '≮'}{'=' if self_loop else '≠'}{'>' if forward else '≯'}]""",
+        tag="parameter",
+    )
     return T
 
 

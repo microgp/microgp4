@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-__all__ = ['cook_sequence']
+__all__ = ["cook_sequence"]
 
 from collections import abc
 from microgp4.user_messages import *
@@ -58,7 +58,7 @@ def cook_sequence(raw_sequence: list[type[SElement] | type[ParameterABC] | str])
         if isinstance(e, str):
             e = macro(e)
         elif issubclass(e, ParameterABC):
-            e = macro('{p}', p=e)
+            e = macro("{p}", p=e)
         cooked_seq.append(e)
 
     return cooked_seq

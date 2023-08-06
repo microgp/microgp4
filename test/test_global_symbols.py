@@ -25,7 +25,3 @@ def test_link():
 
 def test_node():
     assert 0 == symbols.NODE_ZERO
-
-
-def test_tag():
-    'µGP⁴' == symbols.UGP4_TAG

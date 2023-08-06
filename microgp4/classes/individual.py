@@ -29,7 +29,7 @@
 
 # NOTE[GX]: This file contains code that some programmer may find upsetting
 
-__all__ = ['Individual']
+__all__ = ["Individual"]
 
 from typing import Any, Callable
 from itertools import chain, zip_longest
@@ -39,15 +39,12 @@ import operator
 
 import networkx as nx
 
-try:
-    import matplotlib.pyplot as plt
-except ModuleNotFoundError as e:
-    plt_errror = e
-    plt = None
-
 from microgp4.user_messages import *
 from microgp4.global_symbols import *
 from microgp4.tools.graph import *
+
+if matplotlib_available:
+    import matplotlib.pyplot as plt
 
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.paranoid import Paranoid
@@ -71,9 +68,9 @@ class Birth:
             try:
                 parents.append(str(p))
             except ReferenceError:
-                parents.append('✝')
+                parents.append("✝")
 
-        return self.operator.__name__ + '(' + ', '.join(parents) + ')'
+        return self.operator.__name__ + "(" + ", ".join(parents) + ")"
 
 
 class Individual(Paranoid):
@@ -106,25 +103,25 @@ class Individual(Paranoid):
     # A rainbow color mapping using matplotlib's tableau colors
     SHARP_COLORS_NUM = 7
     SHARP_COLORS_PALETTE = [
-        'tab:blue',  # 1f77b4
-        'tab:orange',  # ff7f0e
-        'tab:green',  # 2ca02c
-        'tab:red',  # d62728
-        'tab:purple',  # 9467bd
+        "tab:blue",  # 1f77b4
+        "tab:orange",  # ff7f0e
+        "tab:green",  # 2ca02c
+        "tab:red",  # d62728
+        "tab:purple",  # 9467bd
         #'tab:brown',  # 8c564b
         #'tab:pink',  # e377c2
         #'tab:gray',  # 7f7f7f
-        'tab:olive',  # bcbd22
-        'tab:cyan'  # 17becf
+        "tab:olive",  # bcbd22
+        "tab:cyan",  # 17becf
     ]
 
     def __init__(self, top_frame: type[FrameABC]) -> None:
         Individual.__COUNTER += 1
         self._id = Individual.__COUNTER
-        self._genome = nx.MultiDiGraph(node_count=1, top_frame=top_frame)
-        self._genome.add_node(NODE_ZERO, root=True, _selement=MacroZero(), _type=MACRO_NODE)
+        self._genome = nx.MultiDiGraph(node_count=NODE_ZERO + 1, top_frame=top_frame)
+        self._genome.add_node(NODE_ZERO, _selement=MacroZero(), _type=MACRO_NODE)
         self._fitness = None
-        self._str = ''
+        self._str = ""
         self._structure_tree = None
         self._birth = None
         self._age = 0
@@ -133,11 +130,16 @@ class Individual(Paranoid):
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
 
     def __str__(self):
-        return f'𝕚{self._id}'
+        return f"𝕚{self._id}"
 
     def __eq__(self, other) -> bool:
-        return type(self) == type(other) and self._fitness == other._fitness and nx.isomorphism.is_isomorphic(
-            self._genome, other._genome, node_match=operator.eq, edge_match=operator.eq)
+        return (
+            type(self) == type(other)
+            and self._fitness == other._fitness
+            and nx.isomorphism.is_isomorphic(
+                self._genome, other._genome, node_match=operator.eq, edge_match=operator.eq
+            )
+        )
 
     def __hash__(self):
         return hash(self._id)
@@ -154,13 +156,14 @@ class Individual(Paranoid):
 
     @property
     def valid(self) -> bool:
-        assert check_genome(self._genome), \
-            "ValueError: Invalid genome structure (paranoia check)"
-        return all(self.genome.nodes[n]['_selement'].is_valid(NodeView(NodeReference(self.genome, n)))
-                   for n in nx.dfs_preorder_nodes(self.genome))
+        assert check_genome(self._genome), "ValueError (paranoia check): Invalid genome structure"
+        return all(
+            self.genome.nodes[n]["_selement"].is_valid(NodeView(NodeReference(self.genome, n)))
+            for n in nx.dfs_preorder_nodes(self.genome)
+        )
 
     @property
-    def clone(self) -> 'Individual':
+    def clone(self) -> "Individual":
         scratch = self._fitness, self._birth
         self._fitness, self._birth = None, None
         I = deepcopy(self)
@@ -178,12 +181,12 @@ class Individual(Paranoid):
     @property
     def macros(self):
         """Return all macro instances in unreliable order."""
-        return [self._genome.nodes[n]['_selement'] for n in self.nodes if self._genome.nodes[n]['_type'] == MACRO_NODE]
+        return [self._genome.nodes[n]["_selement"] for n in self.nodes if self._genome.nodes[n]["_type"] == MACRO_NODE]
 
     @property
     def frames(self):
         """Return all frame instances in unreliable order."""
-        return [self._genome.nodes[n]['_selement'] for n in self.nodes if self._genome.nodes[n]['_type'] == FRAME_NODE]
+        return [self._genome.nodes[n]["_selement"] for n in self.nodes if self._genome.nodes[n]["_type"] == FRAME_NODE]
 
     @property
     def parameters(self):
@@ -194,15 +197,15 @@ class Individual(Paranoid):
     def OLDISH_valid(self) -> bool:
         """Checks the syntax of the individual."""
         for n in nx.dfs_preorder_nodes(self.structure_tree, source=NODE_ZERO):
-            if '_frame' in self._genome.nodes[n]:
-                if not self._genome.nodes[n]['_frame'].run_checks(NodeView(self._genome, n)):
+            if "_frame" in self._genome.nodes[n]:
+                if not self._genome.nodes[n]["_frame"].run_checks(NodeView(self._genome, n)):
                     return False
-            elif '_macro' in self._genome.nodes[n]:
-                if not self._genome.nodes[n]['_macro'].run_checks(NodeView(self._genome, n)):
+            elif "_macro" in self._genome.nodes[n]:
+                if not self._genome.nodes[n]["_macro"].run_checks(NodeView(self._genome, n)):
                     return False
-                if not all(p.valid for p in self._genome.nodes[n]['_macro'].parameters.values()):
+                if not all(p.valid for p in self._genome.nodes[n]["_macro"].parameters.values()):
                     return False
-            elif 'root' in self._genome.nodes[n] and self._genome.nodes[n]['root'] is True:
+            elif "root" in self._genome.nodes[n] and self._genome.nodes[n]["root"] is True:
                 pass  # safe
             else:
                 raise SyntaxWarning(f"Unknown node type: {self._genome.nodes[n]}")
@@ -211,7 +214,7 @@ class Individual(Paranoid):
     @property
     def G(self):
         """Individual's underlying NetworkX MultiDiGraph."""
-        #TODO DeprecationWarning?
+        # TODO DeprecationWarning?
         return self._genome
 
     @property
@@ -248,14 +251,14 @@ class Individual(Paranoid):
     @property
     def fitness(self):
         """The fitness of the individual."""
-        assert self.is_finalized, \
-            f"ValueError: Individual not marked as final, fitness value not set (paranoia check)"
+        assert self.is_finalized, f"ValueError (paranoia check): Individual not marked as final, fitness value not set"
         return self._fitness
 
     def _check_fitness(self, value):
         check_valid_types(value, FitnessABC)
-        assert not self.is_finalized, \
-            f"ValueError: Individual marked as final, fitness value already set to {self._fitness} (paranoia check)"
+        assert (
+            not self.is_finalized
+        ), f"ValueError (paranoia check): Individual marked as final, fitness value already set to {self._fitness}"
         return True
 
     @fitness.setter
@@ -263,49 +266,62 @@ class Individual(Paranoid):
         """Set the fitness of the individual and update operator stats"""
         assert self._check_fitness(value)
         self._fitness = value
-        if any(value >> i.fitness for i in self._birth.parents) and \
-                any(value >> i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents):
+        if any(value >> i.fitness for i in self._birth.parents) and any(
+            value >> i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents
+        ):
             self._birth.operator.stats.successes += 1
-        elif any(value << i.fitness for i in self.birth.parents) and \
-                any(value << i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents):
+        elif any(value << i.fitness for i in self.birth.parents) and any(
+            value << i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents
+        ):
             self._birth.operator.stats.failures += 1
 
     # PUBLIC METHODS
 
-    def describe(self,
-                 *,
-                 include_fitness: bool = True,
-                 include_structure: bool = True,
-                 include_birth: bool = True,
-                 max_recursion: int = 0,
-                 _indent_level: str = ''):
+    def describe(
+        self,
+        *,
+        include_fitness: bool = True,
+        include_structure: bool = True,
+        include_birth: bool = True,
+        max_recursion: int = 0,
+        _indent_level: str = "",
+    ):
         desc = str(self)
         delem = list()
         if include_fitness:
-            delem.append(f'fitness: {self.fitness}')
+            delem.append(f"fitness: {self.fitness}")
         if include_structure:
-            node_types = list(t for n, t in self.G.nodes(data='_type'))
+            node_types = list(t for n, t in self.G.nodes(data="_type"))
             n_nodes = len(self.G)
             n_macros = node_types.count(MACRO_NODE) - 1
             n_frames = node_types.count(FRAME_NODE)
-            n_links = sum(True for _, _, k in self.G.edges(data='_type') if k != FRAMEWORK)
-            n_params = sum(True for p in chain.from_iterable(self.G.nodes[n]['_selement'].parameter_types.items()
-                                                             for n in self.G
-                                                             if self.G.nodes[n]['_type'] == MACRO_NODE))
-            delem.append(f'''{n_frames} frame{'s' if n_frames != 1 else ''} and {n_macros} macro{'s' if n_frames != 1 else ''}''' + \
-                f''' ({n_params:,} parameter{'s' if n_params != 1 else ''} total''' + \
-                f''', {n_links:,} structural)''')
+            n_links = sum(True for _, _, k in self.G.edges(data="_type") if k != FRAMEWORK)
+            n_params = sum(
+                True
+                for p in chain.from_iterable(
+                    self.G.nodes[n]["_selement"].parameter_types.items()
+                    for n in self.G
+                    if self.G.nodes[n]["_type"] == MACRO_NODE
+                )
+            )
+            delem.append(
+                f"""{n_frames} frame{'s' if n_frames != 1 else ''} and {n_macros} macro{'s' if n_frames != 1 else ''}"""
+                + f""" ({n_params:,} parameter{'s' if n_params != 1 else ''} total"""
+                + f""", {n_links:,} structural)"""
+            )
         if include_birth:
             delem.append(str(self.birth))
-        descr = f'''{_indent_level}{desc} ⇨ {' / '.join(delem)}'''
+        descr = f"""{_indent_level}{desc} ⇨ {' / '.join(delem)}"""
         if max_recursion > 0:
             for p in self.birth.parents:
                 try:
-                    descr += '\n' + p.describe(include_fitness=include_fitness,
-                                               include_structure=include_structure,
-                                               include_birth=include_birth,
-                                               max_recursion=max_recursion - 1,
-                                               _indent_level=_indent_level + '  ')
+                    descr += "\n" + p.describe(
+                        include_fitness=include_fitness,
+                        include_structure=include_structure,
+                        include_birth=include_birth,
+                        max_recursion=max_recursion - 1,
+                        _indent_level=_indent_level + "  ",
+                    )
                 except ReferenceError:
                     pass
         return descr
@@ -343,13 +359,9 @@ class Individual(Paranoid):
 
         """
 
-        if plt is None:
-            user_warning(f"Rendering of individuals not available: {plt_errror}")
-            return
-
         if filename:
-            if 'bbox_inches' not in kwargs:
-                kwargs['bbox_inches'] = 'tight'
+            if "bbox_inches" not in kwargs:
+                kwargs["bbox_inches"] = "tight"
             fig = self._draw_forest(zoom)
             fig.savefig(filename, **kwargs)
             plt.close()
@@ -391,13 +403,9 @@ class Individual(Paranoid):
 
         """
 
-        if not plt:
-            user_warning(f"Rendering of individuals not available: {plt_errror}")
-            return
-
         if filename:
-            if 'bbox_inches' not in kwargs:
-                kwargs['bbox_inches'] = 'tight'
+            if "bbox_inches" not in kwargs:
+                kwargs["bbox_inches"] = "tight"
             fig = self._draw_multipartite(zoom)
             fig.savefig(filename, **kwargs)
             plt.close()
@@ -414,39 +422,39 @@ class Individual(Paranoid):
         self.G.remove_nodes_from(chain.from_iterable(ccomp[1:]))
 
     def dump(self, extra_parameters: dict) -> str:
-        self._str = ''
+        self._str = ""
         for n in self.nodes:
             self._str += Individual._dump_node(NodeReference(self.genome, n), extra_parameters)
         return self._str
 
     @staticmethod
     def _dump_node(nr: NodeReference, parameters) -> str:
-        local_parameters = parameters | nr.graph.nodes[nr.node] | {'_node': NodeView(nr)}
-        #local_parameters |= nr.graph.nodes[nr.node]['_selement'].parameters
-        if hasattr(nr.graph.nodes[nr.node]['_selement'], 'extra_parameters'):
-            local_parameters |= nr.graph.nodes[nr.node]['_selement'].extra_parameters
+        local_parameters = parameters | nr.graph.nodes[nr.node] | {"_node": NodeView(nr)}
+        # local_parameters |= nr.graph.nodes[nr.node]['_selement'].parameters
+        if hasattr(nr.graph.nodes[nr.node]["_selement"], "extra_parameters"):
+            local_parameters |= nr.graph.nodes[nr.node]["_selement"].extra_parameters
         bag = ValueBag(local_parameters)
 
         # GENERAL NODE HEADER
-        str = '{_text_before_node}'.format(**bag)
+        str = "{_text_before_node}".format(**bag)
 
         if nr.graph.in_degree(nr.node) > 1:
-            str += bag['_label'].format(**bag)
+            str += bag["_label"].format(**bag)
 
-        if nr.graph.nodes[nr.node]['_type'] == MACRO_NODE:
-            str += '{_text_before_macro}'.format(**bag)
-            str += nr.graph.nodes[nr.node]['_selement'].dump(bag)
-            if bag['$dump_node_info']:
-                str += '  {_comment}{_comment} {_node.pathname} ➜ {_node.name}'.format(**bag)
-            str += '{_text_after_macro}'.format(**bag)
-        elif nr.graph.nodes[nr.node]['_type'] == FRAME_NODE:
-            str += '{_text_before_frame}'.format(**bag)
-            if bag['$dump_node_info']:
-                str += '{_comment}{_comment} {_node.pathname} ➜ {_node.name}{_text_after_macro}'.format(**bag)
-            str += '{_text_after_frame}'.format(**bag)
+        if nr.graph.nodes[nr.node]["_type"] == MACRO_NODE:
+            str += "{_text_before_macro}".format(**bag)
+            str += nr.graph.nodes[nr.node]["_selement"].dump(bag)
+            if bag["$dump_node_info"]:
+                str += "  {_comment}{_comment} {_node.pathname} ➜ {_node.name}".format(**bag)
+            str += "{_text_after_macro}".format(**bag)
+        elif nr.graph.nodes[nr.node]["_type"] == FRAME_NODE:
+            str += "{_text_before_frame}".format(**bag)
+            if bag["$dump_node_info"]:
+                str += "{_comment}{_comment} {_node.pathname} ➜ {_node.name}{_text_after_macro}".format(**bag)
+            str += "{_text_after_frame}".format(**bag)
 
         # GENERAL NODE FOOTER
-        str += '{_text_after_node}'.format(**bag)
+        str += "{_text_after_node}".format(**bag)
 
         return str
 
@@ -455,82 +463,82 @@ class Individual(Paranoid):
 
         T = self.structure_tree.copy()
         for n in T:
-            T.nodes[n]['depth'] = len(nx.shortest_path(T, 0, n))
-        height = max(T.nodes[n]['depth'] for n in T.nodes)
-        width = sum(1 for n in T if self.G.nodes[n]['_type'] == MACRO_NODE)
-        fig = plt.figure(figsize=(zoom * width * .8, zoom * height + width / 2))
+            T.nodes[n]["depth"] = len(nx.shortest_path(T, 0, n))
+        height = max(T.nodes[n]["depth"] for n in T.nodes)
+        width = sum(1 for n in T if self.G.nodes[n]["_type"] == MACRO_NODE)
+        fig = plt.figure(figsize=(zoom * width * 0.8, zoom * height + width / 2))
         ax = fig.add_subplot()
 
         T.remove_node(0)
-        pos = nx.multipartite_layout(T, subset_key='depth', align='horizontal')
+        pos = nx.multipartite_layout(T, subset_key="depth", align="horizontal")
         pos = {node: (-x, -y) for (node, (x, y)) in pos.items()}
         colors = get_node_color_dict(self.G)
 
         # draw structure
-        nx.draw_networkx_edges(T,
-                               pos,
-                               style=':',
-                               edge_color='lightgray',
-                               arrowstyle='-|>,head_length=.6,head_width=0.2',
-                               ax=ax)
+        nx.draw_networkx_edges(
+            T, pos, style=":", edge_color="lightgray", arrowstyle="-|>,head_length=.6,head_width=0.2", ax=ax
+        )
         # draw macros
-        nodelist = [n for n in T if self.G.nodes[n]['_type'] == MACRO_NODE]
-        nx.draw_networkx_nodes(T,
-                               pos,
-                               nodelist=nodelist,
-                               node_color=[colors[n] for n in nodelist],
-                               node_size=800,
-                               cmap=plt.cm.tab20,
-                               ax=ax)
+        nodelist = [n for n in T if self.G.nodes[n]["_type"] == MACRO_NODE]
+        nx.draw_networkx_nodes(
+            T, pos, nodelist=nodelist, node_color=[colors[n] for n in nodelist], node_size=800, cmap=plt.cm.tab20, ax=ax
+        )
         # draw frames
-        nodelist = [n for n in self.G if self.G.nodes[n]['_type'] == FRAME_NODE]
-        nx.draw_networkx_nodes(T,
-                               pos,
-                               nodelist=nodelist,
-                               node_shape='s',
-                               node_size=800,
-                               node_color=[colors[n] for n in nodelist],
-                               cmap=plt.cm.Pastel1,
-                               ax=ax)
+        nodelist = [n for n in self.G if self.G.nodes[n]["_type"] == FRAME_NODE]
+        nx.draw_networkx_nodes(
+            T,
+            pos,
+            nodelist=nodelist,
+            node_shape="s",
+            node_size=800,
+            node_color=[colors[n] for n in nodelist],
+            cmap=plt.cm.Pastel1,
+            ax=ax,
+        )
         nx.draw_networkx_labels(T, pos)
 
         ##############################################################################
         # Draw links
         T.remove_edges_from(list(T.edges))
-        T.add_edges_from((u, v)
-                         for u, v, k in self.G.edges(data='_type')
-                         if u != v and k == LINK and T.nodes[u]['depth'] == T.nodes[v]['depth'])
+        T.add_edges_from(
+            (u, v)
+            for u, v, k in self.G.edges(data="_type")
+            if u != v and k == LINK and T.nodes[u]["depth"] == T.nodes[v]["depth"]
+        )
         nx.draw_networkx_edges(
             T,
             pos,
             edge_color=[
                 Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(T.number_of_edges())
             ],
-            connectionstyle='arc3,rad=-.3',
-            arrowstyle='-|>,head_length=1,head_width=0.6',
-            ax=ax)
-        T.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if u == v and k == LINK)
+            connectionstyle="arc3,rad=-.3",
+            arrowstyle="-|>,head_length=1,head_width=0.6",
+            ax=ax,
+        )
+        T.add_edges_from((u, v) for u, v, k in self.G.edges(data="_type") if u == v and k == LINK)
         nx.draw_networkx_edges(
             T,
             pos,
             edge_color=[
                 Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(T.number_of_edges())
             ],
-            arrowstyle='-',
-            ax=ax)
+            arrowstyle="-",
+            ax=ax,
+        )
 
         T.remove_edges_from(list(T.edges))
-        T.add_edges_from((u, v)
-                         for u, v, k in self.G.edges(data='_type')
-                         if k == LINK and T.nodes[u]['depth'] != T.nodes[v]['depth'])
+        T.add_edges_from(
+            (u, v) for u, v, k in self.G.edges(data="_type") if k == LINK and T.nodes[u]["depth"] != T.nodes[v]["depth"]
+        )
         nx.draw_networkx_edges(
             T,
             pos,
             edge_color=[
                 Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(T.number_of_edges())
             ],
-            arrowstyle='-|>,head_length=1,head_width=0.6',
-            ax=ax)
+            arrowstyle="-|>,head_length=1,head_width=0.6",
+            ax=ax,
+        )
 
         return fig
 
@@ -541,40 +549,43 @@ class Individual(Paranoid):
         sub_graphs = list()
         for s, head in enumerate(n for _, n in self.structure_tree.edges(0)):
             nodes = [
-                n for n in nx.dfs_preorder_nodes(self.structure_tree, head) if self.G.nodes[n]['_type'] == MACRO_NODE
+                n for n in nx.dfs_preorder_nodes(self.structure_tree, head) if self.G.nodes[n]["_type"] == MACRO_NODE
             ]
             sub_graphs.append(nodes)
             G.add_nodes_from(nodes)
             for n1, n2 in zip(nodes, nodes[1:]):
                 G.add_edge(n1, n2)
             for n in nodes:
-                G.nodes[n]['subset'] = s
+                G.nodes[n]["subset"] = s
         pos = nx.multipartite_layout(G)
         colors = get_node_color_dict(self._genome)
         nodelist = list(G.nodes)
 
         # figsize
-        fig = plt.figure(figsize=(5 * zoom + zoom * len(sub_graphs) * 2.0,
-                                  zoom * max(len(s) for s in sub_graphs) * 1.2))
+        fig = plt.figure(
+            figsize=(5 * zoom + zoom * len(sub_graphs) * 2.0, zoom * max(len(s) for s in sub_graphs) * 1.2)
+        )
         ax = fig.add_subplot()
 
         # draw heads
         heads = [s[0] for s in sub_graphs]
-        nx.draw_networkx_nodes(G, pos, nodelist=heads[0:1], node_size=800, node_color='gold', ax=ax)
-        nx.draw_networkx_nodes(G, pos, nodelist=heads, node_size=600, node_color='yellow', ax=ax)
-        nx.draw(G,
-                pos,
-                node_color=[colors[n] for n in nodelist],
-                cmap=plt.cm.tab20,
-                node_size=400,
-                with_labels=True,
-                edge_color='lightgray',
-                style=':',
-                ax=ax)
+        nx.draw_networkx_nodes(G, pos, nodelist=heads[0:1], node_size=800, node_color="gold", ax=ax)
+        nx.draw_networkx_nodes(G, pos, nodelist=heads, node_size=600, node_color="yellow", ax=ax)
+        nx.draw(
+            G,
+            pos,
+            node_color=[colors[n] for n in nodelist],
+            cmap=plt.cm.tab20,
+            node_size=400,
+            with_labels=True,
+            edge_color="lightgray",
+            style=":",
+            ax=ax,
+        )
         # draw "local" references
         G.remove_edges_from(list(G.edges))
         for s in sub_graphs:
-            G.add_edges_from((u, v) for u, v, k in self.G.edges(data='_type') if k == LINK and u in s and v in s)
+            G.add_edges_from((u, v) for u, v, k in self.G.edges(data="_type") if k == LINK and u in s and v in s)
         nx.draw_networkx_edges(
             G,
             pos,
@@ -582,16 +593,19 @@ class Individual(Paranoid):
                 Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(G.number_of_edges())
             ],
             width=2.0,
-            alpha=.5,
-            connectionstyle='arc3,rad=-.4',
-            arrowstyle='-|>,head_length=.6,head_width=0.2',
-            ax=ax)
+            alpha=0.5,
+            connectionstyle="arc3,rad=-.4",
+            arrowstyle="-|>,head_length=.6,head_width=0.2",
+            ax=ax,
+        )
         # draw "global" references
         G.remove_edges_from(list(G.edges))
         for s in sub_graphs:
-            G.add_edges_from((u, v)
-                             for u, v, k in self.G.edges(data='_type')
-                             if k == LINK and ((u in s and v not in s) or (u not in s and v in s)))
+            G.add_edges_from(
+                (u, v)
+                for u, v, k in self.G.edges(data="_type")
+                if k == LINK and ((u in s and v not in s) or (u not in s and v in s))
+            )
         nx.draw_networkx_edges(
             G,
             pos,
@@ -599,9 +613,10 @@ class Individual(Paranoid):
                 Individual.SHARP_COLORS_PALETTE[n % Individual.SHARP_COLORS_NUM] for n in range(G.number_of_edges())
             ],
             width=2.0,
-            alpha=.5,
-            connectionstyle='arc3,rad=-.1',
-            arrowstyle='-|>,head_length=.7,head_width=0.3',
-            ax=ax)
+            alpha=0.5,
+            connectionstyle="arc3,rad=-.1",
+            arrowstyle="-|>,head_length=.7,head_width=0.3",
+            ax=ax,
+        )
 
         return fig

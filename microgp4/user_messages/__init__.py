@@ -27,10 +27,6 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
-import logging
-import sys
-import warnings
-
 from microgp4.user_messages.exception import *
 from microgp4.user_messages.messaging import *
 from microgp4.user_messages.checks import *

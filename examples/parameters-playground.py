@@ -14,19 +14,19 @@
 
 import logging
 
-#logging.basicConfig(format="[%(asctime)s] %(levelname)s:%(message)s", datefmt="%H:%M:%S", level=logging.INFO)
+# logging.basicConfig(format="[%(asctime)s] %(levelname)s:%(message)s", datefmt="%H:%M:%S", level=logging.INFO)
 
 import microgp4 as ugp
 
-r = ugp.lib.choice_parameter_instance(['ax', 'bx', 'cx', 'dx'])
+r = ugp.lib.choice_parameter_instance(["ax", "bx", "cx", "dx"])
 v = ugp.lib.integer_parameter_instance(0, 256)
-t = 'mov {reg}, 0x{val:x} // {val}'
+t = "mov {reg}, 0x{val:x} // {val}"
 
 m = ugp.lib.Macro()
 m.text = t
-m['reg'] = r
-m['val'] = v
+m["reg"] = r
+m["val"] = v
 logging.info("macro: %s", m)
 
-m2 = ugp.lib.Macro('Register:{a} Id1:{_id} Id2:{_id} Unset:{u}', a=r)
+m2 = ugp.lib.Macro("Register:{a} Id1:{_id} Id2:{_id} Unset:{u}", a=r)
 logging.info("macro: %s", m2)

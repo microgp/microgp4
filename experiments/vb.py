@@ -12,39 +12,6 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-try:
-    import microgp4 as ugp
-except ModuleNotFoundError as e:
-    import sys, os
-    sys.path.append(os.curdir)
-    sys.path.append(os.pardir)
-    import microgp4 as ugp
+import microgp4 as ugp
 
-
-def test_print(**p):
-    print("--content--")
-    for k, v in p.items():
-        print(f"{k}: {v!r}")
-
-
-vb = ugp.classes.ValueBag({'a': 1, 'b': 2, 'c': 3})
-test_print(**vb)
-
-vb = ugp.classes.ValueBag(a=1, b=2, c=3)
-test_print(**vb)
-
-vb._foo = 'bar'
-test_print(**vb)
-
-del vb['b']
-test_print(**vb)
-
-vb['$internal'] = 'ZAPPA!'
-print(vb['$internal'])
-test_print(**vb)
-
-print(list(vb.items()), list(vb._items()))
-
-print(vb.z23)
-print(vb['z24'])
-print(vb['$z24'])
+ugp.ea.check()

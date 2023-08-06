@@ -27,4 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / May 2023 / Squillero (GX)
 
+"""
+Base name for Evaluator's Classes
+"""
 from microgp4.classes.evaluator import *

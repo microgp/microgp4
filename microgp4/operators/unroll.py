@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['unroll_individual', 'unroll_selement']
+__all__ = ["unroll_individual", "unroll_selement"]
 
 import networkx as nx
 
@@ -60,8 +60,7 @@ def unroll_individual(individual: Individual, top: type[FrameABC]) -> int | None
 
     assert check_valid_types(individual, Individual)
     assert check_valid_types(top, FrameABC, Macro, subclass=True)
-    assert not individual.is_finalized, \
-        f"ValueError: individual is finalized (paranoia check)"
+    assert not individual.is_finalized, f"ValueError (paranoia check): individual is finalized"
 
     G = individual.genome
     new_node = unroll_selement(top, G)
@@ -92,7 +91,7 @@ def unroll_selement(top: type[SElement], G: nx.classes.MultiDiGraph) -> int:
     return new_node
 
 
-#=[PRIVATE FUNCTIONS]==================================================================================================
+# =[PRIVATE FUNCTIONS]==================================================================================================
 
 
 # NOTE[GX]: I'd love being reasonably generic and efficient in a recursive
@@ -115,8 +114,8 @@ def _unroll_frame(frame_class: type[FrameABC], G: nx.classes.MultiDiGraph) -> in
     node_id = add_node(G)
 
     frame_instance = frame_class()
-    G.nodes[node_id]['_type'] = FRAME_NODE
-    G.nodes[node_id]['_selement'] = frame_instance
+    G.nodes[node_id]["_type"] = FRAME_NODE
+    G.nodes[node_id]["_selement"] = frame_instance
     for f in frame_instance.successors:
         new_node_id = _recursive_unroll(f, G)
         G.add_edge(node_id, new_node_id, _type=FRAMEWORK)  # Checkout test/paranoia/networkx
@@ -128,8 +127,8 @@ def _unroll_macro(macro_class: type[Macro], G: nx.classes.MultiDiGraph) -> int:
     node_id = add_node(G)
 
     macro_instance = macro_class()
-    G.nodes[node_id]['_type'] = MACRO_NODE
-    G.nodes[node_id]['_selement'] = macro_instance
+    G.nodes[node_id]["_type"] = MACRO_NODE
+    G.nodes[node_id]["_selement"] = macro_instance
     for k, p in macro_instance.parameter_types.items():
         G.nodes[node_id][k] = p()
 

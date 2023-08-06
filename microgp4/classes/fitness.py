@@ -27,17 +27,18 @@
 # =[ HISTORY ]===============================================================
 # v1 / June 2023 / Squillero (GX)
 
-__all__ = ['FitnessABC']
+__all__ = ["FitnessABC"]
 
 from abc import ABC, abstractmethod
 from functools import wraps, cache
 
-from microgp4.classes.paranoid import Paranoid
+# from microgp4.classes.paranoid import Paranoid
 from microgp4.user_messages import *
 from microgp4.tools.names import _patch_class_info
 
 
-class FitnessABC(Paranoid, ABC):
+# class FitnessABC(Paranoid, ABC):
+class FitnessABC(ABC):
     """Fitness of a phenotype, handle multiple formats (eg. scalar, tuple).
 
     The class also redefines the relational operator in order to handle different types of optimization
@@ -61,28 +62,29 @@ class FitnessABC(Paranoid, ABC):
     """
 
     @abstractmethod
-    def is_fitter(self, other: 'FitnessABC') -> bool:
+    def is_fitter(self, other: "FitnessABC") -> bool:
         """Check whether fitter than the other (result may be accidental)."""
         assert self.check_comparable(other)
         return super().__gt__(other)
 
-    def is_dominant(self, other: 'FitnessABC') -> bool:
+    def is_dominant(self, other: "FitnessABC") -> bool:
         """Check whether dominates the other (result is certain)."""
         return self.is_fitter(other)
 
-    def is_distinguishable(self, other: 'FitnessABC') -> bool:
+    def is_distinguishable(self, other: "FitnessABC") -> bool:
         """Check whether some differences from the other Fitness may be perceived."""
         assert self.check_comparable(other)
         return super().__ne__(other)
 
-    def check_comparable(self, other: 'FitnessABC'):
-        assert str(self.__class__) == str(other.__class__), \
-            f"TypeError: different Fitness types: {self.__class__} and {other.__class__} (paranoia check)"
+    def check_comparable(self, other: "FitnessABC"):
+        assert (
+            self.__class__ == other.__class__
+        ), f"TypeError (paranoia check): different Fitness types: {self.__class__} and {other.__class__}"
         return True
 
     def _decorate(self) -> str:
         """Represent the individual fitness value with a nice string."""
-        return f'{super().__str__()}'
+        return f"{super().__str__()}"
 
     # FINAL/WARNINGS
 
@@ -117,7 +119,7 @@ class FitnessABC(Paranoid, ABC):
         # Math white square parentheses: ⟦ ⟧ (U+27E6, U+27E7)
         # Z notation binding bracket: ⦉ ⦊
         # Curved angled bracket: ⧼ ⧽
-        return self._decorate() + 'Ƒ'
+        return self._decorate() + "Ƒ"
 
     def __repr__(self):
         return f"<{self.__class__.__module__}.{self.__class__.__name__} @ {hex(id(self))}>"

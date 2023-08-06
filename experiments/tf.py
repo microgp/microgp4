@@ -22,15 +22,21 @@ print(ugp.fit.reverse_fitness(ugp.fit.Integer)(2))
 print(ugp.fit.reverse_fitness(ugp.fit.Float)(2))
 
 print(
-    ugp.fit.Vector([
-        ugp.fit.reverse_fitness(ugp.fit.Scalar)(2),
-        ugp.fit.reverse_fitness(ugp.fit.Integer)(2),
-        ugp.fit.reverse_fitness(ugp.fit.Float)(2)
-    ]))
+    ugp.fit.Vector(
+        [
+            ugp.fit.reverse_fitness(ugp.fit.Scalar)(2),
+            ugp.fit.reverse_fitness(ugp.fit.Integer)(2),
+            ugp.fit.reverse_fitness(ugp.fit.Float)(2),
+        ]
+    )
+)
 
 print(
-    ugp.fit.reverse_fitness(ugp.fit.Vector)([
-        ugp.fit.reverse_fitness(ugp.fit.Scalar)(2),
-        ugp.fit.reverse_fitness(ugp.fit.Integer)(2),
-        ugp.fit.reverse_fitness(ugp.fit.Float)(2)
-    ]))
+    ugp.fit.reverse_fitness(ugp.fit.Vector)(
+        [
+            ugp.fit.reverse_fitness(ugp.fit.Scalar)(2),
+            ugp.fit.reverse_fitness(ugp.fit.Integer)(2),
+            ugp.fit.reverse_fitness(ugp.fit.Float)(2),
+        ]
+    )
+)

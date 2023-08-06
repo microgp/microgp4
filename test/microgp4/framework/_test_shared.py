@@ -17,12 +17,11 @@ import microgp4 as ugp
 
 def test_make_shared_parameter():
     for p in [
-            ugp.f.integer_parameter(0, 10_000_000),
-            ugp.f.float_parameter(0, 1.),
-            ugp.f.choice_parameter(range(10_000)),
-            ugp.f.array_parameter("01X", 256)
+        ugp.f.integer_parameter(0, 10_000_000),
+        ugp.f.float_parameter(0, 1.0),
+        ugp.f.choice_parameter(range(10_000)),
+        ugp.f.array_parameter("01X", 256),
     ]:
-
         SharedParameter = ugp.f.make_shared_parameter(p)
         shared_param1 = SharedParameter()
         shared_param2 = SharedParameter()

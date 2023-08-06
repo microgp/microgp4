@@ -18,7 +18,6 @@ import microgp4 as ugp
 
 
 class TestAlternative:
-
     class MockFrame(ugp.classes.FrameABC):
         pass
 
@@ -34,13 +33,13 @@ class TestAlternative:
         return self.MockMacro
 
     def test_alternative_with_valid_input(self, mock_frame, mock_macro):
-        result = ugp.f.alternative([mock_frame, mock_macro], name='test')
+        result = ugp.f.alternative([mock_frame, mock_macro], name="test")
         assert isinstance(result, Type)
         assert issubclass(result, ugp.classes.FrameABC)
         assert result.ALTERNATIVES == (mock_frame, mock_macro)
 
     def some_test(self):
-        print(ugp.f.alternative(['smth here should be a class']))
+        print(ugp.f.alternative(["smth here should be a class"]))
 
     # def test_alternative_with_invalid_input(self):
     #     with pytest.raises(AssertionError):
@@ -67,7 +66,7 @@ class TestAlternative:
 
 
 def test_sequence():
-    t1 = 'abc'
+    t1 = "abc"
     p1 = ugp.f.integer_parameter(0, 4)
     m1 = ugp.f.macro("test number {p1}", p1=p1)
     s1 = ugp.f.sequence([m1])

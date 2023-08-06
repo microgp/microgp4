@@ -19,7 +19,6 @@ import microgp4 as ugp
 
 
 class MyFrame(ugp.classes.FrameABC):
-
     def __init__(self, parameters=None):
         super().__init__(parameters=parameters)
 
@@ -29,20 +28,19 @@ class MyFrame(ugp.classes.FrameABC):
 
     @property
     def name(self):
-        return 'MyFrame'
+        return "MyFrame"
 
     def dump(self, extra_parameters):
-        return f'{self.name}({self.parameters})'
+        return f"{self.name}({self.parameters})"
 
     def is_valid(self, obj):
         return True
 
-    def mutate(self, mutation_rate: float) -> Type['ugp.classes.EvolvableABC']:
+    def mutate(self, mutation_rate: float) -> Type["ugp.classes.EvolvableABC"]:
         pass
 
 
 class MyMacro(ugp.classes.Macro):
-
     def __init__(self, parameters=None):
         super().__init__(parameters=parameters)
 
@@ -52,20 +50,19 @@ class MyMacro(ugp.classes.Macro):
 
     @property
     def name(self):
-        return 'MyMacro'
+        return "MyMacro"
 
     def dump(self, extra_parameters):
-        return f'{self.name}({self.parameters})'
+        return f"{self.name}({self.parameters})"
 
     def is_valid(self, obj):
         return True
 
-    def mutate(self, mutation_rate: float) -> Type['ugp.classes.EvolvableABC']:
+    def mutate(self, mutation_rate: float) -> Type["ugp.classes.EvolvableABC"]:
         pass
 
 
 def test_cook_sequence():
-
     expected_output = [ugp.classes.FrameABC, MyFrame, ugp.classes.Macro, MyMacro]
     cooked = ugp.f.utilities.cook_sequence([ugp.classes.FrameABC, MyFrame, ugp.classes.Macro, MyMacro])
     assert cooked == expected_output

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / June 2023 / Squillero (GX)
 
-__all__ = ['random_individual']
+__all__ = ["random_individual"]
 
 from microgp4.user_messages import *
 from microgp4.registry import *
@@ -47,4 +47,4 @@ def random_individual(top_frame) -> list[Individual]:
             new_root = unroll_individual(new_individual, top_frame)
         except InvalidIndividual:
             new_root = None
-    return new_individual
+    return [new_individual]

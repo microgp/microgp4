@@ -22,14 +22,15 @@ open = ugp.f.macro("(")
 close = ugp.f.macro(")")
 operations = ugp.f.macro("{op}", op=ugp.f.choice_parameter("+-*/"))
 
-bnf = ugp.f.bnf([[terminal], [open, ugp.f.SELF, operations, ugp.f.SELF, close]],
-                extra_parameters={'_text_after_macro': ''})
+bnf = ugp.f.bnf(
+    [[terminal], [open, ugp.f.SELF, operations, ugp.f.SELF, close]], extra_parameters={"_text_after_macro": ""}
+)
 
 SEED = 59
 ugp.rrandom.seed(SEED)
 P = ugp.classes.Population(top_frame=bnf, fitness_function=None)
 P.add_random_individual()
-print(P.dump_individual(len(P.individuals) - 1, extra_parameters={'$omit_banner': True}))
+print(P.dump_individual(len(P.individuals) - 1, extra_parameters={"$omit_banner": True}))
 
 exit()
 
@@ -38,11 +39,9 @@ P = ugp.Population(top_frame=bnf, fitness_function=None)
 for x in tqdm(range(10)):
     ugp.rrandom.seed(SEED)
     P.add_random_individual()
-    txt = P.dump_individual(len(P.individuals) - 1,
-                            extra_parameters={
-                                '$dump_node_info': False,
-                                '_text_after_macro': ' '
-                            })
+    txt = P.dump_individual(
+        len(P.individuals) - 1, extra_parameters={"$dump_node_info": False, "_text_after_macro": " "}
+    )
     zap.append(txt)
 
 assert all(i == zap[0] for i in zap)

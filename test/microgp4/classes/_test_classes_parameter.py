@@ -18,14 +18,12 @@ import microgp4 as ugp
 
 
 class ConcreteParameter(ugp.classes.ParameterABC):
-
-    def mutate(self, strength: float = 1., **kwargs) -> None:
+    def mutate(self, strength: float = 1.0, **kwargs) -> None:
         self.value = self.value + strength
 
 
 class ConcreteStructuralParameter(ugp.classes.ParameterStructuralABC):
-
-    def mutate(self, strength: float = 1., **kwargs) -> None:
+    def mutate(self, strength: float = 1.0, **kwargs) -> None:
         if self.is_fastened:
             self._node_reference.node += strength
 

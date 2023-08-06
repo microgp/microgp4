@@ -20,9 +20,9 @@ class MicroGPException(Exception):
         self.__foo = 0
 
     def foo(self):
-        print(hasattr(self, '__foo'))
+        print(hasattr(self, "__foo"))
         self.__foo += 1
-        print(hasattr(self, '__bar'))
+        print(hasattr(self, "__bar"))
         self.__bar += 1
 
 

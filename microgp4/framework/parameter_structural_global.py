@@ -45,33 +45,33 @@ from microgp4.classes.frame import FrameABC
 from microgp4.tools.graph import *
 from microgp4.tools.names import canonize_name, _patch_class_info
 
-__all__ = ['global_reference']
+__all__ = ["global_reference"]
 
 
 @cache
-def _global_reference(*,
-                      target_name: str | None = None,
-                      target_frame: type[FrameABC] | None = None,
-                      first_macro: bool = True,
-                      creative_zeal: Number = 0) -> type[ParameterStructuralABC]:
-
+def _global_reference(
+    *,
+    target_name: str | None = None,
+    target_frame: type[FrameABC] | None = None,
+    first_macro: bool = True,
+    creative_zeal: Number = 0,
+) -> type[ParameterStructuralABC]:
     class T(ParameterStructuralABC):
-
-        __slots__ = ['_target_frame']  # Preventing the automatic creation of __dict__
+        __slots__ = ["_target_frame"]  # Preventing the automatic creation of __dict__
 
         if target_frame:
 
             def __init__(self):
                 super().__init__()
                 self._target_frame = target_frame
+
         else:
 
             def __init__(self):
                 super().__init__()
-                self._target_frame = FRAMEWORK_DIRECTORY[canonize_name(target_name,
-                                                                       tag='Frame',
-                                                                       user=True,
-                                                                       warn_duplicates=False)]
+                self._target_frame = FRAMEWORK_DIRECTORY[
+                    canonize_name(target_name, tag="Frame", user=True, warn_duplicates=False)
+                ]
 
         def get_potential_targets(self, suitable_frames: list | None = None):
             G = self._node_reference.graph
@@ -79,16 +79,20 @@ def _global_reference(*,
                 suitable_frames_ = suitable_frames
             else:
                 suitable_frames_ = [
-                    n for n in nx.dfs_preorder_nodes(G)
-                    if G.nodes[n]['_type'] == FRAME_NODE and isinstance(G.nodes[n]['_selement'], self._target_frame)
+                    n
+                    for n in nx.dfs_preorder_nodes(G)
+                    if G.nodes[n]["_type"] == FRAME_NODE and isinstance(G.nodes[n]["_selement"], self._target_frame)
                 ]
             if first_macro:
                 targets = list(
                     chain.from_iterable(
-                        get_all_macros(G, root=f, data=False, node_id=True)[:1] for f in suitable_frames_))
+                        get_all_macros(G, root=f, data=False, node_id=True)[:1] for f in suitable_frames_
+                    )
+                )
             else:
                 targets = list(
-                    chain.from_iterable(get_all_macros(G, root=f, data=False, node_id=True) for f in suitable_frames_))
+                    chain.from_iterable(get_all_macros(G, root=f, data=False, node_id=True) for f in suitable_frames_)
+                )
 
             if suitable_frames:
                 pass
@@ -105,7 +109,7 @@ def _global_reference(*,
                 raise InvalidIndividual
             return targets
 
-        def mutate(self, strength: float = 1., node_reference: NodeReference | None = None, *args, **kwargs) -> None:
+        def mutate(self, strength: float = 1.0, node_reference: NodeReference | None = None, *args, **kwargs) -> None:
             if node_reference is not None:
                 self._fasten(node_reference)
 
@@ -131,15 +135,16 @@ def _global_reference(*,
                 raise InvalidIndividual
             self._node_reference.graph.add_edge(self._node_reference.node, target, key=self.key, _type=LINK)
 
-    _patch_class_info(T, f'GlobalReference[{target_frame}]', tag='parameter')
+    _patch_class_info(T, f"GlobalReference[{target_frame}]", tag="parameter")
     return T
 
 
-def global_reference(target_frame: str | type[FrameABC],
-                     first_macro: bool = False,
-                     creative_zeal=0) -> type[ParameterStructuralABC]:
-    assert isinstance(creative_zeal, int) or 0 < creative_zeal < 1, \
-        f"ValueError: creative zeal is integer or 0 <= float < 1: found {creative_zeal}"
+def global_reference(
+    target_frame: str | type[FrameABC], first_macro: bool = False, creative_zeal=0
+) -> type[ParameterStructuralABC]:
+    assert (
+        isinstance(creative_zeal, int) or 0 < creative_zeal < 1
+    ), f"ValueError: creative zeal is integer or 0 <= float < 1: found {creative_zeal}"
     if isinstance(target_frame, str):
         return _global_reference(target_name=target_frame, first_macro=bool(first_macro), creative_zeal=creative_zeal)
     else:

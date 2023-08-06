@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['macro']
+__all__ = ["macro"]
 
 from functools import cache
 from typing import Any
@@ -40,9 +40,9 @@ from microgp4.classes.parameter import ParameterABC
 
 
 @cache
-def _macro(text: str, macro_parameters: tuple[tuple[str, type[ParameterABC]]],
-           macro_extra_parameters: tuple[tuple[str, Any]]) -> type[Macro]:
-
+def _macro(
+    text: str, macro_parameters: tuple[tuple[str, type[ParameterABC]]], macro_extra_parameters: tuple[tuple[str, Any]]
+) -> type[Macro]:
     class M(Macro):
         TEXT = text
         PARAMETERS = dict(macro_parameters)
@@ -51,9 +51,9 @@ def _macro(text: str, macro_parameters: tuple[tuple[str, type[ParameterABC]]],
         __slots__ = []  # Preventing the automatic creation of __dict__
 
     if not macro_parameters:
-        _patch_class_info(M, canonize_name('UserText', 'Macro'), tag=FRAMEWORK)
+        _patch_class_info(M, canonize_name("UserText", "Macro"), tag=FRAMEWORK)
     else:
-        _patch_class_info(M, canonize_name('User', 'Macro'), tag=FRAMEWORK)
+        _patch_class_info(M, canonize_name("User", "Macro"), tag=FRAMEWORK)
 
     FRAMEWORK_DIRECTORY[M.__name__] = M
     return M
@@ -96,9 +96,8 @@ def macro(text: str, **parameters: type[ParameterABC] | str) -> type[Macro]:
     macro_parameters = list()
     macro_extra_parameters = list()
     for n, p in parameters.items():
-        if n[0] != '_':
-            assert Macro.is_name_valid(n), \
-                f"ValueError: invalid parameter name: {n!r}"
+        if n[0] != "_":
+            assert Macro.is_name_valid(n), f"ValueError: invalid parameter name: {n!r}"
             assert check_valid_type(p, ParameterABC, subclass=True)
             macro_parameters.append((n, p))
         else:

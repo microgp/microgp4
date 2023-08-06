@@ -24,7 +24,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
+# -#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#-#
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
@@ -32,7 +32,7 @@
 
 """Decorators and functions for monitoring the evolution"""
 
-__all__ = ['failure_rate']
+__all__ = ["failure_rate"]
 
 from collections import Counter
 from functools import wraps
@@ -65,9 +65,11 @@ def failure_rate(func):
             failures = _STAT[(func, False)]
             successes = _STAT[(func, True)]
             total = failures + successes
-            if failures / total > .9 and any(total == 10**n for n in range(2, 10)):
-                performance(f"The failure rate of '{func.__qualname__}' is {100 * failures / total:g}% " +
-                            f"({successes:,} success{'es' if successes != 1 else ''} out of {total:,} calls)")
+            if failures / total > 0.9 and any(total == 10**n for n in range(2, 10)):
+                performance(
+                    f"The failure rate of '{func.__qualname__}' is {100 * failures / total:g}% "
+                    + f"({successes:,} success{'es' if successes != 1 else ''} out of {total:,} calls)"
+                )
         if exception:
             raise exception
         else:

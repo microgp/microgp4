@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['Population']
+__all__ = ["Population"]
 
 from collections.abc import Sequence
 from typing import Callable, Any
@@ -47,15 +47,15 @@ class Population:
     _lambda: int
 
     DEFAULT_EXTRA_PARAMETERS = {
-        '_comment': ';',
-        '_label': '{_node}:\n',
-        '$dump_node_info': False,
-        '_text_before_macro': '',
-        '_text_after_macro': '\n',
-        '_text_before_frame': '',
-        '_text_after_frame': '',
-        '_text_before_node': '',
-        '_text_after_node': '',
+        "_comment": ";",
+        "_label": "{_node}:\n",
+        "$dump_node_info": False,
+        "_text_before_macro": "",
+        "_text_after_macro": "\n",
+        "_text_before_frame": "",
+        "_text_after_frame": "",
+        "_text_before_node": "",
+        "_text_after_node": "",
     }
 
     def __init__(self, top_frame: type[FrameABC], extra_parameters: dict | None = None):
@@ -68,7 +68,7 @@ class Population:
         self._individuals = list()
         self._generation = -1
 
-    #def get_new_node(self) -> int:
+    # def get_new_node(self) -> int:
     #    self._node_count += 1
     #    return self._node_count
 
@@ -92,6 +92,17 @@ class Population:
     def generation(self, value):
         self._generation = value
 
+    def __iter__(self):
+        return enumerate(self._individuals)
+
+    @property
+    def not_finalized(self):
+        return list(filter(lambda x: not x[1].is_finalized, enumerate(self._individuals)))
+
+    @property
+    def finalized(self):
+        return list(filter(lambda x: x[1].is_finalized, enumerate(self._individuals)))
+
     def __getitem__(self, item):
         return self._individuals[item]
 
@@ -101,8 +112,7 @@ class Population:
     def __iadd__(self, individual):
         assert check_valid_types(individual, Sequence)
         assert all(check_valid_types(i, Individual) for i in individual)
-        assert all(i.valid for i in individual), \
-            f"ValueError: invalid individual"
+        assert all(i.valid for i in individual), f"ValueError: invalid individual"
         self._generation += 1
         self._individuals.extend(individual)
         return self
@@ -110,8 +120,7 @@ class Population:
     def __isub__(self, individual):
         assert check_valid_types(individual, Sequence)
         assert all(check_valid_types(i, Individual) for i in individual)
-        assert all(i.valid for i in individual), \
-            f"ValueError: invalid individual"
+        assert all(i.valid for i in individual), f"ValueError: invalid individual"
         for i in individual:
             try:
                 self._individuals.remove(i)
@@ -119,13 +128,12 @@ class Population:
                 pass
         return self
 
-    def __iter__(self):
-        return iter(self._individuals)
-
     def __str__(self):
-        return f'{self.__class__.__name__} @ {hex(id(self))} (top frame: {self.top_frame.__name__})' + \
-            '\n• ' + \
-            '\n• '.join(str(i) for i in self._individuals)
+        return (
+            f"{self.__class__.__name__} @ {hex(id(self))} (top frame: {self.top_frame.__name__})"
+            + "\n• "
+            + "\n• ".join(str(i) for i in self._individuals)
+        )
 
     def dump_individual(self, ind: int | Individual, extra_parameters: dict | None = None) -> str:
         if isinstance(ind, int):
@@ -150,8 +158,11 @@ class Population:
         individuals = set(self._individuals)
 
         while individuals:
-            pareto = set(i1 for i1 in individuals
-                         if all(i1.fitness == i2.fitness or i1.fitness >> i2.fitness for i2 in individuals))
+            pareto = set(
+                i1
+                for i1 in individuals
+                if all(i1.fitness == i2.fitness or i1.fitness >> i2.fitness for i2 in individuals)
+            )
             fronts.append(pareto)
             individuals -= pareto
             sorted_ += sorted(pareto, key=lambda i: (i.fitness, -i.id))

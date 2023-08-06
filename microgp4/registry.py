@@ -29,7 +29,7 @@
 
 # NOTE[GX]: This file contains code that some programmer may find upsetting
 
-__all__ = ['Statistics', 'fitness_function', 'genetic_operator', 'get_microgp4_type']
+__all__ = ["Statistics", "fitness_function", "genetic_operator", "get_microgp4_type"]
 
 from typing import Callable
 from dataclasses import dataclass
@@ -50,8 +50,8 @@ from microgp4.classes.fitness import *
 from microgp4 import fitness
 from microgp4.fitness_log import *
 
-FAMILYTREE_FILENAME = 'genealogy.db'
-FITNESS_LOG_FILENAME = 'fitness.db'
+FAMILYTREE_FILENAME = "genealogy.db"
+FITNESS_LOG_FILENAME = "fitness.db"
 
 
 def _genetic_operator_proto(*, strength=1.0) -> list[Individual] | None:
@@ -65,7 +65,7 @@ def _initializer_proto(top_frame) -> list[Individual] | None:
 
 
 def get_microgp4_type(object):
-    if not hasattr(object, 'microgp') or object.microgp != UGP4_TAG or not hasattr(object, 'type'):
+    if not hasattr(object, "microgp") or object.microgp != UGP4_TAG or not hasattr(object, "type"):
         return None
     return object.type
 
@@ -73,6 +73,7 @@ def get_microgp4_type(object):
 @dataclass
 class Statistics:
     """Class for keeping stats of a genetic operator."""
+
     calls: int = 0
     aborts: int = 0
     offspring: int = 0
@@ -82,24 +83,26 @@ class Statistics:
     @staticmethod
     def nice(number, tag):
         if number == 0:
-            return f'no {tag}s'
+            return f"no {tag}s"
         elif number == 1:
-            return f'1 {tag}'
+            return f"1 {tag}"
         else:
-            return f'{number:,} {tag}s'
+            return f"{number:,} {tag}s"
 
     def __str__(self):
-        return Statistics.nice(self.calls, 'call') + '; ' + Statistics.nice(self.aborts, 'abort') + \
-            '; ' + Statistics.nice(self.offspring, 'new individual') + \
-            ( f' (👍{self.successes:,} 👎{self.failures:,})' if self.successes or self.failures else '' )
+        return (
+            Statistics.nice(self.calls, "call")
+            + "; "
+            + Statistics.nice(self.aborts, "abort")
+            + "; "
+            + Statistics.nice(self.offspring, "new individual")
+            + (f" (👍{self.successes:,} 👎{self.failures:,})" if self.successes or self.failures else "")
+        )
 
 
-def fitness_function(func: Callable[..., FitnessABC] | None = None,
-                     /,
-                     *,
-                     type_: type[FitnessABC] = None,
-                     backend: str | None = 'list'):
-
+def fitness_function(
+    func: Callable[..., FitnessABC] | None = None, /, *, type_: type[FitnessABC] = None, backend: str | None = "list"
+):
     if type_ is None:
         type_ = lambda f: fitness.make_fitness(f)
     log_ = FitnessLog(backend)
@@ -120,7 +123,7 @@ def fitness_function(func: Callable[..., FitnessABC] | None = None,
         return wrapper
 
 
-def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
+def genetic_operator(*, num_parents: int = 1):
     r"""Register a function as a "genetic operator" in MicroGP
 
     A genetic operator creates individual. A genetic operators is given `num_parents` individual and produces a list
@@ -129,7 +132,7 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
 
     Genetic operators gets any number of parents as arguments and the `strength` as mandatory keyword argument. That is:
 
-    >>> def genetic_operator(*, strength=1.0) -> list[Individual] | None:
+    >>> def custom_operator(*, strength=1.0) -> list[Individual] | None:
 
     Historically, genetic operators are classified either as *mutation operators*, when `num_parents == 1`,
     or *recombination operators*, when `num_parents >= 2`. MicroGP4 handles a third class: the *initializers*,
@@ -146,13 +149,14 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
     assert num_parents is None or check_value_range(num_parents, 1)
 
     def decorator(func):
-
         if num_parents is None:
-            assert set(p.name for p in signature(_initializer_proto).parameters.values()) == set(p.name for p in signature(func).parameters.values()), \
-                f"TypeError: invalid signature for a population initializer '{func.__name__}{signature(func)}'"
+            assert set(p.name for p in signature(_initializer_proto).parameters.values()) == set(
+                p.name for p in signature(func).parameters.values()
+            ), f"TypeError: invalid signature for a population initializer '{func.__name__}{signature(func)}'"
         else:
-            assert set(p.name for p in signature(_genetic_operator_proto).parameters.values()) <= set(p.name for p in signature(func).parameters.values()), \
-                f"TypeError: invalid signature for a genetic operator '{func.__name__}{signature(func)}'"
+            assert set(p.name for p in signature(_genetic_operator_proto).parameters.values()) <= set(
+                p.name for p in signature(func).parameters.values()
+            ), f"TypeError: invalid signature for a genetic operator '{func.__name__}{signature(func)}'"
 
         @wraps(func)
         def wrapper(*args: Individual, **kwargs):
@@ -165,10 +169,15 @@ def genetic_operator(*, num_parents: int = 1, family_tree: str | None = 'dict'):
             if offspring is None:
                 offspring = []
             elif isinstance(offspring, Individual):
+                deprecation_warning(
+                    f"Genetic operators should return list[Individual]: found {func.__qualname__} -> Individual",
+                    stacklevel_offset=0,
+                )
                 offspring = [offspring]
 
-            assert all(isinstance(i, Individual) for i in offspring), \
-                f"TypeError: offspring {offspring!r}: expected list['Individual']"
+            assert all(
+                isinstance(i, Individual) for i in offspring
+            ), f"TypeError: offspring {offspring!r}: expected list['Individual']"
             offspring = [i for i in offspring if i.valid]
             for i in offspring:
                 i._birth = Birth(wrapper, tuple(weakref.proxy(a) for a in args))

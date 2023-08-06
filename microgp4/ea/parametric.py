@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / July 2023 / Sacchet (MS)
 
-__all__ = ['parametric_ea']
+__all__ = ["parametric_ea"]
 
 from microgp4.operators import *
 from microgp4.sys import *
@@ -39,6 +39,7 @@ from microgp4.randy import rrandom
 from microgp4.user_messages import *
 
 from .selection import *
+
 
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(

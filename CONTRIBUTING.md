@@ -35,12 +35,11 @@ This section contains notes for programmers interested in modifying μGP⁴.
 
 #### TL;DR
 
-* Write as few lines of code and as much line of comments as possible
-* Use builtins whenever possible
-* Exploit generators and list comprehension
-* Follow this Python [style guide](https://github.com/squillero/style/blob/master/python.md).
-* Use [pytest](https://docs.pytest.org/) and [Coverage.py](https://coverage.readthedocs.io/) for unit testing (i.e., `coverage run -m pytest`).
-* Use [pylint](https://mypy-lang.org/) for linting (and possibly use also [mypy](https://mypy-lang.org/) for additional type checking.)
+* Follow this [style guide](https://github.com/squillero/style/blob/master/python.md) and keep the code formatted with [Black](https://black.readthedocs.io/en/stable/)
+* Write as few lines of code and as much line of comments as possible (ie. use builtins, exploit generators and list comprehension)
+* Use [pytest](https://docs.pytest.org/) and [Coverage.py](https://coverage.readthedocs.io/) for unit testing (ie. `coverage run -m pytest`)
+* Use [pylint](https://mypy-lang.org/) for basic linting and [mypy](https://mypy-lang.org/) for additional type checking
+* Be [paranoid](./PARANOIA.md) (cit. *"I need someone to show me the things"*)
 
 #### Asserts
 
@@ -54,7 +53,7 @@ Have fun! And contact us if you want your code to be included in the next releas
 
 Thanks for trying, but we do not accept monetary donations:
 
-* Alberto and Giovanni are working on MicroGP as an integral part of their research activities. Therefore, they are already paid by their institutions, namely: *Politecnico di Torino* (Italy) and *French National Institute for Agricultural Research* (France).
+* Alberto and Giovanni are working on MicroGP as an integral part of their research activities. Therefore, they are already paid by their institutions, namely: *Politecnico di Torino* (Italy); *INRAE — AgroParisTech* (France) and *Institut des Systèmes Complexes de Paris Île-de-France* (France).
 * Students have worked, are working, and will work on MicroGP as part of their academic curricula, either for Master's theses or Ph.D. programs.
 * A few volunteers did excellent work on specific topics, but as volunteers they did not ask for payment.
 

@@ -17,7 +17,6 @@ import microgp4.tools.dump as ugp
 
 
 class TestObject:
-
     def __init__(self, key_to_raise=None):
         self.key_to_raise = key_to_raise
 
@@ -44,7 +43,6 @@ class TestObjectException(Exception):
 
 
 class TestObjectWithException:
-
     def __init__(self, exception):
         self.exception = exception
 
@@ -59,6 +57,6 @@ def test_safe_dump_with_general_exception():
 
 
 def test_safe_dump_with_key_error_exception():
-    obj = TestObjectWithException(KeyError('key'))
+    obj = TestObjectWithException(KeyError("key"))
     with pytest.raises(KeyError):
         ugp.safe_dump(obj)

@@ -27,7 +27,10 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['vanilla_ea']
+__all__ = ["vanilla_ea"]
+
+from time import perf_counter_ns
+from datetime import datetime
 
 from microgp4.operators import *
 from microgp4.sys import *
@@ -43,16 +46,20 @@ from .selection import *
 
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
-        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}" +
-        f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]")
+        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}"
+        + f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]"
+    )
 
 
-def vanilla_ea(top_frame: type[FrameABC],
-               evaluator: EvaluatorABC,
-               mu: int = 10,
-               lambda_: int = 20,
-               max_generation: int = 100,
-               max_fitness: FitnessABC | None = None) -> Population:
+def vanilla_ea(
+    top_frame: type[FrameABC],
+    evaluator: EvaluatorABC,
+    mu: int = 10,
+    lambda_: int = 20,
+    max_generation: int = 100,
+    max_fitness: FitnessABC | None = None,
+    population_extra_parameters: dict = None,
+) -> Population:
     r"""A simple evolutionary algorithm
 
     Parameters
@@ -72,8 +79,8 @@ def vanilla_ea(top_frame: type[FrameABC],
         The last population
 
     """
-    #SElement.is_valid = SElement._is_valid_debug
-    population = Population(top_frame)
+    SElement.is_valid = SElement._is_valid_debug
+    population = Population(top_frame, extra_parameters=population_extra_parameters)
 
     # Initialize population
     ops0 = [op for op in get_operators() if op.num_parents is None]
@@ -97,6 +104,7 @@ def vanilla_ea(top_frame: type[FrameABC],
         stopping_conditions.append(lambda: best.fitness == max_fitness or best.fitness >> max_fitness)
 
     # Let's roll
+    start = perf_counter_ns()
     while not any(s() for s in stopping_conditions):
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
@@ -118,9 +126,11 @@ def vanilla_ea(top_frame: type[FrameABC],
         if best.fitness << population[0].fitness:
             best = population[0]
             _new_best(population, evaluator)
+    end = perf_counter_ns()
+    # print(f"Elapsed: {(end-start)/1e9:.2} seconds")
 
-    #population._zap = all_individuals
-    microgp_logger.info("VanillaEA: Genetic operators statistics:")
-    for op in get_operators():
-        microgp_logger.info(f"VanillaEA: * {op.__qualname__}: {op.stats}")
+    # population._zap = all_individuals
+    # microgp_logger.info("VanillaEA: Genetic operators statistics:")
+    # for op in get_operators():
+    #    microgp_logger.info(f"VanillaEA: * {op.__qualname__}: {op.stats}")
     return population

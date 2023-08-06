@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['ParameterABC', 'ParameterStructuralABC']
+__all__ = ["ParameterABC", "ParameterStructuralABC"]
 
 from abc import ABC, abstractmethod
 from typing import Any
@@ -43,7 +43,7 @@ from microgp4.classes.node_reference import NodeReference
 class ParameterABC(SElement, Paranoid, ABC):
     """Generic class for storing a Macro parameter"""
 
-    __slots__ = ['target_variable']  # Preventing the automatic creation of __dict__
+    __slots__ = ["target_variable"]  # Preventing the automatic creation of __dict__
 
     COUNTER = 0
 
@@ -51,7 +51,7 @@ class ParameterABC(SElement, Paranoid, ABC):
         ParameterStructuralABC.COUNTER += 1
         self._key = ParameterStructuralABC.COUNTER
 
-    def __eq__(self, other: 'ParameterABC') -> bool:
+    def __eq__(self, other: "ParameterABC") -> bool:
         if type(self) != type(other):
             return False
         else:
@@ -73,12 +73,11 @@ class ParameterABC(SElement, Paranoid, ABC):
 
     @value.setter
     def value(self, new_value):
-        assert self.is_correct(new_value), \
-            f"ValueError: invalid value: {new_value} (paranoia check)"
+        assert self.is_correct(new_value), f"ValueError (paranoia check): invalid value: {new_value}"
         self._value = new_value
 
     @abstractmethod
-    def mutate(self, strength: float = 1., **kwargs) -> None:
+    def mutate(self, strength: float = 1.0, **kwargs) -> None:
         pass
 
 
@@ -112,18 +111,24 @@ class ParameterStructuralABC(ParameterABC, ABC):
         if self._node_reference is None:
             return None
         else:
-            return next((v for u, v, k in self._node_reference.graph.edges(self._node_reference.node, keys=True)
-                         if k == self.key), None)
+            return next(
+                (
+                    v
+                    for u, v, k in self._node_reference.graph.edges(self._node_reference.node, keys=True)
+                    if k == self.key
+                ),
+                None,
+            )
 
     def drop_link(self):
         if self.value:
             self._node_reference.graph.remove_edge(self._node_reference.node, self.value, self.key)
 
     def __str__(self):
-        return f'n{self.value}'
+        return f"n{self.value}"
 
     def __format__(self, format_spec):
-        return 'n' + format(self.value, format_spec)
+        return "n" + format(self.value, format_spec)
 
     def is_correct(self, obj: Any) -> bool:
         assert check_valid_type(obj, int)
