@@ -13,10 +13,10 @@
 dir=$PWD
 n=0
 while [[ ! -f "${dir}/microgp4/__init__.py" ]]; do
-  dir="${dir}/.."
-  (( ++n > 10 )) && break
+  [[ "$(realpath "$dir")" == "/" ]] && break
+  dir="$(realpath "${dir}/..")"
 done
 [[ -f "${dir}/microgp4/__init__.py" ]] && export PYTHONPATH="${PYTHONPATH}:${dir}"
 
 echo "export PYTHONPATH=\"${PYTHONPATH}\""
-echo "export PYTHONOPTIMIZE=1"
+echo "#export PYTHONOPTIMIZE=1"

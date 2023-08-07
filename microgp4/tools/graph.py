@@ -29,12 +29,10 @@
 
 __all__ = [
     "add_node",
-    "check_genome",
     "get_predecessor",
     "get_siblings",
     "get_successors",
     "set_successors_order",
-    "get_structure_tree",
     "get_node_color_dict",
     "_get_first_macro",
     "get_all_macros",
@@ -58,30 +56,6 @@ def add_node(G: nx.MultiDiGraph) -> int:
     G.graph["node_count"] += 1
     G.add_node(node_id)
     return node_id
-
-
-def check_genome(G: nx.MultiDiGraph) -> bool:
-    all_edges = G.edges(keys=True, data=True)
-    assert all(
-        n < G.graph["node_count"] for n in G
-    ), f"ValueError: invalid 'node_count' attribute ({G.graph['node_count']})"
-    assert all("_type" in d for u, v, k, d in all_edges), "ValueError (paranoia check): missing '_type' attribute"
-    tree_edges = [(u, v) for u, v, k, d in all_edges if d["_type"] == FRAMEWORK]
-    assert len(tree_edges) == len(set(tree_edges)), "ValueError (paranoia check): duplicated framework edge"
-    assert all(
-        d["_type"] != FRAMEWORK or len(d) == 1 for u, v, k, d in all_edges
-    ), "ValueError (paranoia check): unknown attribute in tree edge"
-    return True
-
-
-def get_structure_tree(G: nx.MultiDiGraph) -> nx.DiGraph:
-    tree = nx.DiGraph()
-    tree.add_nodes_from(G.nodes)
-    tree.add_edges_from((u, v) for u, v, k in G.edges(data="_type") if k == FRAMEWORK)
-    assert nx.is_branching(tree) and nx.is_weakly_connected(
-        tree
-    ), f"ValueError (paranoia check): Structure of {G!r} is not a valid tree"
-    return tree
 
 
 def get_successors(ref: NodeReference) -> list[int]:
@@ -111,7 +85,6 @@ def get_siblings(ref: NodeReference) -> list[int]:
 def set_successors_order(ref: NodeReference, new_order: Sequence[int]) -> None:
     assert check_valid_type(new_order, Sequence)
     G = ref.graph
-    assert check_genome(G)
     current = list((u, v, k) for u, v, k, d in G.out_edges(ref.node, keys=True, data="_type") if d == FRAMEWORK)
     assert all(k == 0 for u, v, k in current), f"ValueError: Found a FRAMEWORK edge with key != 0"
     assert {v for u, v, k in current} == set(

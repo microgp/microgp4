@@ -163,7 +163,7 @@ def genetic_operator(*, num_parents: int = 1):
             wrapper.stats.calls += 1
             try:
                 offspring = func(*args, **kwargs)
-            except GeneticOperatorAbort:
+            except GeneticOperatorFail:
                 offspring = list()
 
             if offspring is None:

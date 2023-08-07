@@ -29,6 +29,7 @@
 
 __all__ = ["Population"]
 
+import logging
 from collections.abc import Sequence
 from typing import Callable, Any
 from copy import copy
@@ -112,7 +113,7 @@ class Population:
     def __iadd__(self, individual):
         assert check_valid_types(individual, Sequence)
         assert all(check_valid_types(i, Individual) for i in individual)
-        assert all(i.valid for i in individual), f"ValueError: invalid individual"
+        assert all(i.paranoia_check() for i in individual)
         self._generation += 1
         self._individuals.extend(individual)
         return self

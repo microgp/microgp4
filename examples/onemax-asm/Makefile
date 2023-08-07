@@ -13,10 +13,20 @@
 SHELL=/bin/sh
 CFLAGS = -O3
 
+# GNU timeout is /opt/homebrew/bin/gtimeout on my system
+TIMEOUT_CMD=gtimeout
+ALLOWED_TIME=2
+
 .PHONY: run
 
 run: onemax
-	./onemax
+	${TIMEOUT_CMD} ${ALLOWED_TIME} ./onemax || echo -1
 
 onemax: main.o onemax.s
 	gcc -o $@ $^
+
+clean:
+	-rm -f onemax
+	-rm -f *.o *.out
+	-rm -f *ind[a-f0-9]*.s
+	-rm -f *.svg *.png

@@ -14,7 +14,7 @@
 
 import logging
 import platform
-import platform
+import argparse
 
 import microgp4 as ugp
 
@@ -30,12 +30,29 @@ SCRIPT_NAME = {"Linux": "./evaluate-all.sh", "Darwin": "./evaluate-all.sh", "Win
 def main():
     top_frame = library.define_frame()
 
-    ugp.microgp_logger.setLevel(logging.INFO)
-    evaluator = ugp.evaluator.ScriptEvaluator(SCRIPT_NAME[platform.system()], filename_format="ind{i}.s")
-    ugp.ea.vanilla_ea(top_frame, evaluator, population_extra_parameters={"_comment": library.COMMENT})
+    evaluator = ugp.evaluator.ScriptEvaluator(SCRIPT_NAME[platform.system()], filename_format="ind{i:06}.s")
+    # evaluator = ugp.evaluator.MakefileEvaluator('onemax.s', required_files=['main.o'], timeout=5)
+    ugp.ea.vanilla_ea(
+        top_frame, evaluator, population_extra_parameters={"_comment": library.COMMENT, '$dump_node_info': True}
+    )
 
 
 if __name__ == "__main__":
-    ugp.rrandom.seed(42)
-    # ugp.set_logger_level(logging.INFO)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-v', '--verbose', action='count', default=0, help='increase log verbosity')
+    parser.add_argument(
+        '-d', '--debug', action='store_const', dest='verbose', const=2, help='log debug messages (same as -vv)'
+    )
+    args = parser.parse_args()
+
+    if args.verbose == 0:
+        logging.getLogger().setLevel(level=logging.WARNING)
+        ugp.logger.setLevel(level=logging.WARNING)
+    elif args.verbose == 1:
+        logging.getLogger().setLevel(level=logging.INFO)
+        ugp.logger.setLevel(level=logging.INFO)
+    elif args.verbose == 2:
+        logging.getLogger().setLevel(level=logging.DEBUG)
+        ugp.logger.setLevel(level=logging.DEBUG)
+
     main()

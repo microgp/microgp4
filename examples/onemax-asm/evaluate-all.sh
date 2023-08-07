@@ -12,17 +12,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # Compiles and runs a genome, kills it if it does not terminate swiftly
-# https://www.gnu.org/software/coreutils/manual/html_node/timeout-invocation.html
-# Notez Bien: GNU timeout is /opt/homebrew/bin/gtimeout on my system
+# (GNU timeout is /opt/homebrew/bin/gtimeout on my system)
 TIMEOUT_CMD=gtimeout
-ALLOWED_TIME=1
+ALLOWED_TIME=3
 
 for file in "$@"; do
-    gcc -O -o onemax.out main.o "$file"
-    ret="$($TIMEOUT_CMD $ALLOWED_TIME ./onemax.out)"
-    if [[ -n $ret ]]; then
-        echo "$ret"
-    else
-        echo -1
-    fi
+    gcc -o onemax.out main.o "$file"
+    $TIMEOUT_CMD $ALLOWED_TIME ./onemax.out || ( cp "$file" "problem-$file"; echo 0 )
 done
+
+exit 0

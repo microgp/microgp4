@@ -106,14 +106,12 @@ def _global_reference(
                 targets = [None]
 
             if not targets:
-                raise InvalidIndividual
+                raise GeneticOperatorFail
             return targets
 
         def mutate(self, strength: float = 1.0, node_reference: NodeReference | None = None, *args, **kwargs) -> None:
             if node_reference is not None:
                 self._fasten(node_reference)
-
-            self.drop_link()
 
             # first try
             target = rrandom.sigma_choice(self.get_potential_targets(), self.value, strength)
@@ -132,7 +130,7 @@ def _global_reference(
                 target = rrandom.sigma_choice(self.get_potential_targets([new_node]), self.value, strength)
 
             if not target:
-                raise InvalidIndividual
+                raise GeneticOperatorFail
             self._node_reference.graph.add_edge(self._node_reference.node, target, key=self.key, _type=LINK)
 
     _patch_class_info(T, f"GlobalReference[{target_frame}]", tag="parameter")

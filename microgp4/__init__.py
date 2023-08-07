@@ -141,8 +141,8 @@ if notebook_mode and logging.getLogger().level <= logging.WARNING and paranoia_m
         test_mode
         or not main_process
         or user_messages.performance(
-            "Paranoia checks are enabled: performances can be significantly impaired — consider setting 'PYTHONOPTIMIZE'\n"
-            + "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details"
+            "Paranoia checks are enabled in this notebook: performances can be significantly impaired\n"
+            + "[see https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details]"
         )
     )
 elif not notebook_mode:
@@ -151,7 +151,7 @@ elif not notebook_mode:
         or not main_process
         or user_messages.performance(
             "Paranoia checks are enabled: performances can be significantly impaired — consider using '-O'\n"
-            + "See https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details"
+            + "[see https://github.com/squillero/microgp4/blob/pre-alpha/PARANOIA.md for details]"
         )
     )
 

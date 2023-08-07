@@ -8,4 +8,14 @@
 #                                                                           #
 #############################################################################
 
-phenotype_*.txt
+# temporrary files created during examples
+.*
+*.dat
+*.lst
+*.o
+*.out
+*.png
+*.s
+*.svg
+*.tmp
+*.txt

@@ -12,14 +12,15 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-
 import microgp4 as ugp
 
 COMMENT = ';'
 
+# Hacked as a blind monkey using <https://godbolt.org/>
+
 
 def define_frame():
-    register = ugp.f.choice_parameter([f"x{n}" for n in range(4)])
+    register = ugp.f.choice_parameter([f"x{n}" for n in range(15)])
     int8 = ugp.f.integer_parameter(0, 2**8)
     int16 = ugp.f.integer_parameter(0, 2**16)
 
@@ -34,18 +35,21 @@ def define_frame():
     branch = ugp.f.macro("b{cond} {label}", cond=conditions, label=ugp.f.local_reference(backward=False, loop=False))
 
     prologue = ugp.f.macro(
-        r"""
-    .globl _one_max ; -- Begin function one_max
-    .p2align 2
-    _one_max:       ; @one_max
+        r"""; [prologue]
+.globl _one_max ; -- Begin function one_max
+.p2align 2
+_one_max:       ; @one_max
 ; %bb.0:
-"""
+sub sp, sp, #16
+str x0, [sp, #8]
+; [end prologue]"""
     )
 
     epilogue = ugp.f.macro(
-        r"""
-    ret             ; -- End function
-"""
+        r"""; [epilogue]
+ldr x8, [sp, #8]
+add sp, sp, #16
+ret"""
     )
 
     core = ugp.framework.bunch([op_rr, op_ri, branch], size=(10, 50 + 1))

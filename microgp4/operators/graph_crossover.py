@@ -47,7 +47,7 @@ def bunch_random_crossover(p1: Individual, p2: Individual, strength=1.0) -> list
         f for f in p2.frames if (isinstance(f, FrameMacroBunch) and type(f) in [type(fr) for fr in offspring.frames])
     ]
     if not candidates:
-        raise GeneticOperatorAbort
+        raise GeneticOperatorFail
     chosen = rrandom.choice(candidates)
     # find a node in p2 where selected frame is
     start_locus = rrandom.choice([l for l in p2.genome.nodes if type(p2.genome.nodes[l]["_selement"]) == type(chosen)])

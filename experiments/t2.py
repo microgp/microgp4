@@ -82,7 +82,7 @@ I0.as_lgp(filename="code.png", figsize=(25, 15), bbox_inches="tight")
 
 ugp.rrandom.seed()
 print(I0 == I1)
-I1.G.nodes[19]["_macro"].parameters["target"].mutate(1)
+I1.G.dfs_nodes[19]["_macro"].parameters["target"].mutate(1)
 print(I0 == I1)
 
 with open("p0.s", "w") as F:

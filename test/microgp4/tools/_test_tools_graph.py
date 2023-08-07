@@ -31,12 +31,6 @@ class Frame3:
     pass
 
 
-def test_check_genome():
-    G = nx.MultiDiGraph()
-    G.add_edge(1, 2, kind="framework")
-    assert ugp.tools.graph.check_genome(G) == True
-
-
 def test_get_grammar_tree():
     G = nx.MultiDiGraph()
     G.add_edge(1, 2, kind="framework")

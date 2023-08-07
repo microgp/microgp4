@@ -83,11 +83,9 @@ def _local_reference(
                 self._fasten(node_reference)
             pt = self.potential_targets
             if not pt:
-                raise InvalidIndividual
+                raise GeneticOperatorFail
 
-            self.drop_link()
-            n = rrandom.sigma_choice(pt, self.value, strength)
-            self._node_reference.graph.add_edge(self._node_reference.node, n, key=self.key, _type=LINK)
+            self.value = rrandom.sigma_choice(pt, self.value, strength)
 
     _patch_class_info(
         T,

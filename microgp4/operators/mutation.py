@@ -54,12 +54,12 @@ def add_macro_to_bunch(parent: Individual, strength=1.0) -> list["Individual"]:
     G = offspring.genome
     candidates = [
         n
-        for n in offspring.nodes
+        for n in offspring.genome
         if isinstance(G.nodes[n]["_selement"], FrameMacroBunch)
         and G.out_degree[n] < G.nodes[n]["_selement"].SIZE[1] - 1
     ]
     if not candidates:
-        raise GeneticOperatorAbort
+        raise GeneticOperatorFail
     node = rrandom.choice(candidates)
     successors = get_successors(NodeReference(G, node))
     new_macro_type = rrandom.choice(G.nodes[node]["_selement"].POOL)
@@ -76,15 +76,15 @@ def remove_macro_from_bunch(parent: Individual, strength=1.0) -> list["Individua
     G = offspring.genome
     frame_candidates = [
         n
-        for n in offspring.nodes
+        for n in offspring.genome
         if isinstance(G.nodes[n]["_selement"], FrameMacroBunch) and G.out_degree[n] > G.nodes[n]["_selement"].SIZE[0]
     ]
     if not frame_candidates:
-        raise GeneticOperatorAbort
+        raise GeneticOperatorFail
     frame_node = rrandom.choice(frame_candidates)
     candidates = [n for n in dfs_preorder_nodes(G, frame_node) if isinstance(G.nodes[n]["_selement"], Macro)]
     if not candidates:
-        raise GeneticOperatorAbort
+        raise GeneticOperatorFail
     node = rrandom.choice(candidates)
     G.remove_node(node)
     return [offspring]

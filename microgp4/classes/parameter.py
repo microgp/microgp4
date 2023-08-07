@@ -34,6 +34,7 @@ from typing import Any
 
 from networkx.classes import MultiDiGraph
 
+from microgp4.global_symbols import *
 from microgp4.user_messages import *
 from microgp4.classes.selement import SElement
 from microgp4.classes.paranoid import Paranoid
@@ -103,6 +104,16 @@ class ParameterStructuralABC(ParameterABC, ABC):
         self._node_reference = None
 
     @property
+    def graph(self):
+        assert self.is_fastened, f"ValueError (paranoia check): structural parameter is not fastened"
+        return self._node_reference.graph
+
+    @property
+    def node(self):
+        assert self.is_fastened, f"ValueError (paranoia check): structural parameter is not fastened"
+        return self._node_reference.node
+
+    @property
     def is_fastened(self) -> bool:
         return self._node_reference is not None
 
@@ -110,22 +121,22 @@ class ParameterStructuralABC(ParameterABC, ABC):
     def value(self):
         if self._node_reference is None:
             return None
-        else:
-            return next(
-                (
-                    v
-                    for u, v, k in self._node_reference.graph.edges(self._node_reference.node, keys=True)
-                    if k == self.key
-                ),
-                None,
-            )
+        return next(
+            (v for u, v, k in self._node_reference.graph.edges(self._node_reference.node, keys=True) if k == self.key),
+            None,
+        )
 
-    def drop_link(self):
-        if self.value:
-            self._node_reference.graph.remove_edge(self._node_reference.node, self.value, self.key)
+    @value.setter
+    def value(self, target_node):
+        old_target_node = self.value
+        if old_target_node is not None:
+            self._node_reference.graph.remove_edge(self._node_reference.node, old_target_node, self.key)
+        if target_node is not None:
+            self._node_reference.graph.add_edge(self._node_reference.node, target_node, key=self.key, _type=LINK)
 
     def __str__(self):
-        return f"n{self.value}"
+        target = self.value
+        return f"n{target}" if target is not None else "*UNSET*"
 
     def __format__(self, format_spec):
         return "n" + format(self.value, format_spec)

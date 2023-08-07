@@ -15,44 +15,44 @@ If *paranoia checks* are enabled, the user is warned of the potential, indeed al
 
 Possible solutions.
 
-#### Use `-O` flag
+### Use `-O` flag
 
 Using an optimization flag will disable *Paranoia Checks*:
 
 ```sh
-$ python -O ./my-fuzzer.py
+$ python -O ./super-fuzzer.py
 ```
 
-#### Set `PYTHONOPTIMIZE`
+### Set `PYTHONOPTIMIZE`
 
 Setting the environment variable [`PYTHONOPTIMIZE`](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONOPTIMIZE) to a non-empty string it is equivalent to specifying the `-O` option:
 
 ```sh
-$ PYTHONOPTIMIZE=1 python ./my-fuzzer.py
+$ PYTHONOPTIMIZE=1 python ./super-fuzzer.py
 ```
 
 ## Jupyter Notebooks
 
-MicroGP detects when it is within a Jupyter Notebook and shows a warning:
+By default, code run in IPython is not optimized. MicroGP should detect when it is executed within a Jupyter Notebook and show a warning:
 
-> Paranoia checks are enabled: performances can be significantly impaired — consider setting 'PYTHONOPTIMIZE'
+> Paranoia checks are enabled in this notebook: performances can be significantly impaired
 
 Possible solutions.
 
-#### Set `PYTHONOPTIMIZE`
+### Set `PYTHONOPTIMIZE`
 
-It may be enough to start Jupyter with:
+It may be enough to set [`PYTHONOPTIMIZE`](https://docs.python.org/3/using/cmdline.html#envvar-PYTHONOPTIMIZE) before starting Jupyter:
 
 ```shell
 $ PYTHONOPTIMIZE=1 jupyter-notebook
 ```
 
-#### Export to a script
+### Export to a script
 
 * In Jupyter, from menu `File`, choose `Save and Export Notebook As...`, and then `Executable Script`.
-* Run the script from the terminal with `python -O ./my-exported-fuzzer.py`
+* Enable optimization when running the script from the terminal (see above).
 
-#### Use magic
+### Use magic
 
 Jupyter allows some of the IPython's [magics](https://ipython.readthedocs.io/en/stable/interactive/magics.html), and a *cell magic* (`%%`) can be used to start a Python interpreter with an optimization flag:
 
@@ -61,14 +61,14 @@ Jupyter allows some of the IPython's [magics](https://ipython.readthedocs.io/en/
 
 import microgp4 as ugp
 
-# My fuzzer goes here
+# All super-fuzzer code
 ```
 
 * :+1: May be used in remote Notebooks (e.g., [Google's Colab](https://colab.research.google.com/))
 * :-1: All the code must be packed into one single cell
 * :-1: MicroGP will not detect Jupyter anymore
 
-#### Tamper with the bytecode cache
+### Tamper with the bytecode cache
 
 :warning: This hack may cause your system to become unstable and/or provide incorrect results. You acknowledge that you are solely responsible for any harm or damage that may result from it.
 

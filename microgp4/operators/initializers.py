@@ -45,6 +45,6 @@ def random_individual(top_frame) -> list[Individual]:
         new_individual = Individual(top_frame)
         try:
             new_root = unroll_individual(new_individual, top_frame)
-        except InvalidIndividual:
+        except GeneticOperatorFail:
             new_root = None
     return [new_individual]

@@ -29,8 +29,8 @@
 
 __all__ = ["vanilla_ea"]
 
-from time import perf_counter_ns
-from datetime import datetime
+from time import perf_counter_ns, process_time_ns
+from datetime import timedelta
 
 from microgp4.operators import *
 from microgp4.sys import *
@@ -44,10 +44,18 @@ from microgp4.user_messages import *
 from .selection import *
 
 
+def _elapsed(start):
+    e = str(timedelta(microseconds=(perf_counter_ns() - start[0]) // 1e3))
+    s1 = e[: e.index('.') + 3] + ' [t]'
+    e = str(timedelta(microseconds=(process_time_ns() - start[1]) // 1e3))
+    s2 = e[: e.index('.') + 3] + ' [µGP⁴]'
+    return s1 + ' / ' + s2
+
+
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
         f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}"
-        + f" [🕓 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]"
+        + f" [🏃 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]"
     )
 
 
@@ -79,10 +87,12 @@ def vanilla_ea(
         The last population
 
     """
+    start = perf_counter_ns(), process_time_ns()
     SElement.is_valid = SElement._is_valid_debug
     population = Population(top_frame, extra_parameters=population_extra_parameters)
 
     # Initialize population
+    microgp_logger.info("VanillaEA: Initialization ⁓ 🕓 %s", _elapsed(start))
     ops0 = [op for op in get_operators() if op.num_parents is None]
     gen0 = list()
     while len(gen0) < mu:
@@ -104,8 +114,8 @@ def vanilla_ea(
         stopping_conditions.append(lambda: best.fitness == max_fitness or best.fitness >> max_fitness)
 
     # Let's roll
-    start = perf_counter_ns()
     while not any(s() for s in stopping_conditions):
+        microgp_logger.info("VanillaEA: Generation %s ⁓ 🕓 %s", population.generation, _elapsed(start))
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
         for step in range(lambda_):
@@ -126,7 +136,7 @@ def vanilla_ea(
         if best.fitness << population[0].fitness:
             best = population[0]
             _new_best(population, evaluator)
-    end = perf_counter_ns()
+    end = process_time_ns()
     # print(f"Elapsed: {(end-start)/1e9:.2} seconds")
 
     # population._zap = all_individuals

@@ -51,10 +51,10 @@ from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import ValueBag
 from microgp4.classes.node_reference import NodeReference
 from microgp4.classes.node_view import NodeView
+from microgp4.classes.macro import Macro
 from microgp4.classes.frame import FrameABC
-from microgp4.classes.parameter import ParameterABC
+from microgp4.classes.parameter import ParameterABC, ParameterStructuralABC
 from microgp4.classes.readymade_macros import MacroZero
-from microgp4.classes import monitor
 
 
 @dataclass(frozen=True)
@@ -156,7 +156,6 @@ class Individual(Paranoid):
 
     @property
     def valid(self) -> bool:
-        assert check_genome(self._genome), "ValueError (paranoia check): Invalid genome structure"
         return all(
             self.genome.nodes[n]["_selement"].is_valid(NodeView(NodeReference(self.genome, n)))
             for n in nx.dfs_preorder_nodes(self.genome)
@@ -174,24 +173,28 @@ class Individual(Paranoid):
         return I
 
     @property
-    def nodes(self):
-        """Return all node indexes in unreliable order."""
-        return list(nx.dfs_preorder_nodes(self.genome))
+    def dfs_nodes(self):
+        """Return all node indexes in reliable order."""
+        return list(nx.dfs_preorder_nodes(self.structure_tree))
 
     @property
     def macros(self):
         """Return all macro instances in unreliable order."""
-        return [self._genome.nodes[n]["_selement"] for n in self.nodes if self._genome.nodes[n]["_type"] == MACRO_NODE]
+        return [
+            self._genome.nodes[n]["_selement"] for n in self._genome if self._genome.nodes[n]["_type"] == MACRO_NODE
+        ]
 
     @property
     def frames(self):
         """Return all frame instances in unreliable order."""
-        return [self._genome.nodes[n]["_selement"] for n in self.nodes if self._genome.nodes[n]["_type"] == FRAME_NODE]
+        return [
+            self._genome.nodes[n]["_selement"] for n in self._genome if self._genome.nodes[n]["_type"] == FRAME_NODE
+        ]
 
     @property
     def parameters(self):
         """Return all parameter instances in unreliable order."""
-        return [p for n in self.nodes for p in self._genome.nodes[n].values() if isinstance(p, ParameterABC)]
+        return [p for n in self._genome for p in self._genome.nodes[n].values() if isinstance(p, ParameterABC)]
 
     @property
     def OLDISH_valid(self) -> bool:
@@ -229,10 +232,17 @@ class Individual(Paranoid):
 
         if self._structure_tree:
             return self._structure_tree
-        gt = get_structure_tree(self._genome)
+
+        tree = nx.DiGraph()
+        tree.add_nodes_from(self._genome.nodes)
+        tree.add_edges_from((u, v) for u, v, k in self._genome.edges(data="_type") if k == FRAMEWORK)
+        assert nx.is_branching(tree) and nx.is_weakly_connected(
+            tree
+        ), f"ValueError (paranoia check): Structure of {self!r} is not a valid tree"
+
         if self.is_finalized:
-            self._structure_tree = gt
-        return gt
+            self._structure_tree = tree
+        return tree
 
     @property
     def birth(self):
@@ -274,8 +284,53 @@ class Individual(Paranoid):
             value << i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents
         ):
             self._birth.operator.stats.failures += 1
+        microgp_logger.debug(
+            # f"Individual: {self.describe(include_fitness=True, include_birth=True, include_structure=True)}"
+            f"Individual: Fitness of {self} is {value}"
+        )
 
+    #######################################################################
     # PUBLIC METHODS
+    def paranoia_check(self) -> bool:
+        assert self.valid, f"ValueError (paranoia check): Individual {self!r} is not valid"
+
+        # check genome (structural)
+        assert self.genome == self._genome, f"ValueError (paranoia check): Panic: genome != _genome"
+        assert nx.is_weakly_connected(
+            self._genome
+        ), f"ValueError (paranoia check): genome of {self!r} is not a connected graph"
+
+        # check tree (structural)
+        assert nx.is_branching(self.structure_tree) and nx.is_weakly_connected(
+            self.structure_tree
+        ), f"ValueError (paranoia check): structure_tree of {self!r} is not a tree"
+        assert (self._fitness is None and not self.is_finalized) or (
+            self._fitness is not None and self.is_finalized
+        ), f"Value Error (paranoia check): Mismatch fitness and is_finalized"
+
+        # check edges (semantic)
+        edges = self._genome.edges(keys=True, data=True)
+        assert all("_type" in d for u, v, k, d in edges), "ValueError (paranoia check): missing '_type' attribute"
+        assert all(
+            d["_type"] != FRAMEWORK or len(d) == 1 for u, v, k, d in edges
+        ), "ValueError (paranoia check): unknown attribute in tree edge"
+        tree_edges = [(u, v) for u, v, k, d in edges if d["_type"] == FRAMEWORK]
+        assert len(tree_edges) == len(set(tree_edges)), "ValueError (paranoia check): duplicated framework edge"
+
+        # check nodes (semantic)
+        assert all(
+            n < self._genome.graph["node_count"] for n in self._genome
+        ), f"ValueError (paranoia check): invalid 'node_count' attribute ({self._genome.graph['node_count']})"
+
+        assert all('_selement' in d for n, d in self._genome.nodes(data=True)), f"ValueError (paranoia check):"
+        assert all(
+            (isinstance(d['_selement'], Macro) and d['_type'] == 'macro')
+            or (isinstance(d['_selement'], FrameABC) and d['_type'] == 'frame')
+            for n, d in self._genome.nodes(data=True)
+        )
+        for n in self._genome:
+            pass
+        return True
 
     def describe(
         self,
@@ -423,7 +478,7 @@ class Individual(Paranoid):
 
     def dump(self, extra_parameters: dict) -> str:
         self._str = ""
-        for n in self.nodes:
+        for n in self.dfs_nodes:
             self._str += Individual._dump_node(NodeReference(self.genome, n), extra_parameters)
         return self._str
 
@@ -445,12 +500,12 @@ class Individual(Paranoid):
             str += "{_text_before_macro}".format(**bag)
             str += nr.graph.nodes[nr.node]["_selement"].dump(bag)
             if bag["$dump_node_info"]:
-                str += "  {_comment}{_comment} {_node.pathname} ➜ {_node.name}".format(**bag)
+                str += "  {_comment} [µGP⁴] {_node.pathname} ➜ {_node.name}".format(**bag)
             str += "{_text_after_macro}".format(**bag)
         elif nr.graph.nodes[nr.node]["_type"] == FRAME_NODE:
             str += "{_text_before_frame}".format(**bag)
             if bag["$dump_node_info"]:
-                str += "{_comment}{_comment} {_node.pathname} ➜ {_node.name}{_text_after_macro}".format(**bag)
+                str += "{_comment} [µGP⁴] {_node.pathname} ➜ {_node.name}{_text_after_macro}".format(**bag)
             str += "{_text_after_frame}".format(**bag)
 
         # GENERAL NODE FOOTER
