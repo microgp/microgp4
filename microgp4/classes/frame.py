@@ -36,6 +36,7 @@ from copy import copy
 from microgp4.user_messages.checks import *
 
 from microgp4.classes.macro import Macro
+from microgp4.global_symbols import *
 from microgp4.classes.selement import SElement
 from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import ValueBag
@@ -79,9 +80,7 @@ class FrameABC(SElement, Paranoid):
 
     @staticmethod
     def register_name(name: str) -> bool:
-        assert (
-            name not in FrameABC._registered_names
-        ), f"ValueError (paranoia check): Frame name {name!r} already exists"
+        assert name not in FrameABC._registered_names, f"{PARANOIA_VALUE_ERROR}: Frame name {name!r} already exists"
         FrameABC._registered_names.add(name)
         return True
 

@@ -126,17 +126,23 @@ def vanilla_ea(
             new_individuals += op(*parents)
 
         population += new_individuals
+        all_individuals |= set(new_individuals)
+
+        old_best = population[0]
         evaluator(population)
         population.sort()
-
-        all_individuals |= set(population)
-
         population.individuals[mu:] = []
-
-        if best.fitness << population[0].fitness:
-            best = population[0]
+        if old_best.fitness << population[0].fitness:
             _new_best(population, evaluator)
+
     end = process_time_ns()
+
+    microgp_logger.info("VanillaEA: Run completed")
+    microgp_logger.info("VanillaEA: 🕓 %s", _elapsed(start))
+    microgp_logger.info(
+        f"VanillaEA: 🏆 {population[0].describe(include_fitness=True, include_structure=False, include_birth=True)}"
+    )
+
     # print(f"Elapsed: {(end-start)/1e9:.2} seconds")
 
     # population._zap = all_individuals

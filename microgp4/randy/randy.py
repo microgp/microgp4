@@ -68,7 +68,7 @@ class Randy:
         """Stretches [0,1] on a standard deviation ]0, 20.8[."""
         if strength is None:
             return None
-        assert 0 <= strength <= 1, f"ValueError (paranoia check): invalid sigma: {strength}"
+        assert 0 <= strength <= 1, f"{PARANOIA_VALUE_ERROR}: invalid sigma: {strength}"
         x = strength / 2 + 0.5
         x = min(x, 1 - Randy.SMALL_NUMBER)
         val = math.log(x / (1 - x))

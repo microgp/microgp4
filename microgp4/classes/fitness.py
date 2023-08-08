@@ -33,6 +33,7 @@ from abc import ABC, abstractmethod
 from functools import wraps, cache
 
 # from microgp4.classes.paranoid import Paranoid
+from microgp4.global_symbols import *
 from microgp4.user_messages import *
 from microgp4.tools.names import _patch_class_info
 
@@ -79,7 +80,7 @@ class FitnessABC(ABC):
     def check_comparable(self, other: "FitnessABC"):
         assert (
             self.__class__ == other.__class__
-        ), f"TypeError (paranoia check): different Fitness types: {self.__class__} and {other.__class__}"
+        ), f"{PARANOIA_TYPE_ERROR}: different Fitness types: {self.__class__} and {other.__class__}"
         return True
 
     def _decorate(self) -> str:

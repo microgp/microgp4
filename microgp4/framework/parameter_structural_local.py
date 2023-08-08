@@ -85,7 +85,10 @@ def _local_reference(
             if not pt:
                 raise GeneticOperatorFail
 
-            self.value = rrandom.sigma_choice(pt, self.value, strength)
+            if strength == 1 or self.value is None:
+                self.value = rrandom.sigma_choice(pt, None, 1)
+            else:
+                self.value = rrandom.sigma_choice(pt, pt.index(self.value), strength)
 
     _patch_class_info(
         T,

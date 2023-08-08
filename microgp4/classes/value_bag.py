@@ -96,7 +96,7 @@ class ValueBag(dict):
     # def __getitem__(self, key: str):
     #    assert check_valid_types(key, str)
     #    assert ValueBag.VALID_KEY.fullmatch(key), \
-    #        f"ValueError (paranoia check): Invalid key: {key!r}"
+    #        f"{PARANOIA_VALUE_ERROR}: Invalid key: {key!r}"
     #    try:
     #        return super().__getitem__(key)
     #    except KeyError:

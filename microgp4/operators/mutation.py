@@ -63,10 +63,11 @@ def add_macro_to_bunch(parent: Individual, strength=1.0) -> list["Individual"]:
     node = rrandom.choice(candidates)
     successors = get_successors(NodeReference(G, node))
     new_macro_type = rrandom.choice(G.nodes[node]["_selement"].POOL)
-    new_macro = unroll_selement(new_macro_type, G)
-    G.add_edge(node, new_macro, _type=FRAMEWORK)
+    new_macro_reference = unroll_selement(new_macro_type, G)
+    G.add_edge(node, new_macro_reference.node, _type=FRAMEWORK)
+    initialize_subtree(new_macro_reference)
     i = rrandom.randint(0, len(successors))
-    set_successors_order(NodeReference(G, node), successors[:i] + [new_macro] + successors[i:])
+    set_successors_order(NodeReference(G, node), successors[:i] + [new_macro_reference.node] + successors[i:])
     return [offspring]
 
 
@@ -82,7 +83,12 @@ def remove_macro_from_bunch(parent: Individual, strength=1.0) -> list["Individua
     if not frame_candidates:
         raise GeneticOperatorFail
     frame_node = rrandom.choice(frame_candidates)
-    candidates = [n for n in dfs_preorder_nodes(G, frame_node) if isinstance(G.nodes[n]["_selement"], Macro)]
+    candidates = [
+        n
+        for n in dfs_preorder_nodes(G, frame_node)
+        if isinstance(G.nodes[n]["_selement"], Macro) and G.in_degree(n) == 1
+    ]
+
     if not candidates:
         raise GeneticOperatorFail
     node = rrandom.choice(candidates)

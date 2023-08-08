@@ -238,7 +238,7 @@ class Individual(Paranoid):
         tree.add_edges_from((u, v) for u, v, k in self._genome.edges(data="_type") if k == FRAMEWORK)
         assert nx.is_branching(tree) and nx.is_weakly_connected(
             tree
-        ), f"ValueError (paranoia check): Structure of {self!r} is not a valid tree"
+        ), f"{PARANOIA_VALUE_ERROR}: Structure of {self!r} is not a valid tree"
 
         if self.is_finalized:
             self._structure_tree = tree
@@ -261,14 +261,14 @@ class Individual(Paranoid):
     @property
     def fitness(self):
         """The fitness of the individual."""
-        assert self.is_finalized, f"ValueError (paranoia check): Individual not marked as final, fitness value not set"
+        assert self.is_finalized, f"{PARANOIA_VALUE_ERROR}: Individual not marked as final, fitness value not set"
         return self._fitness
 
     def _check_fitness(self, value):
         check_valid_types(value, FitnessABC)
         assert (
             not self.is_finalized
-        ), f"ValueError (paranoia check): Individual marked as final, fitness value already set to {self._fitness}"
+        ), f"{PARANOIA_VALUE_ERROR}: Individual marked as final, fitness value already set to {self._fitness}"
         return True
 
     @fitness.setter
@@ -291,19 +291,19 @@ class Individual(Paranoid):
 
     #######################################################################
     # PUBLIC METHODS
-    def paranoia_check(self) -> bool:
-        assert self.valid, f"ValueError (paranoia check): Individual {self!r} is not valid"
+    def run_paranoia_checks(self) -> bool:
+        assert self.valid, f"{PARANOIA_VALUE_ERROR}: Individual {self!r} is not valid"
 
         # check genome (structural)
-        assert self.genome == self._genome, f"ValueError (paranoia check): Panic: genome != _genome"
+        assert self.genome == self._genome, f"{PARANOIA_VALUE_ERROR}: Panic: genome != _genome"
         assert nx.is_weakly_connected(
             self._genome
-        ), f"ValueError (paranoia check): genome of {self!r} is not a connected graph"
+        ), f"{PARANOIA_VALUE_ERROR}: genome of {self!r} is not a connected graph"
 
         # check tree (structural)
         assert nx.is_branching(self.structure_tree) and nx.is_weakly_connected(
             self.structure_tree
-        ), f"ValueError (paranoia check): structure_tree of {self!r} is not a tree"
+        ), f"{PARANOIA_VALUE_ERROR}: structure_tree of {self!r} is not a tree"
         assert (self._fitness is None and not self.is_finalized) or (
             self._fitness is not None and self.is_finalized
         ), f"Value Error (paranoia check): Mismatch fitness and is_finalized"
@@ -320,16 +320,22 @@ class Individual(Paranoid):
         # check nodes (semantic)
         assert all(
             n < self._genome.graph["node_count"] for n in self._genome
-        ), f"ValueError (paranoia check): invalid 'node_count' attribute ({self._genome.graph['node_count']})"
+        ), f"{PARANOIA_VALUE_ERROR}: invalid 'node_count' attribute ({self._genome.graph['node_count']})"
 
-        assert all('_selement' in d for n, d in self._genome.nodes(data=True)), f"ValueError (paranoia check):"
+        assert all('_selement' in d for n, d in self._genome.nodes(data=True)), f"{PARANOIA_VALUE_ERROR}:"
         assert all(
             (isinstance(d['_selement'], Macro) and d['_type'] == 'macro')
             or (isinstance(d['_selement'], FrameABC) and d['_type'] == 'frame')
             for n, d in self._genome.nodes(data=True)
         )
-        for n in self._genome:
-            pass
+
+        assert all(
+            p._node_reference == NodeReference(self._genome, n)
+            for n in self._genome
+            for p in self._genome.nodes[n].values()
+            if isinstance(p, ParameterStructuralABC)
+        ), f"{PARANOIA_VALUE_ERROR}: Incorrect node_reference in structural parameter"
+
         return True
 
     def describe(

@@ -31,7 +31,7 @@ __all__ = ["sequence", "alternative", "bunch"]
 
 from collections import abc
 
-from microgp4.global_symbols import FRAMEWORK, FRAMEWORK_DIRECTORY
+from microgp4.global_symbols import *
 from microgp4.user_messages import *
 from microgp4.tools.names import canonize_name, _patch_class_info
 from microgp4.classes.selement import SElement
@@ -173,8 +173,8 @@ def bunch(
         size = (size, size + 1)
     else:
         size = tuple(size)
-        assert len(size) == 2, f"ValueError (paranoia check): Not a half open range [min, max)"
-    assert 0 < size[0] <= size[1] - 1, f"ValueError (paranoia check): min size is {size[0]} and max size is {size[1]-1}"
+        assert len(size) == 2, f"{PARANOIA_VALUE_ERROR}: Not a half open range [min, max)"
+    assert 0 < size[0] <= size[1] - 1, f"{PARANOIA_VALUE_ERROR}: min size is {size[0]} and max size is {size[1]-1}"
 
     class T(FrameMacroBunch, FrameABC):
         SIZE = size

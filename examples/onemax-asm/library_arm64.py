@@ -20,7 +20,7 @@ COMMENT = ';'
 
 
 def define_frame():
-    register = ugp.f.choice_parameter([f"x{n}" for n in range(15)])
+    register = ugp.f.choice_parameter([f"x{n}" for n in range(4)])
     int8 = ugp.f.integer_parameter(0, 2**8)
     int16 = ugp.f.integer_parameter(0, 2**16)
 
@@ -39,10 +39,13 @@ def define_frame():
 .globl _one_max ; -- Begin function one_max
 .p2align 2
 _one_max:       ; @one_max
-; %bb.0:
 sub sp, sp, #16
 str x0, [sp, #8]
-; [end prologue]"""
+mov x1, #{init}
+mov x2, #{init}
+mov x3, #{init}
+; [end prologue]""",
+        init=ugp.f.integer_parameter(-7, 8),
     )
 
     epilogue = ugp.f.macro(

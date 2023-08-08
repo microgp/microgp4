@@ -116,18 +116,14 @@ def _global_reference(
             # first try
             target = rrandom.sigma_choice(self.get_potential_targets(), self.value, strength)
             if target is None:
-                new_node = unroll_selement(self._target_frame, self._node_reference.graph)
-                self._node_reference.graph.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
-
-                parameters = get_all_parameters(self._node_reference.graph, new_node, node_id=True)
-                for p, n in parameters:
-                    if isinstance(p, ParameterStructuralABC):
-                        p.mutate(1, NodeReference(self._node_reference.graph, n))
-                    else:
-                        p.mutate(1)
+                new_node_reference = unroll_selement(self._target_frame, self._node_reference.graph)
+                self._node_reference.graph.add_edge(NODE_ZERO, new_node_reference.node, _type=FRAMEWORK)
+                initialize_subtree(new_node_reference)
 
                 # second and last try
-                target = rrandom.sigma_choice(self.get_potential_targets([new_node]), self.value, strength)
+                target = rrandom.sigma_choice(
+                    self.get_potential_targets([new_node_reference.node]), self.value, strength
+                )
 
             if not target:
                 raise GeneticOperatorFail

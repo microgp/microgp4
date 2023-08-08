@@ -82,7 +82,7 @@ class Macro(SElement, Paranoid):
 
     # def __getitem__(self, parameter: str) -> Any:
     #    assert Macro.is_name_valid(parameter), \
-    #        f"ValueError (paranoia check): invalid parameter name: {parameter}"
+    #        f"{PARANOIA_VALUE_ERROR}: invalid parameter name: {parameter}"
     #    return self.parameters[parameter]
 
     def __str__(self):

@@ -32,9 +32,16 @@ def main():
 
     evaluator = ugp.evaluator.ScriptEvaluator(SCRIPT_NAME[platform.system()], filename_format="ind{i:06}.s")
     # evaluator = ugp.evaluator.MakefileEvaluator('onemax.s', required_files=['main.o'], timeout=5)
-    ugp.ea.vanilla_ea(
-        top_frame, evaluator, population_extra_parameters={"_comment": library.COMMENT, '$dump_node_info': True}
+    population = ugp.ea.vanilla_ea(
+        top_frame,
+        evaluator,
+        max_generation=100,
+        max_fitness=ugp.fitness.make_fitness(5.0),
+        population_extra_parameters={"_comment": library.COMMENT, '$dump_node_info': True},
     )
+
+    with open('best-individual.s', 'w') as out:
+        out.write(population.dump_individual(0))
 
 
 if __name__ == "__main__":

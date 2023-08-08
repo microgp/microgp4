@@ -113,7 +113,7 @@ class Population:
     def __iadd__(self, individual):
         assert check_valid_types(individual, Sequence)
         assert all(check_valid_types(i, Individual) for i in individual)
-        assert all(i.paranoia_check() for i in individual)
+        assert all(i.run_paranoia_checks() for i in individual)
         self._generation += 1
         self._individuals.extend(individual)
         return self
@@ -146,7 +146,7 @@ class Population:
 
     def evaluate(self):
         whole_pop = [self.dump_individual(i) for i in self.individuals]
-        result = self._evaluator.evaluate(whole_pop)
+        result = self._evaluator._evaluate(whole_pop)
         if microgp_logger.level <= logging.DEBUG:
             for i, f in enumerate(result):
                 microgp_logger.debug(f"evaluate: Individual {i:2d}: {f}")

@@ -28,26 +28,29 @@
 # v1 / April 2023 / Squillero (GX)
 
 __all__ = [
-    "version_info",
-    "__version__",
-    "__author__",
-    "__copyright__",
-    "FRAMEWORK_DIRECTORY",
-    "FRAMEWORK",
-    "LINK",
-    "FRAME_NODE",
-    "MACRO_NODE",
-    "NODE_ZERO",
-    "UGP4_TAG",
-    "GENETIC_OPERATOR",
-    "FITNESS_FUNCTION",
-    "test_mode",
-    "notebook_mode",
-    "debug_mode",
-    "main_process",
-    "joblib_available",
-    "matplotlib_available",
-    "paranoia_mode",
+    'version_info',
+    '__version__',
+    '__author__',
+    '__copyright__',
+    'FRAMEWORK_DIRECTORY',
+    'FRAMEWORK',
+    'LINK',
+    'FRAME_NODE',
+    'MACRO_NODE',
+    'NODE_ZERO',
+    'UGP4_TAG',
+    'GENETIC_OPERATOR',
+    'FITNESS_FUNCTION',
+    'test_mode',
+    'notebook_mode',
+    'debug_mode',
+    'main_process',
+    'joblib_available',
+    'matplotlib_available',
+    'paranoia_mode',
+    'PARANOIA_TYPE_ERROR',
+    'PARANOIA_VALUE_ERROR',
+    'PARANOIA_SYSTEM_ERROR',
 ]
 
 import sys
@@ -133,6 +136,9 @@ NODE_ZERO = 0
 UGP4_TAG = "µGP⁴"
 GENETIC_OPERATOR = "genetic_operator"
 FITNESS_FUNCTION = "fitness_function"
+PARANOIA_TYPE_ERROR = "TypeError (paranoia check)"
+PARANOIA_VALUE_ERROR = "ValueError (paranoia check)"
+PARANOIA_SYSTEM_ERROR = "SystemError (paranoia check)"
 
 #####################################################################################################################
 

@@ -33,6 +33,7 @@ from typing import Sequence, Any
 
 from math import isclose
 
+from microgp4.global_symbols import *
 from microgp4.classes.fitness import FitnessABC
 from microgp4.user_messages import *
 
@@ -87,10 +88,10 @@ class Scalar(FitnessABC, float):
         assert super().check_comparable(other)
         assert (
             not isinstance(other, self.__class__) or self._abs_tol == other._abs_tol
-        ), f"ValueError (paranoia check): different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol}"
+        ), f"{PARANOIA_VALUE_ERROR}: different absolute tolerance: {float(self)}±{self._abs_tol} vs. {float(other)}±{other._abs_tol}"
         assert (
             not isinstance(other, self.__class__) or self._rel_tol == other._rel_tol
-        ), f"ValueError (paranoia check): different relative tolerance: {float(self)}±{self._rel_tol}r vs. {float(other)}±{other._rel_tol}r"
+        ), f"{PARANOIA_VALUE_ERROR}: different relative tolerance: {float(self)}±{self._rel_tol}r vs. {float(other)}±{other._rel_tol}r"
         return True
 
 

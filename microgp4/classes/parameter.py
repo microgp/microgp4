@@ -74,7 +74,7 @@ class ParameterABC(SElement, Paranoid, ABC):
 
     @value.setter
     def value(self, new_value):
-        assert self.is_correct(new_value), f"ValueError (paranoia check): invalid value: {new_value}"
+        assert self.is_correct(new_value), f"{PARANOIA_VALUE_ERROR}: invalid value: {new_value}"
         self._value = new_value
 
     @abstractmethod
@@ -105,12 +105,12 @@ class ParameterStructuralABC(ParameterABC, ABC):
 
     @property
     def graph(self):
-        assert self.is_fastened, f"ValueError (paranoia check): structural parameter is not fastened"
+        assert self.is_fastened, f"{PARANOIA_VALUE_ERROR}: structural parameter is not fastened"
         return self._node_reference.graph
 
     @property
     def node(self):
-        assert self.is_fastened, f"ValueError (paranoia check): structural parameter is not fastened"
+        assert self.is_fastened, f"{PARANOIA_VALUE_ERROR}: structural parameter is not fastened"
         return self._node_reference.node
 
     @property
@@ -135,11 +135,11 @@ class ParameterStructuralABC(ParameterABC, ABC):
             self._node_reference.graph.add_edge(self._node_reference.node, target_node, key=self.key, _type=LINK)
 
     def __str__(self):
-        target = self.value
-        return f"n{target}" if target is not None else "*UNSET*"
+        return format(self, '')
 
     def __format__(self, format_spec):
-        return "n" + format(self.value, format_spec)
+        target = self.value
+        return "n" + format(self.value, format_spec) if target is not None else "*UNSET*"
 
     def is_correct(self, obj: Any) -> bool:
         assert check_valid_type(obj, int)

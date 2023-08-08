@@ -89,7 +89,7 @@ def set_successors_order(ref: NodeReference, new_order: Sequence[int]) -> None:
     assert all(k == 0 for u, v, k in current), f"ValueError: Found a FRAMEWORK edge with key != 0"
     assert {v for u, v, k in current} == set(
         new_order
-    ), f"ValueError (paranoia check): mismatching new order: {[v for u, v, k in current]} vs. {new_order}"
+    ), f"{PARANOIA_VALUE_ERROR}: mismatching new order: {[v for u, v, k in current]} vs. {new_order}"
 
     attributes = dict()
     for u, v, k in current:

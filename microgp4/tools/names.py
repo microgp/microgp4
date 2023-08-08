@@ -33,6 +33,7 @@ from collections import Counter
 from abc import ABCMeta
 
 from microgp4.user_messages import microgp_logger
+from microgp4.global_symbols import *
 
 _name_counter = Counter()
 _used_names = set()
@@ -46,7 +47,7 @@ def canonize_name(
     user_space: bool = False,
     warn_duplicates: bool = True,
 ) -> str:
-    assert any(s not in name for s in "<❬#❭>"), f"ValueError (paranoia check): Illegal character in name: {name}"
+    assert any(s not in name for s in "<❬#❭>"), f"{PARANOIA_VALUE_ERROR}: Illegal character in name: {name}"
 
     if user is True:
         user_space = True
@@ -62,7 +63,7 @@ def canonize_name(
 
     assert (
         not warn_duplicates or canonic_name not in _used_names
-    ), f"ValueError (paranoia check): Name {canonic_name} has already been used"
+    ), f"{PARANOIA_VALUE_ERROR}: Name {canonic_name} has already been used"
     _used_names.add(canonic_name)
 
     return canonic_name
@@ -81,7 +82,7 @@ def uncanonize_name(name: str, keep_number: bool = False, user: bool = False) ->
     tlen = len(tag)
     assert (name[tlen] == "❬" and name[-1] == "❭") or (
         name[tlen] == "<" and name[-1] == ">"
-    ), f"ValueError (paranoia check): not a canonic name: {name}"
+    ), f"{PARANOIA_VALUE_ERROR}: not a canonic name: {name}"
     stripped = name[tlen + 1 : -1]
     if "#" in stripped and not keep_number:
         stripped, num = stripped.split("#")

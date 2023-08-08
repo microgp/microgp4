@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ["unroll_individual", "unroll_selement"]
+__all__ = ['unroll_individual', 'unroll_selement', 'initialize_subtree']
 
 import networkx as nx
 
@@ -60,35 +60,38 @@ def unroll_individual(individual: Individual, top: type[FrameABC]) -> int | None
 
     assert check_valid_types(individual, Individual)
     assert check_valid_types(top, FrameABC, Macro, subclass=True)
-    assert not individual.is_finalized, f"ValueError (paranoia check): individual is finalized"
+    assert not individual.is_finalized, f"{PARANOIA_VALUE_ERROR}: individual is finalized"
 
     G = individual.genome
-    new_node = unroll_selement(top, G)
-    if not new_node:
+    new_node_reference = unroll_selement(top, G)
+    if not new_node_reference:
         return None
-    G.add_edge(NODE_ZERO, new_node, _type=FRAMEWORK)
+    G.add_edge(NODE_ZERO, new_node_reference.node, _type=FRAMEWORK)
+    initialize_subtree(new_node_reference)
 
     if individual.valid:
-        return new_node
+        return new_node_reference.node
     else:
         return None
 
 
 @monitor.failure_rate
-def unroll_selement(top: type[SElement], G: nx.classes.MultiDiGraph) -> int:
+def unroll_selement(top: type[SElement], G: nx.classes.MultiDiGraph) -> NodeReference:
     new_node = _recursive_unroll(top, G)
 
     if not new_node:
         return None
 
-    parameters = get_all_parameters(G, new_node, node_id=True)
+    return NodeReference(G, new_node)
+
+
+def initialize_subtree(node_reference: NodeReference):
+    parameters = get_all_parameters(node_reference.graph, node_reference.node, node_id=True)
     for p, n in parameters:
         if isinstance(p, ParameterStructuralABC):
-            p.mutate(1, node_reference=NodeReference(G, n))
+            p.mutate(1, node_reference=NodeReference(node_reference.graph, n))
         else:
             p.mutate(1)
-
-    return new_node
 
 
 # =[PRIVATE FUNCTIONS]==================================================================================================
