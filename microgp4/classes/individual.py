@@ -29,9 +29,9 @@
 
 # NOTE[GX]: This file contains code that some programmer may find upsetting
 
-__all__ = ["Individual"]
+__all__ = ['Individual', 'Lineage', 'Age']
 
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 from itertools import chain, zip_longest
 from copy import deepcopy
 from dataclasses import dataclass
@@ -46,6 +46,7 @@ from microgp4.tools.graph import *
 if matplotlib_available:
     import matplotlib.pyplot as plt
 
+from microgp4.global_symbols import *
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.paranoid import Paranoid
 from microgp4.classes.value_bag import ValueBag
@@ -57,9 +58,9 @@ from microgp4.classes.parameter import ParameterABC, ParameterStructuralABC
 from microgp4.classes.readymade_macros import MacroZero
 
 
-@dataclass(frozen=True)
-class Birth:
-    operator: Callable | None
+@dataclass(frozen=True, slots=True)
+class Lineage:
+    operator: Optional[Callable]
     parents: tuple
 
     def __str__(self):
@@ -68,9 +69,22 @@ class Birth:
             try:
                 parents.append(str(p))
             except ReferenceError:
-                parents.append("✝")
+                # ☠ ⚰ (coffin) ⚱ (urn) 💀 ✝
+                parents.append("☠")
 
         return self.operator.__name__ + "(" + ", ".join(parents) + ")"
+
+
+@dataclass(slots=True)
+class Age:
+    birth: int | None = None
+    apparent_age: int = 0
+
+    def __iadd__(self, generations):
+        self.apparent_age += generations
+
+    def __str__(self):
+        return f'⚝ {self.birth}' + (f' (⌛ {self.apparent_age})' if self.apparent_age else '')
 
 
 class Individual(Paranoid):
@@ -96,8 +110,8 @@ class Individual(Paranoid):
 
     _genome: nx.classes.MultiDiGraph
     _fitness: FitnessABC | None
-    _birth: Birth | None
-    _age: int
+    _lineage: Lineage | None
+    _age: Age
     _str: str
 
     # A rainbow color mapping using matplotlib's tableau colors
@@ -123,8 +137,8 @@ class Individual(Paranoid):
         self._fitness = None
         self._str = ""
         self._structure_tree = None
-        self._birth = None
-        self._age = 0
+        self._lineage = None
+        self._age = Age()
 
     def __del__(self) -> None:
         self._genome.clear()  # NOTE[GX]: I guess it's useless...
@@ -163,13 +177,14 @@ class Individual(Paranoid):
 
     @property
     def clone(self) -> "Individual":
-        scratch = self._fitness, self._birth
-        self._fitness, self._birth = None, None
+        scratch = self._fitness, self._lineage
+        self._fitness, self._lineage = None, None
         I = deepcopy(self)
         Individual.__COUNTER += 1
         I._id = Individual.__COUNTER
-        self._fitness, self._birth = scratch
-        I._birth = Birth(None, (self,))
+        self._fitness, self._lineage = scratch
+        I._age = Age()
+        I._lineage = Lineage(None, (self,))
         return I
 
     @property
@@ -245,8 +260,8 @@ class Individual(Paranoid):
         return tree
 
     @property
-    def birth(self):
-        return self._birth
+    def lineage(self):
+        return self._lineage
 
     @property
     def age(self):
@@ -276,14 +291,14 @@ class Individual(Paranoid):
         """Set the fitness of the individual and update operator stats"""
         assert self._check_fitness(value)
         self._fitness = value
-        if any(value >> i.fitness for i in self._birth.parents) and any(
-            value >> i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents
+        if any(value >> i.fitness for i in self._lineage.parents) and any(
+            value >> i.fitness or not value.is_distinguishable(i.fitness) for i in self.lineage.parents
         ):
-            self._birth.operator.stats.successes += 1
-        elif any(value << i.fitness for i in self.birth.parents) and any(
-            value << i.fitness or not value.is_distinguishable(i.fitness) for i in self.birth.parents
+            self._lineage.operator.stats.successes += 1
+        elif any(value << i.fitness for i in self.lineage.parents) and any(
+            value << i.fitness or not value.is_distinguishable(i.fitness) for i in self.lineage.parents
         ):
-            self._birth.operator.stats.failures += 1
+            self._lineage.operator.stats.failures += 1
         microgp_logger.debug(
             # f"Individual: {self.describe(include_fitness=True, include_birth=True, include_structure=True)}"
             f"Individual: Fitness of {self} is {value}"
@@ -343,7 +358,8 @@ class Individual(Paranoid):
         *,
         include_fitness: bool = True,
         include_structure: bool = True,
-        include_birth: bool = True,
+        include_age: bool = True,
+        include_lineage: bool = True,
         max_recursion: int = 0,
         _indent_level: str = "",
     ):
@@ -370,24 +386,28 @@ class Individual(Paranoid):
                 + f""" ({n_params:,} parameter{'s' if n_params != 1 else ''} total"""
                 + f""", {n_links:,} structural)"""
             )
-        if include_birth:
-            delem.append(str(self.birth))
+        if include_age:
+            delem.append(str(self.age))
+        if include_lineage:
+            delem.append(str(self.lineage))
         descr = f"""{_indent_level}{desc} ⇨ {' / '.join(delem)}"""
-        if max_recursion > 0:
-            for p in self.birth.parents:
+        if max_recursion is None or max_recursion > 0:
+            if max_recursion is not None:
+                max_recursion -= 1
+            for p in self.lineage.parents:
                 try:
                     descr += "\n" + p.describe(
                         include_fitness=include_fitness,
                         include_structure=include_structure,
-                        include_birth=include_birth,
-                        max_recursion=max_recursion - 1,
+                        include_lineage=include_lineage,
+                        max_recursion=max_recursion,
                         _indent_level=_indent_level + "  ",
                     )
                 except ReferenceError:
                     pass
         return descr
 
-    def as_forest(self, *, filename: str | None = None, zoom: int = 1.0, **kwargs) -> None:
+    def as_forest(self, filename: str | None = None, *, zoom: int = 1.0, **kwargs) -> None:
         r"""Draw the structure tree of the individual.
 
         Generate a figure representing the individual using NetworkX's `multipartite_layout` [1]_
@@ -421,15 +441,13 @@ class Individual(Paranoid):
         """
 
         if filename:
-            if "bbox_inches" not in kwargs:
-                kwargs["bbox_inches"] = "tight"
             fig = self._draw_forest(zoom)
-            fig.savefig(filename, **kwargs)
+            fig.savefig(filename, bbox_inches='tight', **kwargs)
             plt.close()
         else:
             self._draw_forest(zoom)
 
-    def as_lgp(self, *, filename: str | None = None, zoom: int = 1.0, **kwargs) -> None:
+    def as_lgp(self, filename: str | None = None, *, zoom: int = 1.0, **kwargs) -> None:
         r"""Draw the individual as a LGP genome.
 
         Generate a figure representing the individual using NetworkX's `multipartite_layout` [1]_ showing only the
@@ -465,10 +483,8 @@ class Individual(Paranoid):
         """
 
         if filename:
-            if "bbox_inches" not in kwargs:
-                kwargs["bbox_inches"] = "tight"
             fig = self._draw_multipartite(zoom)
-            fig.savefig(filename, **kwargs)
+            fig.savefig(filename, bbox_inches='tight', **kwargs)
             plt.close()
         else:
             self._draw_multipartite(zoom)
@@ -485,11 +501,11 @@ class Individual(Paranoid):
     def dump(self, extra_parameters: dict) -> str:
         self._str = ""
         for n in self.dfs_nodes:
-            self._str += Individual._dump_node(NodeReference(self.genome, n), extra_parameters)
+            self._str += Individual.dump_node(NodeReference(self.genome, n), extra_parameters)
         return self._str
 
     @staticmethod
-    def _dump_node(nr: NodeReference, parameters) -> str:
+    def dump_node(nr: NodeReference, parameters) -> str:
         local_parameters = parameters | nr.graph.nodes[nr.node] | {"_node": NodeView(nr)}
         # local_parameters |= nr.graph.nodes[nr.node]['_selement'].parameters
         if hasattr(nr.graph.nodes[nr.node]["_selement"], "extra_parameters"):
@@ -527,7 +543,7 @@ class Individual(Paranoid):
             T.nodes[n]["depth"] = len(nx.shortest_path(T, 0, n))
         height = max(T.nodes[n]["depth"] for n in T.nodes)
         width = sum(1 for n in T if self.G.nodes[n]["_type"] == MACRO_NODE)
-        fig = plt.figure(figsize=(zoom * width * 0.8, zoom * height + width / 2))
+        fig = plt.figure(figsize=(10 + zoom * width * 0.8, zoom * height + width / 2))
         ax = fig.add_subplot()
 
         T.remove_node(0)
@@ -601,6 +617,9 @@ class Individual(Paranoid):
             ax=ax,
         )
 
+        plt.title(f'{self}')
+        plt.box(False)
+
         return fig
 
     def _draw_multipartite(self, zoom: int) -> None:
@@ -624,7 +643,8 @@ class Individual(Paranoid):
 
         # figsize
         fig = plt.figure(
-            figsize=(5 * zoom + zoom * len(sub_graphs) * 2.0, zoom * max(len(s) for s in sub_graphs) * 1.2)
+            # layout='constrained',
+            figsize=(7 + 5 * zoom + zoom * len(sub_graphs) * 2.0, zoom * max(len(s) for s in sub_graphs) * 1.2),
         )
         ax = fig.add_subplot()
 
@@ -643,6 +663,15 @@ class Individual(Paranoid):
             style=":",
             ax=ax,
         )
+
+        labels = dict()
+        param = {k: '' for k in DEFAULT_EXTRA_PARAMETERS}
+        for n in (_ for _ in pos if self.genome.nodes[n]['_type'] == MACRO_NODE):
+            pos[n] = (pos[n][0], pos[n][1])
+            d = Individual.dump_node(NodeReference(self.genome, n), param)
+            labels[n] = '     ' + d.split('\n')[0].strip() + (' …' if '\n' in d else '')
+        nx.draw_networkx_labels(G, pos, horizontalalignment='left', labels=labels)
+
         # draw "local" references
         G.remove_edges_from(list(G.edges))
         for s in sub_graphs:
@@ -679,5 +708,8 @@ class Individual(Paranoid):
             arrowstyle="-|>,head_length=.7,head_width=0.3",
             ax=ax,
         )
+
+        plt.title(f'Individual: {self}')
+        plt.tight_layout()
 
         return fig

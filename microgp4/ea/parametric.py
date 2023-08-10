@@ -43,7 +43,7 @@ from .selection import *
 
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
-        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}"
+        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_lineage=False)}"
         + f" [🏃 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]"
     )
 

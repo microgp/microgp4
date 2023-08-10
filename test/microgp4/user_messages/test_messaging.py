@@ -12,18 +12,25 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
+import warnings
+import pytest
+
+import microgp4
 import microgp4 as ugp
 
 
 def test_messaging():
-    assert ugp.user_messages.deprecation("This feature is deprecated.") == True
+    with pytest.deprecated_call():
+        ugp.user_messages.deprecation("This feature is deprecated.")
 
-    assert ugp.user_messages.performance("This code may be slow.") == True
+    with pytest.warns(UserWarning):
+        ugp.user_messages.user_warning("This code may have unexpected behavior for end users.")
 
-    assert ugp.user_messages.runtime_warning("This code may have unexpected behavior.") == True
+    with pytest.warns(RuntimeWarning):
+        ugp.user_messages.performance("This code may be slow.")
 
-    assert ugp.user_messages.user_warning("This code may have unexpected behavior for end users.") == True
+    with pytest.warns(RuntimeWarning):
+        ugp.user_messages.runtime_warning("This code may have unexpected behavior.")
 
-    assert ugp.user_messages.syntax_warning("This code may have syntax errors or other issues.") == True
-
-    assert ugp.user_messages.syntax_warning_hint("This code may have syntax errors or other issues.") == True
+    with pytest.warns(SyntaxWarning):
+        ugp.user_messages.syntax_warning("This code may have syntax errors or other issues.")

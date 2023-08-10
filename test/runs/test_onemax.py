@@ -23,7 +23,7 @@ def fitness(genotype: str):
 
 
 def test_onemax():
-    ugp.microgp_logger.setLevel(WARNING)
+    # ugp.microgp_logger.setLevel(WARNING)
     macro = ugp.f.macro('{v}', v=ugp.f.array_parameter('01', 50))
     frame = ugp.f.sequence([macro])
 
@@ -54,3 +54,7 @@ def test_onemax():
     ugp.rrandom.seed(42)
     other_population = ugp.ea.vanilla_ea(frame, evaluator, mu=10, max_generation=10)
     assert all(r[1].fitness == o[1].fitness for r, o in zip(reference_population, other_population))
+
+
+if __name__ == '__main__':
+    test_onemax()

@@ -111,30 +111,36 @@ def _global_reference(
 
         def mutate(self, strength: float = 1.0, node_reference: NodeReference | None = None, *args, **kwargs) -> None:
             if node_reference is not None:
-                self._fasten(node_reference)
+                self.fasten(node_reference)
 
             # first try
-            target = rrandom.sigma_choice(self.get_potential_targets(), self.value, strength)
+            if strength == 1.0:
+                target = rrandom.sigma_choice(self.get_potential_targets())
+            else:
+                target = rrandom.sigma_choice(self.get_potential_targets(), self.value, strength)
             if target is None:
                 new_node_reference = unroll_selement(self._target_frame, self._node_reference.graph)
                 self._node_reference.graph.add_edge(NODE_ZERO, new_node_reference.node, _type=FRAMEWORK)
                 initialize_subtree(new_node_reference)
 
                 # second and last try
-                target = rrandom.sigma_choice(
-                    self.get_potential_targets([new_node_reference.node]), self.value, strength
-                )
+                if strength == 1.0:
+                    target = rrandom.sigma_choice(self.get_potential_targets([new_node_reference.node]))
+                else:
+                    target = rrandom.sigma_choice(
+                        self.get_potential_targets([new_node_reference.node]), self.value, strength
+                    )
 
             if not target:
                 raise GeneticOperatorFail
             self._node_reference.graph.add_edge(self._node_reference.node, target, key=self.key, _type=LINK)
 
-    _patch_class_info(T, f"GlobalReference[{target_frame}]", tag="parameter")
+    _patch_class_info(T, f"GlobalReference[{target_frame.__name__}]", tag="parameter")
     return T
 
 
 def global_reference(
-    target_frame: str | type[FrameABC], first_macro: bool = False, creative_zeal=0
+    target_frame: str | type[FrameABC], *, creative_zeal=0, first_macro: bool = False
 ) -> type[ParameterStructuralABC]:
     assert (
         isinstance(creative_zeal, int) or 0 < creative_zeal < 1

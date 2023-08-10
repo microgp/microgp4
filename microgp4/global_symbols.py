@@ -47,12 +47,16 @@ __all__ = [
     'main_process',
     'joblib_available',
     'matplotlib_available',
+    'psutil_available',
     'paranoia_mode',
     'PARANOIA_TYPE_ERROR',
     'PARANOIA_VALUE_ERROR',
     'PARANOIA_SYSTEM_ERROR',
+    'DEFAULT_EXTRA_PARAMETERS',
+    'DEFAULT_OPTIONS',
 ]
 
+import warnings
 import sys
 from collections import namedtuple
 import multiprocessing
@@ -104,6 +108,14 @@ try:
 except ModuleNotFoundError:
     pass
 
+psutil_available = False
+try:
+    import psutil
+
+    psutil_available = True
+except ModuleNotFoundError:
+    pass
+
 #############################################################################
 # DEBUG MODE
 
@@ -139,6 +151,20 @@ FITNESS_FUNCTION = "fitness_function"
 PARANOIA_TYPE_ERROR = "TypeError (paranoia check)"
 PARANOIA_VALUE_ERROR = "ValueError (paranoia check)"
 PARANOIA_SYSTEM_ERROR = "SystemError (paranoia check)"
+
+DEFAULT_OPTIONS = {
+    '$dump_node_info': False,
+}
+DEFAULT_EXTRA_PARAMETERS = {
+    '_comment': ';',
+    '_label': '{_node}:\n',
+    '_text_before_macro': '',
+    '_text_after_macro': '\n',
+    '_text_before_frame': '',
+    '_text_after_frame': '',
+    '_text_before_node': '',
+    '_text_after_node': '',
+}
 
 #####################################################################################################################
 

@@ -17,5 +17,8 @@ SHELL=/bin/sh
 run:
 	./onemax-shell.sh `tail -1 genome.dat`
 
+clean:
+	-rm -f *.dat
+	-rm -f *.svg *.png
 
 

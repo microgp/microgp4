@@ -42,7 +42,7 @@ import logging
 import sys
 import warnings
 
-from microgp4.global_symbols import notebook_mode
+from microgp4.global_symbols import *
 
 BASE_STACKLEVEL = 3
 
@@ -82,7 +82,7 @@ def deprecation_warning(message: str, stacklevel_offset: int = 0) -> bool:
 
 
 def syntax_warning_hint(message: str, stacklevel_offset: int = 0) -> bool:
-    if microgp_logger.level < logging.INFO:
+    if microgp_logger.level <= logging.INFO and not test_mode:
         warnings.warn(
             f"Friendly suggestion:{_indent_msg(message)}", SyntaxWarning, stacklevel=BASE_STACKLEVEL + stacklevel_offset
         )
@@ -121,5 +121,5 @@ microgp_logger.addHandler(console_handler)
 # logger.addHandler(file_handler)
 
 # Avoid excessive warnings...
-if not sys.warnoptions:
+if not sys.warnoptions and not test_mode:
     warnings.filterwarnings("once")

@@ -34,6 +34,7 @@ from collections.abc import Sequence
 from typing import Callable, Any
 from copy import copy
 
+from microgp4.global_symbols import *
 from microgp4.classes.fitness import FitnessABC
 from microgp4.classes.individual import Individual
 from microgp4.classes.frame import FrameABC
@@ -44,30 +45,21 @@ class Population:
     _top_frame: type[FrameABC]
     _fitness_function: Callable[[Any], FitnessABC]
     _individuals: list[Individual]
-    _mu: int
-    _lambda: int
+    _memory: set | None
 
-    DEFAULT_EXTRA_PARAMETERS = {
-        "_comment": ";",
-        "_label": "{_node}:\n",
-        "$dump_node_info": False,
-        "_text_before_macro": "",
-        "_text_after_macro": "\n",
-        "_text_before_frame": "",
-        "_text_after_frame": "",
-        "_text_before_node": "",
-        "_text_after_node": "",
-    }
-
-    def __init__(self, top_frame: type[FrameABC], extra_parameters: dict | None = None):
+    def __init__(self, top_frame: type[FrameABC], extra_parameters: dict | None = None, *, memory: bool = False):
         assert check_valid_types(top_frame, FrameABC, subclass=True)
         assert extra_parameters is None or check_valid_type(extra_parameters, dict)
         self._top_frame = top_frame
         if extra_parameters is None:
             extra_parameters = dict()
-        self._extra_parameters = Population.DEFAULT_EXTRA_PARAMETERS | extra_parameters
+        self._extra_parameters = DEFAULT_EXTRA_PARAMETERS | DEFAULT_OPTIONS | extra_parameters
         self._individuals = list()
         self._generation = -1
+        if memory:
+            self._memory = set()
+        else:
+            self._memory = None
 
     # def get_new_node(self) -> int:
     #    self._node_count += 1
@@ -93,7 +85,7 @@ class Population:
     def generation(self, value):
         self._generation = value
 
-    def __iter__(self):
+    def __iter__(self) -> tuple[int, "Individual"]:
         return enumerate(self._individuals)
 
     @property
@@ -115,7 +107,12 @@ class Population:
         assert all(check_valid_types(i, Individual) for i in individual)
         assert all(i.run_paranoia_checks() for i in individual)
         self._generation += 1
-        self._individuals.extend(individual)
+        for i in individual:
+            i.age.birth = self._generation
+            i.age.apparent_age = 0
+            self._individuals.append(i)
+        if self._memory is not None:
+            self._memory |= set(individual)
         return self
 
     def __isub__(self, individual):

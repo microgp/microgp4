@@ -80,7 +80,7 @@ def _local_reference(
 
         def mutate(self, strength: float = 1.0, node_reference: NodeReference | None = None, *args, **kwargs) -> None:
             if node_reference is not None:
-                self._fasten(node_reference)
+                self.fasten(node_reference)
             pt = self.potential_targets
             if not pt:
                 raise GeneticOperatorFail

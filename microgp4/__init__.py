@@ -155,7 +155,9 @@ elif not notebook_mode:
         )
     )
 
-if not matplotlib_available:
-    user_messages.runtime_warning("Failed to import 'matplotlib': plotting of individuals will not be available.")
-if not joblib_available:
-    user_messages.runtime_warning("Failed to import 'joblib': process-based parallel evaluators will not be available.")
+    if not matplotlib_available:
+        user_messages.runtime_warning("No 'matplotlib': plotting of individuals will not be available.")
+    if not joblib_available:
+        user_messages.runtime_warning("No 'joblib': process-based parallel evaluators will not be available.")
+    if not psutil_available:
+        user_messages.runtime_warning("No 'psutil': comprehensive machine information will not be available.")

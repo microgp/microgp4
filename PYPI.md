@@ -4,7 +4,7 @@ MicroGP4
 [![License: Apache 2.0](https://img.shields.io/badge/license-apache--2.0-green.svg)](https://opensource.org/licenses/Apache-2.0) 
 [![Status: Actrive](https://img.shields.io/badge/status-active-brightgreen.svg)](https://github.com/squillero/microgp3)
 ![Language: Python](https://img.shields.io/badge/language-python-blue.svg)
-![Version: 4!2](https://img.shields.io/badge/version-4!2-orange.svg)
+![Version: 4!2](https://img.shields.io/badge/version-4!2.0-orange.svg)
 ![Codename: Meaning of Liff](https://img.shields.io/badge/codename-Meaning_of_Liff-orange.svg)
 [![Documentation Status](https://readthedocs.org/projects/microgp4/badge/?version=pre-alpha)](https://microgp4.readthedocs.io/en/pre-alpha/?badge=pre-alpha)
 
@@ -13,22 +13,10 @@ MicroGP (µGP, `ugp`)  is an [evolutionary tool](https://squillero.github.io/mic
 
 ### ⚠️ MicroGP4 v2.0 is currently in [pre-alpha](https://en.wikipedia.org/wiki/Software_release_life_cycle#Pre-alpha) and under active development
 
-## Installation
-
-MicroGP4 is available in PyPi
-
-```shell
-pip install -U psutils matplotlib joblib
-pip install -U microgp4
-```
-### Notez bien
-
-This repo is only useful if you want to hack the code (see: [CONTRIBUTING](CONTRIBUTING.md)).  
-
 ### Contacts
 
-* [Alberto](https://github.com/albertotonda/) [:email:](mailto:alberto.tonda@inra.fr) [:house:](https://www.researchgate.net/profile/Alberto_Tonda)
-* [Giovanni](https://github.com/squillero) [:email:](mailto:squillero@polito.it) [:house:](https://staff.polito.it/giovanni.squillero/)
+* [Alberto](https://github.com/albertotonda/)
+* [Giovanni](https://github.com/squillero)
 
 ### Licence
 Copyright © 2022-23 Giovanni Squillero and Alberto Tonda  

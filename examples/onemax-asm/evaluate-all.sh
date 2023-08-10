@@ -18,7 +18,7 @@ ALLOWED_TIME=3
 
 for file in "$@"; do
     gcc -o onemax.out main.o "$file"
-    $TIMEOUT_CMD $ALLOWED_TIME ./onemax.out || ( cp "$file" "problem-$file"; echo 0 )
+    $TIMEOUT_CMD $ALLOWED_TIME ./onemax.out || ( cp "$file" "problem-$file"; echo -1 )
     grep -q 'nNone' "$file" && cp "$file" "nNone-$file"
 done
 

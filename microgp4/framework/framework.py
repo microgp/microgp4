@@ -30,6 +30,7 @@
 __all__ = ["sequence", "alternative", "bunch"]
 
 from collections import abc
+from typing import Sequence
 
 from microgp4.global_symbols import *
 from microgp4.user_messages import *
@@ -145,12 +146,18 @@ def bunch(
     size: tuple[int, int] | int = 1,
     *,
     name: str | None = None,
+    weights: Sequence[int] | None = None,
     extra_parameters: dict = None,
 ) -> type[FrameABC]:
-    def _debug_hints(size):
+    def _debug_hints():
         if not isinstance(size, int) and size[0] + 1 == size[1]:
             syntax_warning_hint(
                 f"Ranges are half open: the size of this macro bunch is always {size[0]} — did you mean 'size=({size[0]}, {size[1]+1})'?",
+                stacklevel_offset=1,
+            )
+        if len(pool) > len(set(pool)):
+            syntax_warning_hint(
+                f"Found duplicate macros in pool — considering using 'weights'",
                 stacklevel_offset=1,
             )
         return True
@@ -161,12 +168,8 @@ def bunch(
         or isinstance(pool, abc.Collection)
         and (not pool or any(check_valid_type(t, Macro, subclass=True) for t in pool))
     )
-
-    assert _debug_hints(size)
-
     if isinstance(pool, type) and issubclass(pool, Macro):
         pool = [pool]
-    # assert check_no_duplicates(pool)
     assert check_valid_length(pool, 1)
 
     if isinstance(size, int):
@@ -176,9 +179,14 @@ def bunch(
         assert len(size) == 2, f"{PARANOIA_VALUE_ERROR}: Not a half open range [min, max)"
     assert 0 < size[0] <= size[1] - 1, f"{PARANOIA_VALUE_ERROR}: min size is {size[0]} and max size is {size[1]-1}"
 
+    assert _debug_hints()
+
+    if weights is None:
+        weights = [1] * len(pool)
+
     class T(FrameMacroBunch, FrameABC):
         SIZE = size
-        POOL = tuple(pool)
+        POOL = tuple(sum(([m] * w for m, w in zip(pool, weights)), start=list()))
 
         __slots__ = []  # Preventing the automatic creation of __dict__
 

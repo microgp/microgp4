@@ -52,7 +52,6 @@ def _numeric(*, type_, min_, max_):
 
         def __init__(self):
             super().__init__()
-            self._value = min_
 
         def run_paranoia_checks(self) -> bool:
             assert self.is_correct(self.value), f"TypeError: not a {type_} in range {min_}-{max_}"
@@ -64,12 +63,18 @@ def _numeric(*, type_, min_, max_):
         if type_ == int:
 
             def mutate(self, strength: float = 1.0, **kwargs) -> None:
-                self.value = rrandom.sigma_randint(min_, max_, loc=self._value, strength=strength)
+                if strength == 1.0:
+                    self.value = rrandom.sigma_randint(min_, max_)
+                else:
+                    self.value = rrandom.sigma_randint(min_, max_, loc=self._value, strength=strength)
 
         elif type_ == float:
 
             def mutate(self, strength: float = 1.0, **kwargs) -> None:
-                self.value = rrandom.sigma_random(min_, max_, loc=self._value, strength=strength)
+                if strength == 1.0:
+                    self.value = rrandom.sigma_random(min_, max_)
+                else:
+                    self.value = rrandom.sigma_random(min_, max_, loc=self._value, strength=strength)
 
     if type_ == int and min_ == 0 and any(max_ == 2**n for n in range(4, 128 + 1)):
         p = next(n for n in range(4, 128 + 1) if max_ == 2**n)
@@ -128,11 +133,11 @@ def _choice_parameter(alternatives: tuple[Hashable]) -> type[ParameterABC]:
     class T(ParameterABC):
         __slots__ = []  # Preventing the automatic creation of __dict__
 
-        ALTERNATIVES = alternatives
+        ALTERNATIVES: tuple[Hashable] = alternatives
+        NUM_ALTERNATIVES: int = len(alternatives)
 
         def __init__(self):
             super().__init__()
-            self._value = alternatives[0]
 
         def is_correct(self, obj: Any) -> bool:
             return obj in alternatives
@@ -142,7 +147,10 @@ def _choice_parameter(alternatives: tuple[Hashable]) -> type[ParameterABC]:
             return super().run_paranoia_checks()
 
         def mutate(self, strength: float = 1.0, **kwargs) -> None:
-            self.value = rrandom.sigma_choice(alternatives, loc=alternatives.index(self._value), strength=strength)
+            if strength == 1.0:
+                self.value = rrandom.sigma_choice(alternatives)
+            else:
+                self.value = rrandom.sigma_choice(alternatives, loc=alternatives.index(self._value), strength=strength)
 
     # NOTE[GX]: alternative symbol: – (not a minus!)
     _patch_class_info(T, "Choice[" + "┊".join(str(a) for a in alternatives) + "]", tag="parameter")
@@ -186,7 +194,6 @@ def _array_parameter(symbols: tuple[str], length: int) -> type[ParameterABC]:
 
         def __init__(self):
             super().__init__()
-            self._value = "".join(symbols[0] for _ in range(length))
 
         def is_correct(self, obj: Any) -> bool:
             if len(obj) != length:

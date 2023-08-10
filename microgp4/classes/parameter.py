@@ -51,6 +51,7 @@ class ParameterABC(SElement, Paranoid, ABC):
     def __init__(self):
         ParameterStructuralABC.COUNTER += 1
         self._key = ParameterStructuralABC.COUNTER
+        self._value = None
 
     def __eq__(self, other: "ParameterABC") -> bool:
         if type(self) != type(other):
@@ -93,14 +94,14 @@ class ParameterStructuralABC(ParameterABC, ABC):
         super().__init__()
         self._node_reference = None
 
-    def _fasten(self, node_reference):
+    def fasten(self, node_reference):
         assert check_valid_type(node_reference, NodeReference)
         assert check_valid_type(node_reference.graph, MultiDiGraph)
         assert check_valid_type(node_reference.node, int)
         assert node_reference.node in node_reference.graph
         self._node_reference = node_reference
 
-    def _unfasten(self):
+    def unfasten(self):
         self._node_reference = None
 
     @property

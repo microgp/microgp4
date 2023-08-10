@@ -12,10 +12,13 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
+import logging
 import microgp4 as ugp
 
 
 def test_shared():
+    # ugp.logger.setLevel(logging.WARNING)
+
     p = ugp.f.integer_parameter(0, 10_000_000)
     for p in [
         ugp.f.integer_parameter(0, 10_000_000),
@@ -24,6 +27,7 @@ def test_shared():
         ugp.f.array_parameter("01X", 256),
     ]:
         s = ugp.f.make_shared_parameter(p)
+
         i1 = s()
         i2 = s()
         assert i1.value == i2.value

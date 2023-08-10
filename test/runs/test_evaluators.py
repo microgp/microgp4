@@ -28,13 +28,13 @@ def fitness(genotype):
 
 
 def test_evaluators():
-    ugp.microgp_logger.setLevel(logging.WARNING)
+    # ugp.microgp_logger.setLevel(logging.WARNING)
 
-    assert os.path.exists('ea') or os.path.exists('test/ea')
-    if os.path.exists('test/ea'):
-        os.chdir('test/ea')
-    elif os.path.exists('ea'):
-        os.chdir('ea')
+    assert os.path.exists('runs') or os.path.exists('test/runs')
+    if os.path.exists('test/runs'):
+        os.chdir('test/runs')
+    elif os.path.exists('runs'):
+        os.chdir('runs')
 
     macro = ugp.f.macro('{v}', v=ugp.f.array_parameter('01', NUM_BITS + 1))
     top_frame = ugp.f.sequence([macro])
@@ -55,5 +55,4 @@ def test_evaluators():
 
     for p1, p2 in itertools.combinations(populations, 2):
         for i1, i2 in zip(populations[0], populations[1]):
-            assert i1[1].fitness == i2[1].fitness, f"Mismatch! {i1[1]} vs. {i2[1]}"
-    ugp.logger.info("main: Results are identitcal!")
+            assert i1[1].fitness == i2[1].fitness

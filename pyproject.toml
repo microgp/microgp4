@@ -10,36 +10,55 @@
 # Copyright 2022-23 Giovanni Squillero and Alberto Tonda
 # SPDX-License-Identifier: Apache-2.0
 
-[project]
-authors = [{name = "Giovanni Squillero", email = "giovanni.squillero@polito.it"},
-           {name = "Alberto Tonda", email = "alberto.tonda@inrae.fr"}]
+[tool.poetry]
+name = "microgp4"
+version = "4!2.0a1.dev5"
+description = "Yet another multi-purpose extensible self-adaptive evolutionary tool"
+authors = [ "Giovanni Squillero <giovanni.squillero@polito.it>", "Alberto Tonda <alberto.tonda@inrae.fr>"]
+license = "Apache-2.0"
+readme = "PYPI.md"
 classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Information Technology",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python",
     "Topic :: Software Development :: Libraries",
 ]
-dependencies = []
-description = "A multi-purpose extensible self-adaptive evolutionary tool"
-keywords = ["Evolutionary-Algorithm", "Fuzzing", "Optimization"]
-license = {"text" = "Apache-2.0"}
-name = "microgp4"
-readme = "README.md"
-requires-python = ">=3.11"
-version = "4.2.0"
+homepage = "https://github.com/microgp/microgp4  "
 
-[project.urls]
-Homepage = "https://github.com/microgp/microgp4  "
+[tool.poetry.dependencies]
+matplotlib = { version = "^3.7.1", optional = true }
+arcade = { version = "^2.6.17", optional = true }
+networkx = "^3.1"
+numpy = "^1.25.0"
+python = ">=3.11,<3.13"
+tqdm = "^4.65.0"
+scipy = "^1.11.1"
+joblib = "^1.3.1"
+install = "^1.3.5"
 
-[tool.bandit]
-# bandit -c pyproject.toml -r src
-skips = ["B101"]
+[tool.poetry.group.dev.dependencies]
+black = {extras = ["jupyter"], version = "^23.3.0"}
+coverage = "^7.2.7"
+ipykernel = "^6.23.3"
+mypy = "^1.4.1"
+pylint = "^2.17.4"
+pytest = "^7.4.0"
+yapf = "^0.40.1"
+matplotlib = "^3.7.1"
+arcade = "^2.6.17"
+jupyter = "^1.0.0"
+
+[tool.poetry.extras]
+plot = ["matplotlib", "arcade"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.yapf]
-# run yapf -rip .
 based_on_style = "google"
 blank_line_before_module_docstring = true
 column_limit = 120
@@ -51,7 +70,6 @@ ignore_patterns = [
 ]
 
 [tool.black]
-# black .
 target-version = ['py311', 'py312']
 exclude = "(^\\.|^__pycache__|^venv)"
 include = '(\.ipynb$|\.py$)'
@@ -62,8 +80,6 @@ skip-string-normalization = true
 pythonpath = ["."]
 
 [tool.coverage.run]
-# coverage run -m pytest
-# coverage run .\experiments\t.py
 branch = true
 
 [tool.coverage.report]
@@ -99,40 +115,3 @@ inputs = ['microgp4']
 [tool.pylint]
 max-line-length = 120
 source-roots = ['src']
-
-[tool.poetry]
-name = "microgp4"
-version = "4.2"
-description = "Yet another multi-purpose extensible self-adaptive evolutionary tool"
-authors = ["giovanni.squillero@polito.it"]
-license = "Apache-2.0"
-readme = "README.md"
-
-[tool.poetry.dependencies]
-matplotlib = { version = "^3.7.1", optional = true }
-arcade = { version = "^2.6.17", optional = true }
-networkx = "^3.1"
-numpy = "^1.25.0"
-python = ">=3.11,<3.13"
-tqdm = "^4.65.0"
-scipy = "^1.11.1"
-joblib = "^1.3.1"
-
-[tool.poetry.group.dev.dependencies]
-black = {extras = ["jupyter"], version = "^23.3.0"}
-coverage = "^7.2.7"
-ipykernel = "^6.23.3"
-mypy = "^1.4.1"
-pylint = "^2.17.4"
-pytest = "^7.4.0"
-yapf = "^0.40.1"
-matplotlib = "^3.7.1"
-arcade = "^2.6.17"
-jupyter = "^1.0.0"
-
-[tool.poetry.extras]
-plot = ["matplotlib", "arcade"]
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

@@ -27,7 +27,7 @@
 # =[ HISTORY ]===============================================================
 # v1 / April 2023 / Squillero (GX)
 
-__all__ = ['unroll_individual', 'unroll_selement', 'initialize_subtree']
+__all__ = ['unroll_individual', 'unroll_selement', 'initialize_subtree', 'fasten_subtree_parameters']
 
 import networkx as nx
 
@@ -78,20 +78,34 @@ def unroll_individual(individual: Individual, top: type[FrameABC]) -> int | None
 @monitor.failure_rate
 def unroll_selement(top: type[SElement], G: nx.classes.MultiDiGraph) -> NodeReference:
     new_node = _recursive_unroll(top, G)
-
     if not new_node:
         return None
 
+    fasten_subtree_parameters(NodeReference(G, new_node))
     return NodeReference(G, new_node)
 
 
+def fasten_subtree_parameters(node_reference: NodeReference):
+    for p, n in (
+        _
+        for _ in get_all_parameters(node_reference.graph, node_reference.node, node_id=True)
+        if isinstance(_[0], ParameterStructuralABC)
+    ):
+        assert not p.is_fastened, f"{PARANOIA_VALUE_ERROR}: {p} already fastened"
+        p.fasten(NodeReference(node_reference.graph, n))
+
+
 def initialize_subtree(node_reference: NodeReference):
-    parameters = get_all_parameters(node_reference.graph, node_reference.node, node_id=True)
-    for p, n in parameters:
-        if isinstance(p, ParameterStructuralABC):
-            p.mutate(1, node_reference=NodeReference(node_reference.graph, n))
-        else:
-            p.mutate(1)
+    for p in get_all_parameters(node_reference.graph, node_reference.node):
+        assert p.value is None, f"{PARANOIA_VALUE_ERROR}: {p} already initialized"
+        p.mutate(1)
+
+    # parameters = get_all_parameters(node_reference.graph, node_reference.node, node_id=True)
+    # for p, n in parameters:
+    #    if isinstance(p, ParameterStructuralABC):
+    #        p.mutate(1, node_reference=NodeReference(node_reference.graph, n))
+    #    else:
+    #        p.mutate(1)
 
 
 # =[PRIVATE FUNCTIONS]==================================================================================================

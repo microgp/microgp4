@@ -30,18 +30,21 @@ SCRIPT_NAME = {"Linux": "./evaluate-all.sh", "Darwin": "./evaluate-all.sh", "Win
 def main():
     top_frame = library.define_frame()
 
-    evaluator = ugp.evaluator.ScriptEvaluator(SCRIPT_NAME[platform.system()], filename_format="ind{i:06}.s")
-    # evaluator = ugp.evaluator.MakefileEvaluator('onemax.s', required_files=['main.o'], timeout=5)
-    population = ugp.ea.vanilla_ea(
+    # evaluator = ugp.evaluator.ScriptEvaluator(SCRIPT_NAME[platform.system()], filename_format="ind{i:06}.s")
+    evaluator = ugp.evaluator.MakefileEvaluator('onemax.s', required_files=['main.o'], timeout=5)
+    final_population = ugp.ea.vanilla_ea(
         top_frame,
         evaluator,
         max_generation=100,
-        max_fitness=ugp.fitness.make_fitness(5.0),
+        max_fitness=ugp.fitness.make_fitness(64.0),
         population_extra_parameters={"_comment": library.COMMENT, '$dump_node_info': True},
     )
 
-    with open('best-individual.s', 'w') as out:
-        out.write(population.dump_individual(0))
+    for i, I in final_population:
+        I.as_lgp(f'final-individual_{I.id}.png')
+        with open(f'final-individual_{I.id}.s', 'w') as out:
+            out.write(final_population.dump_individual(i))
+        print(I.describe(max_recursion=None))
 
 
 if __name__ == "__main__":
@@ -53,13 +56,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.verbose == 0:
-        logging.getLogger().setLevel(level=logging.WARNING)
         ugp.logger.setLevel(level=logging.WARNING)
     elif args.verbose == 1:
-        logging.getLogger().setLevel(level=logging.INFO)
         ugp.logger.setLevel(level=logging.INFO)
     elif args.verbose == 2:
-        logging.getLogger().setLevel(level=logging.DEBUG)
         ugp.logger.setLevel(level=logging.DEBUG)
 
     main()

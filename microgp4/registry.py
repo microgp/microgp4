@@ -45,7 +45,7 @@ from collections import namedtuple
 from microgp4.user_messages.checks import *
 from microgp4.user_messages import *
 from microgp4.global_symbols import *
-from microgp4.classes.individual import Individual, Birth
+from microgp4.classes.individual import Individual, Lineage
 from microgp4.classes.fitness import *
 from microgp4 import fitness
 from microgp4.fitness_log import *
@@ -180,7 +180,7 @@ def genetic_operator(*, num_parents: int = 1):
             ), f"TypeError: offspring {offspring!r}: expected list['Individual']"
             offspring = [i for i in offspring if i.valid]
             for i in offspring:
-                i._birth = Birth(wrapper, tuple(weakref.proxy(a) for a in args))
+                i._lineage = Lineage(wrapper, tuple(weakref.proxy(a) for a in args))
             if offspring:
                 wrapper.stats.offspring += len(offspring)
             else:

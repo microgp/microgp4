@@ -43,7 +43,7 @@ class Float(FitnessABC, float):
 
     def __new__(cls, *args, **kw):
         syntax_warning_hint(
-            "'Float' fitness values suffer from Floating Point Arithmetic issues and limitations (eg. .1+.1+.1 != .3). Consider using 'Scalar'"
+            "'Float' fitness values suffer from Floating Point Arithmetic issues and limitations (eg. .1+.1+.1 != .3) — consider using 'Scalar'"
         )
         return float.__new__(cls, *args, **kw)
 

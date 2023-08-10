@@ -13,11 +13,11 @@
 SHELL=/bin/sh
 CFLAGS = -O3
 
-# GNU timeout is /opt/homebrew/bin/gtimeout on my system
+# GNU timeout is /opt/homebrew/bin/gtimeout in GX's machine
 TIMEOUT_CMD=gtimeout
 ALLOWED_TIME=2
 
-.PHONY: run
+.PHONY: run _clean
 
 run: onemax
 	${TIMEOUT_CMD} ${ALLOWED_TIME} ./onemax || echo -1
@@ -25,8 +25,10 @@ run: onemax
 onemax: main.o onemax.s
 	gcc -o $@ $^
 
-clean:
+clean: _clean main.o
+
+_clean:
 	-rm -f onemax
 	-rm -f *.o *.out
-	-rm -f *ind[a-f0-9]*.s
+	-rm -f *ind*[a-f0-9]*.s
 	-rm -f *.svg *.png

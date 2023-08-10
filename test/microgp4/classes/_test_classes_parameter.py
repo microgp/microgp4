@@ -49,7 +49,7 @@ def test_ParameterStructuralABC():
     node_ref = ugp.classes.NodeReference(graph, 1)
 
     parameter_structural_abc = ConcreteStructuralParameter()
-    parameter_structural_abc._fasten(node_ref)
+    parameter_structural_abc.fasten(node_ref)
 
     assert parameter_structural_abc.is_fastened
     assert parameter_structural_abc.value is None

@@ -45,17 +45,16 @@ from .selection import *
 
 
 def _elapsed(start):
-    e = str(timedelta(microseconds=(perf_counter_ns() - start[0]) // 1e3))
+    e = str(timedelta(microseconds=(perf_counter_ns() - start[0]) // 1e3)) + '.0000000000'
     s1 = e[: e.index('.') + 3] + ' [t]'
-    e = str(timedelta(microseconds=(process_time_ns() - start[1]) // 1e3))
+    e = str(timedelta(microseconds=(process_time_ns() - start[1]) // 1e3)) + '.0000000000'
     s2 = e[: e.index('.') + 3] + ' [µGP⁴]'
-    return s1 + ' / ' + s2
+    return '⏱ ' + s1 + ' / ' + s2
 
 
 def _new_best(population: Population, evaluator: EvaluatorABC):
     microgp_logger.info(
-        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_birth=False)}"
-        + f" [🏃 gen: {population.generation:,} / fcalls: {evaluator.fitness_calls:,}]"
+        f"VanillaEA: 🍀 {population[0].describe(include_fitness=True, include_structure=False, include_age=True, include_lineage=False)}"
     )
 
 
@@ -88,25 +87,28 @@ def vanilla_ea(
 
     """
     start = perf_counter_ns(), process_time_ns()
+    microgp_logger.info("VanillaEA: 🍦 OPTIMIZATION STARTED ┈ %s", _elapsed(start))
+
     SElement.is_valid = SElement._is_valid_debug
-    population = Population(top_frame, extra_parameters=population_extra_parameters)
+    population = Population(top_frame, extra_parameters=population_extra_parameters, memory=True)
 
     # Initialize population
-    microgp_logger.info("VanillaEA: Initialization ⁓ 🕓 %s", _elapsed(start))
     ops0 = [op for op in get_operators() if op.num_parents is None]
     gen0 = list()
     while len(gen0) < mu:
         o = rrandom.choice(ops0)
         gen0 += o(top_frame=top_frame)
+
+    for i in gen0:
+        i.as_lgp(f'ind_{i.id:08}.png')
+
     population += gen0
     evaluator(population)
     population.sort()
     best = population[0]
     _new_best(population, evaluator)
 
-    pass
-
-    all_individuals = set()
+    microgp_logger.info("VanillaEA: End of initialization ┈ %s", _elapsed(start))
 
     stopping_conditions = list()
     stopping_conditions.append(lambda: population.generation >= max_generation)
@@ -115,7 +117,6 @@ def vanilla_ea(
 
     # Let's roll
     while not any(s() for s in stopping_conditions):
-        microgp_logger.info("VanillaEA: Generation %s ⁓ 🕓 %s", population.generation, _elapsed(start))
         ops = [op for op in get_operators() if op.num_parents is not None]
         new_individuals = list()
         for step in range(lambda_):
@@ -126,27 +127,29 @@ def vanilla_ea(
             new_individuals += op(*parents)
 
         population += new_individuals
-        all_individuals |= set(new_individuals)
 
-        old_best = population[0]
+        old_best = best
         evaluator(population)
         population.sort()
         population.individuals[mu:] = []
-        if old_best.fitness << population[0].fitness:
+        best = population[0]
+        if old_best != best:
             _new_best(population, evaluator)
+
+        microgp_logger.info("VanillaEA: End of generation %s ┈ %s", population.generation, _elapsed(start))
 
     end = process_time_ns()
 
-    microgp_logger.info("VanillaEA: Run completed")
-    microgp_logger.info("VanillaEA: 🕓 %s", _elapsed(start))
+    microgp_logger.info("VanillaEA: 🍦 OPTIMIZATION COMPLETED ┈ %s", _elapsed(start))
+    microgp_logger.info("VanillaEA: %s", _elapsed(start))
     microgp_logger.info(
-        f"VanillaEA: 🏆 {population[0].describe(include_fitness=True, include_structure=False, include_birth=True)}"
+        f"VanillaEA: 🏆 {population[0].describe(include_fitness=True, include_structure=False, include_age=True, include_lineage=True)}"
     )
+
+    # for p in population._memory:
+    #    if p not in population:
+    #        population += [p]
 
     # print(f"Elapsed: {(end-start)/1e9:.2} seconds")
 
-    # population._zap = all_individuals
-    # microgp_logger.info("VanillaEA: Genetic operators statistics:")
-    # for op in get_operators():
-    #    microgp_logger.info(f"VanillaEA: * {op.__qualname__}: {op.stats}")
     return population

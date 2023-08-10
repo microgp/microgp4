@@ -56,14 +56,12 @@ class MacroZero(Macro):
 
 
 class Info(Macro):
-    try:
-        import platform
-    except ModuleNotFoundError as e:
-        runtime_warning(f"Cannot get comprehensive information about current machine ({e})")
+    import platform
+
     try:
         import psutil
-    except ModuleNotFoundError as e:
-        runtime_warning(f"Cannot get comprehensive information about current machine ({e})")
+    except ModuleNotFoundError:
+        pass
 
     TEXT = "{_comment} [INFO] NOW: " + datetime.isoformat(datetime.now())
     TEXT += "\n{_comment} [INFO] Python: " + sys.version
