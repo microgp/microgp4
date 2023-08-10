@@ -21,9 +21,19 @@ MicroGP4 is available in PyPi
 pip install -U psutils matplotlib joblib
 pip install -U microgp4
 ```
-### Notez bien
 
-This repo is only useful if you want to hack the code (see: [CONTRIBUTING](CONTRIBUTING.md)).  
+This repo is only useful if you want to hack the code (see: [CONTRIBUTING](CONTRIBUTING.md)). 
+
+**TL;DR**
+
+* The default branch is always the more stable
+* Do not clone experimental branches `exp/*` unless you know what you are doing
+* Follow this [style guide](https://github.com/squillero/style/blob/master/python.md) and keep the code formatted with [Black](https://black.readthedocs.io/en/stable/)
+* Write as few lines of code and as much line of comments as possible (ie. use builtins, exploit generators and list comprehension)
+* Use [pytest](https://docs.pytest.org/) and [Coverage.py](https://coverage.readthedocs.io/) for unit testing (ie. `coverage run -m pytest`)
+* Use [pylint](https://mypy-lang.org/) for basic linting and [mypy](https://mypy-lang.org/) for additional type checking
+* Be [paranoid](./PARANOIA.md) (cit. *"I need someone to show me the things"*)
+* It may be wise to contact Alberto or Giovanni before trying to change anything
 
 ### Contacts
 
